@@ -19,7 +19,7 @@
 				eclipseGerritUrl: "https://git.eclipse.org/r",
 				eclipseEventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
 				username: "cguindon",
-				type: null
+				type: ""
 			};
 
 		// The actual plugin constructor
@@ -49,7 +49,7 @@
 					"gerritReviews",
 					"eclipseEvents"
 				];
-				if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes)) {
+				if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
 					this[this.settings.type]();
 				}
 			},
