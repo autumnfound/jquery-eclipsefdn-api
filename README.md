@@ -1,4 +1,4 @@
-# jQuery Eclipse Dashboard [![Build Status](https://secure.travis-ci.org/eclipsefnd/jquery-eclipse-dashboard.svg?branch=master)](https://secure.travis-ci.org/eclipsefnd/jquery-eclipse-dashboard)
+# jQuery Eclipse Dashboard [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg)
 
 ### A jump-start for jQuery plugins development
 
