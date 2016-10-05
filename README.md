@@ -1,6 +1,6 @@
 # jQuery Eclipse Dashboard [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg)
 
-### A jump-start for jQuery plugins development
+### About
 
 A jQuery plugin that fetches data for the [Eclipse User Profile](https://accounts.eclipse.org/user/9) website.
 
