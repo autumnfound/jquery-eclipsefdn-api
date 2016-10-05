@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Christopher Guindon"/>
+    <meta name="keywords" content="eclipse.org, Eclipse Foundation"/>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <title>Eclipse Dashboard Demo</title>
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js" integrity="sha256-wS9gmOZBqsqWxgIVgA8Y9WcQOa7PgSIX+rPA0VL2rbQ=" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="../dist/jquery.eclipse-dashboard.js"></script>  
+  </head>
+  <body>
+    <div class="container">
+      <div class="col-md-12">
+        <h1>Demo: jquery-eclipse-dashboard</h1>
+        <p>Christopher Guindon | <i class="fa fa-twitter" aria-hidden="true"></i> @chrisguindon<br/></p>
+        <div class="alert alert-info" role="alert">Some assets for this demo are protected by 
+          <a href="https://www.w3.org/TR/cors/">Cross-Origin Resource Sharing (CORS)</a> and won't load.
+        </div>
+      </div>
+      <div class="col-md-8">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a href="#gerrit" aria-controls="gerrit" role="tab" data-toggle="tab">Gerrit</a>
+          </li>
+          <li role="presentation">
+            <a href="#coming-soon" aria-controls="coming-soon" role="tab" data-toggle="tab">Bugzilla</a>
+          </li>
+          <li role="presentation">
+            <a href="#coming-soon" aria-controls="coming-soon" role="tab" data-toggle="tab">Wiki</a>
+          </li>
+          <li role="presentation">
+            <a href="#coming-soon" aria-controls="coming-soon" role="tab" data-toggle="tab">Forums</a>
+          </li>
+          <li role="presentation">
+            <a href="#coming-soon" aria-controls="coming-soon" role="tab" data-toggle="tab">Marketplace</a>
+          </li>
+          <li role="presentation">
+            <a href="#coming-soon" aria-controls="coming-soon" role="tab" data-toggle="tab">Github</a>
+          </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content" style="min-height:550px;  border-left: 1px solid #ddd;
+          border-right: 1px solid #ddd;
+          padding: 10px 20px;">
+          <div role="tabpanel" class="tab-pane active" id="gerrit">
+          </div>
+          <div role="tabpanel" class="tab-pane" id="coming-soon">
+            <div class="alert alert-info">Coming soon!</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Statistics</h3>
+          </div>
+          <div  class="panel-body">
+            <ul class="nav" style="margin-left:0;">
+              <li class="statistics-mp-favorites first"><a href="https://marketplace.eclipse.org/user/cguindon/favorites">Marketplace <strong class="pull-right"><i class="fa fa-spinner fa-pulse fa-fw"></i></strong></a></li>
+              <li class="statistics-bugzilla"><a href="https://bugs.eclipse.org/bugs/">Bugzilla <strong class="pull-right">N/A</strong></a></li>
+              <li class="statistics-wiki"><a href="https://wiki.eclipse.org/Main_Page">Wiki <strong class="pull-right">N/A</strong></a></li>
+              <li class="statistics-forums"><a href="https://www.eclipse.org/forums/">Forums <strong class="pull-right">N/A</strong></a></li>
+              <li class="statistics-github"><a href="https://github.com/eclipse">Github <strong class="pull-right">N/A</strong></a></li>
+              <li class="statistics-gerrit last"><a href="https://git.eclipse.org/r/">Gerrit <strong class="pull-right">N/A</strong></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Events</h3>
+          </div>
+          <div  class="panel-body">
+            <div class="sld-events">
+              <div class="loading" style="padding:10px 15px;">Loading <strong class="pull-right"><i class="fa fa-spinner fa-pulse fa-fw"></i></strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Eclipse Dashboard Demo -->
+    <script>
+      $( function() {
+        $(".statistics-mp-favorites strong").eclipseDashboard({
+          type: "mpFavorites",
+        });
+        $(".sld-events").eclipseDashboard({
+          type: "eclipseEvents"
+        });
+        $("#gerrit").eclipseDashboard({
+          type: "gerritReviews"
+        });
+      } );
+    </script>
+  </body>
+</html>

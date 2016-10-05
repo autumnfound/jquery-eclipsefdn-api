@@ -1,0 +1,21 @@
+{
+  "name": "jquery-eclipse-dashboard",
+  "license": "MIT",
+  "authors": [
+    "Christopher Guindon <chris.guindon@eclipse.org>"
+  ],
+  "description": "Fetch and display data on the Eclipse User Dashboard.",
+  "homepage": "https://github.com/eclipsefdn/jquery-eclipse-dashboard",
+  "keywords": [
+    "eclipse dashboard"
+  ],
+  "main": "src/jquery.eclipse-dashboard.js",
+  "dependencies": {
+    "jquery": "1.9.1"
+  },
+  "ignore": [
+    "npm-debug.log",
+    "bower_components",
+    "node_modules"
+  ]
+}
