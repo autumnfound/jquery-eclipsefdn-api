@@ -30,6 +30,6 @@ Check [CONTRIBUTING.md](https://github.com/EclipseFdn/jquery-eclipse-api/blob/ma
 
 ## License
 
-[MIT License](https://opensource.org/licenses/MIT) © Christopher Guindon
+[MIT License](https://github.com/EclipseFdn/jquery-eclipse-api/blob/master/MIT-LICENSE.txt) © Christopher Guindon
 
 Thanks to [https://github.com/jquery-boilerplate/jquery-boilerplate](https://github.com/jquery-boilerplate/jquery-boilerplate), MIT License © Zeno Rocha
