@@ -1,4 +1,4 @@
-# jQuery Eclipse Api [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg)
+# jquery-eclipse-api [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg)
 
 ### About
 
@@ -11,7 +11,7 @@ Here's a list of available settings.
 ```javascript
 $("div").eclipseApi({
   username: "cguindon",
-  action: "mpFavorites"
+  type: "mpFavorites"
 });
 ```
 
