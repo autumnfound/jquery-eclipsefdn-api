@@ -29,7 +29,7 @@
 				eclipseGerritUrl: "https://git.eclipse.org/r",
 				eclipseEventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
 				username: "cguindon",
-				type: "mpFavorites"
+				type: null
 			};
 
 		// The actual plugin constructor
@@ -54,7 +54,14 @@
 				// and this.settings
 				// you can add more functions like the one below and
 				// call them like the example below
-				this[this.settings.type]();
+				var validTypes = [
+					"mpFavorites",
+					"gerritReviews",
+					"eclipseEvents"
+				];
+				if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes)) {
+					this[this.settings.type]();
+				}
 			},
 			mpFavorites: function() {
 				var username = this.settings.username;
