@@ -1,23 +1,23 @@
 {
-  "name": "jquery-eclipse-dashboard",
+  "name": "jquery-eclipse-api",
   "version": "0.0.1",
-  "description": "Fetch and display data on the Eclipse User Dashboard.",
+  "description": "Fetch and display data from various Eclipse Foundation APIs.",
   "keywords": [
-    "eclipse dashboard"
+    "eclipse foundation api"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/eclipsefdn/jquery-eclipse-dashboard.git"
+    "url": "https://github.com/EclipseFdn/jquery-eclipse-api.git"
   },
   "bugs": {
-    "url": "https://github.com/eclipsefdn/jquery-eclipse-dashboard/issues"
+    "url": "https://github.com/EclipseFdn/jquery-eclipse-api/issues"
   },
   "author": {
     "name": "Christopher Guindon",
     "email": "chris.guindon@eclipse.org",
     "url": "http://www.chrisguindon.com"
   },
-  "homepage": "https://github.com/eclipsefdn/jquery-eclipse-dashboard",
+  "homepage": "https://github.com/EclipseFdn/jquery-eclipse-api",
   "license": "MIT",
   "dependencies": {
     "jquery": "1.9.1"

@@ -1,7 +1,7 @@
 /*
- *  jquery-eclipse-dashboard - v0.0.1
- *  Fetch and display data on the Eclipse User Dashboard.
- *  https://github.com/eclipsefdn/jquery-eclipse-dashboard
+ *  jquery-eclipse-api - v0.0.1
+ *  Fetch and display data from various Eclipse Foundation APIs.
+ *  https://github.com/EclipseFdn/jquery-eclipse-api
  *
  *  Made by Christopher Guindon
  *  Under MIT License
@@ -23,7 +23,7 @@
 		// minified (especially when both are regularly referenced in your plugin).
 
 		// Create the defaults once
-		var pluginName = "eclipseDashboard",
+		var pluginName = "eclipseApi",
 			defaults = {
 				eclipseApiUrl: "https://api.eclipse.org",
 				eclipseGerritUrl: "https://git.eclipse.org/r",

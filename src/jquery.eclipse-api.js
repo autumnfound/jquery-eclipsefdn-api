@@ -13,7 +13,7 @@
 		// minified (especially when both are regularly referenced in your plugin).
 
 		// Create the defaults once
-		var pluginName = "eclipseDashboard",
+		var pluginName = "eclipseApi",
 			defaults = {
 				eclipseApiUrl: "https://api.eclipse.org",
 				eclipseGerritUrl: "https://git.eclipse.org/r",

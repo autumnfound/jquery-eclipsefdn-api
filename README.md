@@ -1,15 +1,15 @@
-# jQuery Eclipse Dashboard [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-dashboard.svg)
+# jQuery Eclipse Api [![Build Status](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg?branch=master)](https://secure.travis-ci.org/EclipseFdn/jquery-eclipse-api.svg)
 
 ### About
 
-A jQuery plugin that fetches data for the [Eclipse User Profile](https://accounts.eclipse.org/user/9) website.
+A jQuery plugin that fetches and display data from various Eclipse Foundation APIs.
 
 ## Options
 
 Here's a list of available settings.
 
 ```javascript
-$("div").eclipseDashboard({
+$("div").eclipseApi({
   eclipseApiUrl: "https://api.eclipse.org",
   eclipseGerritUrl: "https://git.eclipse.org/r",
   eclipseEventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
@@ -29,7 +29,7 @@ Attribute          | Type        | Default   | Description
 
 ## Contributing
 
-Check [CONTRIBUTING.md](https://github.com/jquery-boilerplate/boilerplate/blob/master/CONTRIBUTING.md) for more information.
+Check [CONTRIBUTING.md](https://github.com/EclipseFdn/jquery-eclipse-api/blob/master/CONTRIBUTING.md) for more information.
 
 ## License
 
