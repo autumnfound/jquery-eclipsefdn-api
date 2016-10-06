@@ -25,14 +25,14 @@ module.exports = function( grunt ) {
 				banner: "<%= meta.banner %>"
 			},
 			dist: {
-				src: [ "src/jquery.eclipse-api.js" ],
-				dest: "dist/jquery.eclipse-api.js"
+				src: [ "src/jquery.eclipsefdn-api.js" ],
+				dest: "dist/jquery.eclipsefdn-api.js"
 			}
 		},
 
 		// Lint definitions
 		jshint: {
-			files: [ "src/jquery.eclipse-api.js", "test/**/*" ],
+			files: [ "src/jquery.eclipsefdn-api.js", "test/**/*" ],
 			options: {
 				jshintrc: ".jshintrc"
 			}
@@ -48,8 +48,8 @@ module.exports = function( grunt ) {
 		// Minify definitions
 		uglify: {
 			dist: {
-				src: [ "dist/jquery.eclipse-api.js" ],
-				dest: "dist/jquery.eclipse-api.min.js"
+				src: [ "dist/jquery.eclipsefdn-api.js" ],
+				dest: "dist/jquery.eclipsefdn-api.min.js"
 			},
 			options: {
 				banner: "<%= meta.banner %>"

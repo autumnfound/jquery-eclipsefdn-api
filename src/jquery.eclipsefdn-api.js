@@ -13,7 +13,7 @@
 		// minified (especially when both are regularly referenced in your plugin).
 
 		// Create the defaults once
-		var pluginName = "eclipseApi",
+		var pluginName = "eclipseFdnApi",
 			defaults = {
 				apiUrl: "https://api.eclipse.org",
 				gerritUrl: "https://git.eclipse.org/r",
@@ -95,11 +95,11 @@
 							}
 						},
 						success: function(data) {
-							var container = $(this).hide();
+							var container = $(this);
 							var h2 = $("<h2></h2>").addClass("h3").text(title);
 							container.append(h2);
 							if (data.length === 0) {
-								container.append("There are no " + title.toLowerCase() + " for this user.").fadeIn(1000);
+								container.append("There are no " + title.toLowerCase() + " for this user.");
 								return FALSE;
 							}
 							// Create table
@@ -125,7 +125,7 @@
 								table.append(tr);
 							});
 							// append rows to ttable
-							container.append(table).fadeIn(1000);
+							container.append(table);
 						},
 						error: function(data) {
 							if (data.status === 400) {

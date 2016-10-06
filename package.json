@@ -1,5 +1,5 @@
 {
-  "name": "jquery-eclipse-api",
+  "name": "jquery-eclipsefdn-api",
   "version": "0.0.1",
   "description": "Fetch and display data from various Eclipse Foundation APIs.",
   "keywords": [
@@ -7,17 +7,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/EclipseFdn/jquery-eclipse-api.git"
+    "url": "https://github.com/EclipseFdn/jquery-eclipsefdn-api.git"
   },
   "bugs": {
-    "url": "https://github.com/EclipseFdn/jquery-eclipse-api/issues"
+    "url": "https://github.com/EclipseFdn/jquery-eclipsefdn-api/issues"
   },
   "author": {
     "name": "Christopher Guindon",
     "email": "chris.guindon@eclipse.org",
     "url": "http://www.chrisguindon.com"
   },
-  "homepage": "https://github.com/EclipseFdn/jquery-eclipse-api",
+  "homepage": "https://github.com/EclipseFdn/jquery-eclipsefdn-api",
   "license": "MIT",
   "dependencies": {
     "jquery": "1.9.1"

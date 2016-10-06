@@ -1,11 +1,11 @@
 {
-  "name": "jquery-eclipse-api",
+  "name": "jquery-eclipsefdn-api",
   "license": "MIT",
   "authors": [
     "Christopher Guindon <chris.guindon@eclipse.org>"
   ],
   "description": "Fetch and display data from various Eclipse Foundation APIs.",
-  "homepage": "https://github.com/EclipseFdn/jquery-eclipse-api",
+  "homepage": "https://github.com/EclipseFdn/jquery-eclipsefdn-api",
   "keywords": [
     "eclipse foundation api"
   ],

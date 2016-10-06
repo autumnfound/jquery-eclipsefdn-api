@@ -22,21 +22,21 @@
 
 	QUnit.test( "is inside jQuery library", function( assert ) {
 
-		assert.equal( typeof $.fn.eclipseApi, "function", "has function inside jquery.fn" );
-		assert.equal( typeof $fixture.eclipseApi, "function", "another way to test it" );
+		assert.equal( typeof $.fn.eclipseFdnApi, "function", "has function inside jquery.fn" );
+		assert.equal( typeof $fixture.eclipseFdnApi, "function", "another way to test it" );
 	} );
 
 	QUnit.test( "returns jQuery functions after called (chaining)", function( assert ) {
 		assert.equal(
-			typeof $fixture.eclipseApi().on,
+			typeof $fixture.eclipseFdnApi().on,
 			"function",
 			"'on' function must exist after plugin call" );
 	} );
 
 	QUnit.test( "caches plugin instance", function( assert ) {
-		$fixture.eclipseApi();
+		$fixture.eclipseFdnApi();
 		assert.ok(
-			$fixture.data( "plugin_eclipseApi" ),
+			$fixture.data( "plugin_eclipseFdnApi" ),
 			"has cached it into a jQuery data"
 		);
 	} );
