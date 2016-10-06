@@ -15,9 +15,9 @@
 		// Create the defaults once
 		var pluginName = "eclipseApi",
 			defaults = {
-				eclipseApiUrl: "https://api.eclipse.org",
-				eclipseGerritUrl: "https://git.eclipse.org/r",
-				eclipseEventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
+				apiUrl: "https://api.eclipse.org",
+				gerritUrl: "https://git.eclipse.org/r",
+				eventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
 				username: "cguindon",
 				type: ""
 			};
@@ -45,24 +45,24 @@
 				// you can add more functions like the one below and
 				// call them like the example below
 				var validTypes = [
-					"mpFavorites",
+					"mpFavoritesCount",
 					"gerritReviews",
-					"eclipseEvents"
+					"recentEvents"
 				];
 				if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
 					this[this.settings.type]();
 				}
 			},
-			mpFavorites: function() {
+			mpFavoritesCount: function() {
 				var username = this.settings.username;
-				var eclipseApiUrl = this.settings.eclipseApiUrl;
+				var apiUrl = this.settings.apiUrl;
 				// Exit if variables are not set.
 				if (!username && !api_url) {
 					return FALSE;
 				}
 				
 				// Build api URI.
-				var url = eclipseApiUrl + "/marketplace/favorites?name=" + username;
+				var url = apiUrl + "/marketplace/favorites?name=" + username;
 				// Execute ajax request
 				$.ajax(url, {
 					context: this.element,
@@ -76,8 +76,8 @@
 			},
 			gerritReviews: function() {
 				// Build gerrit urls
-				var gerrit_outgoing_url = this.settings.eclipseGerritUrl + "/changes/?q=owner:" + this.settings.username + "+status:open";
-				var gerrit_incoming_url = this.settings.eclipseGerritUrl + "/changes/?q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username;
+				var gerrit_outgoing_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username + "+status:open";
+				var gerrit_incoming_url = this.settings.gerritUrl + "/changes/?q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username;
 
 				// Fetch data
 				gerritRequest(gerrit_outgoing_url, "gerrit-outgoing", "Outgoing Reviews", this.element);
@@ -85,47 +85,46 @@
 
 				// Execute ajax request
 				function gerritRequest(url, id, title, context){
-
-				$.ajax(url, {
-					dataType: "gerrit_XSSI",
-					context: context,
-					converters: {
-						"text gerrit_XSSI": function(result) {
-							var lines = result.substring(result.indexOf("\n") + 1);
-							return jQuery.parseJSON(lines);
-						}
-					},
-					success: function(data) {
-						var container = $(this).hide();
-						var h2 = $("<h2></h2>").addClass("h3").text(title);
-						container.append(h2);
-						if (data.length === 0) {
-							container.append("There are no " + title.toLowerCase() + " for this user.").fadeIn(1000);
-							return FALSE;
-						}
-						// Create table
-						var table = $("<table></table>").attr({"width": "100%", "class": "table"});
-						var tr = $("<tr></tr>");
-						var th = $("<th></th>");
-						tr.append(th.clone().text("Subject").attr("width", "70%"));
-						tr.append(th.clone().text("Status").attr({"width": "18%", "class": "text-center"}));
-						tr.append(th.clone().text("Updated").attr({"width": "12%", "class": "text-center"}));
-						table.append(tr);
-						// Insert rows in table
-						$.each(data, function(index, value) {
-							var tr = $("<tr></tr>");
-							var merge_conflict = "";
-							if (value.mergeable === false) {
-								merge_conflict = "Merge Conflict";
-								tr.addClass("warning");
+					$.ajax(url, {
+						dataType: "gerrit_XSSI",
+						context: context,
+						converters: {
+							"text gerrit_XSSI": function(result) {
+								var lines = result.substring(result.indexOf("\n") + 1);
+								return jQuery.parseJSON(lines);
 							}
-							var date = value.updated.substring(0, value.updated.indexOf(" "));
-							tr.append("<td><a href=\"https://git.eclipse.org/r/#/c/"+ value._number +"\">" + value.subject + "</a><br/>"+value.project+"</td>");
-							tr.append("<td class=\"text-center\">" + merge_conflict + "</td>");
-							tr.append("<td class=\"text-center\">" + date + "</td>");
+						},
+						success: function(data) {
+							var container = $(this).hide();
+							var h2 = $("<h2></h2>").addClass("h3").text(title);
+							container.append(h2);
+							if (data.length === 0) {
+								container.append("There are no " + title.toLowerCase() + " for this user.").fadeIn(1000);
+								return FALSE;
+							}
+							// Create table
+							var table = $("<table></table>").attr({"width": "100%", "class": "table"});
+							var tr = $("<tr></tr>");
+							var th = $("<th></th>");
+							tr.append(th.clone().text("Subject").attr("width", "70%"));
+							tr.append(th.clone().text("Status").attr({"width": "18%", "class": "text-center"}));
+							tr.append(th.clone().text("Updated").attr({"width": "12%", "class": "text-center"}));
 							table.append(tr);
-						});
-						// append rows to ttable
+							// Insert rows in table
+							$.each(data, function(index, value) {
+								var tr = $("<tr></tr>");
+								var merge_conflict = "";
+								if (value.mergeable === false) {
+									merge_conflict = "Merge Conflict";
+									tr.addClass("warning");
+								}
+								var date = value.updated.substring(0, value.updated.indexOf(" "));
+								tr.append("<td><a href=\"https://git.eclipse.org/r/#/c/"+ value._number +"\">" + value.subject + "</a><br/>"+value.project+"</td>");
+								tr.append("<td class=\"text-center\">" + merge_conflict + "</td>");
+								tr.append("<td class=\"text-center\">" + date + "</td>");
+								table.append(tr);
+							});
+							// append rows to ttable
 							container.append(table).fadeIn(1000);
 						},
 						error: function(data) {
@@ -139,14 +138,14 @@
 					});
 				}
 			},
-			eclipseEvents: function() {
+			recentEvents: function() {
 				// compare two dates
 				function compareDates (d1, d2) {
 					return (d1.dateTime - d2.dateTime);
 				}
 
 				// Execute ajax request
-				$.ajax(this.settings.eclipseEventUrl, {
+				$.ajax(this.settings.eventUrl, {
 					context: this.element,
 					success: function(data) {
 						var today = new Date();
