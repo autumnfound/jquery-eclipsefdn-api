@@ -17,9 +17,9 @@ $("div").eclipseApi({
 
 Attribute          | Type        | Default   | Description
 ---                | ---         | ---       | ---
-`eclipseApiUrl`    | *String* | `https://api.eclipse.org` | Eclipse Api URL.
-`eclipseGerritUrl` | *String* | `https://git.eclipse.org/r` | Eclipse Gerrit URL.
-`eclipseEventUrl`  | *String* | `https://events.eclipse.org/data/EclipseEvents.json` | Eclipse event json feed URL.
+`apiUrl`    | *String* | `https://api.eclipse.org` | Eclipse Api URL.
+`gerritUrl` | *String* | `https://git.eclipse.org/r` | Eclipse Gerrit URL.
+`eventUrl`  | *String* | `https://events.eclipse.org/data/EclipseEvents.json` | Eclipse event json feed URL.
 `username`         | *String* | `cguindon` | The username to fetch Eclipse Favorites or Gerrit reviews for.
 `type`             | *String* | | The type of date to fetch. Valid values include mpFavoritesCount, gerritReviews and recentEvents.
 
