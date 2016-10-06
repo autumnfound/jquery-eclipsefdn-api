@@ -11,7 +11,7 @@ Here's a list of available settings.
 ```javascript
 $("div").eclipseApi({
   username: "cguindon",
-  type: "mpFavorites"
+  type: "mpFavoritesCount"
 });
 ```
 
