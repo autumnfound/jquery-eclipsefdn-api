@@ -21,7 +21,7 @@ Attribute          | Type        | Default   | Description
 `gerritUrl` | *String* | `https://git.eclipse.org/r` | Eclipse Gerrit URL.
 `eventUrl`  | *String* | `https://events.eclipse.org/data/EclipseEvents.json` | Eclipse event json feed URL.
 `username`         | *String* | `cguindon` | The username to fetch Eclipse Favorites or Gerrit reviews for.
-`type`             | *String* | | The type of date to fetch. Valid values include mpFavoritesCount, gerritReviews and recentEvents.
+`type`             | *String* | | Valid values are `mpFavoritesCount`, `gerritReviews` and `recentEvents`.
 
 
 ## Contributing
