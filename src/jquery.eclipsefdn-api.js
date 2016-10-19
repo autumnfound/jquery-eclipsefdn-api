@@ -110,7 +110,7 @@
 					}
 					else{
 						container.append("<div class=\"alert alert-info\" role=\"alert\">" +
-								"<label>Use this URL in MPC to install this list of listings: </label>" +
+								"<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
 								"<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/webdev/favorites\" width=\"100\">" + 
 								"</div>");
 					}
@@ -170,7 +170,7 @@
 			var apiUrl = this.settings.apiUrl;
 			// Exit if variables are not set.
 			if (!username && !api_url) {
-				return FALSE;
+				return false;
 			}
 
 			// Build api URI.
@@ -217,7 +217,7 @@
 						container.append(h2);
 						if (data.length === 0) {
 							container.append("There are no " + title.toLowerCase() + " for this user.");
-							return FALSE;
+							return false;
 						}
 						// Create table
 						var table = $("<table></table>").attr({
