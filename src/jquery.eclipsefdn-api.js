@@ -108,6 +108,12 @@
 						container.append("There are no marketplace favorites for this user.");
 						return false;
 					}
+					else{
+						container.append("<div class=\"alert alert-info\" role=\"alert\">" +
+								"<label>Use this URL in MPC to install this list of listings: </label>" +
+								"<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/webdev/favorites\" width=\"100\">" + 
+								"</div>");
+					}
 
 					var nodes = $("node", data);
 					nodes.each(function(index, value) {
