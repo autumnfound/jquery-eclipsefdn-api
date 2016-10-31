@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.2
+ *  jquery-eclipsefdn-api - v0.0.3
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
