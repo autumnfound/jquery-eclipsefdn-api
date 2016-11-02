@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.3
+ *  jquery-eclipsefdn-api - v0.0.4
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
@@ -119,9 +119,11 @@
 						return false;
 					}
 					else{
+
 						container.append("<div class=\"alert alert-info\" role=\"alert\">" +
 								"<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
-								"<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/webdev/favorites\" width=\"100\">" + 
+								"<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
+								"/favorites\" width=\"100\">" + 
 								"</div>");
 					}
 
