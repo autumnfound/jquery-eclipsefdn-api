@@ -26,7 +26,7 @@ Attribute          | Type        | Default   | Description
 `gerritUserNotFoundMsg` | *String* | `<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.` | Error message for when a user is not found on Gerrit.
 `username`         | *String* | `cguindon` | The username to fetch Eclipse Favorites or Gerrit reviews for.
 `currentUsername`         | *String* | `` | The user making the request this page. Useful if content changed if the user is viewing his own page.
-`type`             | *String* | | Valid values are `gerritReviews`, `mpFavorites`, `forumsMsg` and `recentEvents`.
+`type`             | *String* | | Valid values are `gerritReviews`, `gerritReviewsCount`, `mpFavorites`, `forumsMsg` and `recentEvents`.
 `itemsPerPage` | *Integer* | 20 | Number of fetched items to display per page. 
 
 ## Contributing

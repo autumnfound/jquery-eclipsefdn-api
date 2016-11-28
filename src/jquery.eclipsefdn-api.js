@@ -55,7 +55,8 @@
         "mpFavorites",
         "gerritReviews",
         "recentEvents",
-        "forumsMsg"
+        "forumsMsg",
+        "gerritReviewCount"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -327,57 +328,29 @@
         }
       });
     },
+    gerritReviewCount: function(){
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      var url = apiUrl + "/account/profile/" + username + "/gerrit";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+          $(this).text(data.merged_changes_count + " reviews");
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+    },
     gerritReviews: function() {
       var self = this;
       // Build gerrit urls
       var gerrit_outgoing_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username + "+status:open";
-      var gerrit_statistic_url = this.settings.gerritUrl + "/changes/?q=reviewer:" + this.settings.username + "+status:merged";
       var gerrit_incoming_url = this.settings.gerritUrl + "/changes/?q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username;
       // Fetch data
       gerritRequest(gerrit_outgoing_url, "gerrit-outgoing", "Outgoing Reviews", this.element);
-      gerritStats(gerrit_statistic_url);
-
-      function gerritStats(url) {
-        var pagesize = 100;
-        var skip = 0;
-        getAllPages(url, pagesize, skip);
-      }
-
-      var count = 0;
-
-      function getAllPages(url, pagesize, skip) {
-        pagesize = (typeof pagesize !== "undefined") ? pagesize : 100;
-        skip = (typeof skip !== "undefined") ? skip : 0;
-        url += "&start=" + skip + "&n=" + pagesize;
-        $.ajax(url, {
-          dataType: "gerrit_XSSI",
-          converters: {
-            "text gerrit_XSSI": function(result) {
-              var lines = result.substring(result.indexOf("\n") + 1);
-              return jQuery.parseJSON(lines);
-            }
-          },
-          success: function(data) {
-            if (data.length !== 0) {
-              count += data.length;
-              var last_element = data[data.length - 1];
-              if ("_more_changes" in last_element && last_element._more_changes === true) {
-                getAllPages(url, pagesize, skip + pagesize);
-              }
-            }
-            if (self.settings.statPlaceholder instanceof jQuery) {
-              self.settings.statPlaceholder.children("strong").text(count + " reviews");
-            }
-          },
-          error: function(data) {
-            if (data.status === 400) {
-              $(this).html(self.settings.gerritUserNotFoundMsg);
-            } else if (self.settings.statPlaceholder instanceof jQuery) {
-              $self.settings.statPlaceholder.children("strong").text(count + " reviews");
-            }
-          }
-        });
-      }
 
       $(this.element).append($("<h2>Eclipse Gerrit</h2>").addClass("h3"));
       $(this.element).append("<p>Gerrit is a web based code review system, facilitating " +
@@ -391,7 +364,8 @@
         }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
         if (url !== gerrit_incoming_url) {
           gerritRequest(gerrit_incoming_url, "gerrit-incoming", "Incoming Reviews", container);
-        } else {
+        } 
+        else {
           container.append(more_gerritlink);
         }
       }
