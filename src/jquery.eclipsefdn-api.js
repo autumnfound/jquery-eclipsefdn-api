@@ -26,7 +26,7 @@
       errorMsg: "<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.",
       gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
       type: "",
-      itemsPerPage: 3
+      itemsPerPage: 20
     };
 
   // The actual plugin constructor

@@ -27,7 +27,7 @@ Attribute          | Type        | Default   | Description
 `username`         | *String* | `cguindon` | The username to fetch Eclipse Favorites or Gerrit reviews for.
 `currentUsername`         | *String* | `` | The user making the request this page. Useful if content changed if the user is viewing his own page.
 `type`             | *String* | | Valid values are `gerritReviews`, `mpFavorites`, `forumsMsg` and `recentEvents`.
-`itemsPerPage` | *Integer* | | Number of fetched items to display per page. 
+`itemsPerPage` | *Integer* | 20 | Number of fetched items to display per page. 
 
 ## Contributing
 
