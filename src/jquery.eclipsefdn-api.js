@@ -337,7 +337,11 @@
       $.ajax(url, {
         context: this.element,
         success: function(data) {
-          $(this).text(data.merged_changes_count + " reviews");
+          var count = data.merged_changes_count;
+          $(this).text(count + " reviews");
+          if (count > 0) {
+            $(this).parent().attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
+          }
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
