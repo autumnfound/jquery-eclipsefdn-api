@@ -22,7 +22,7 @@
       marketplaceUrl: "https://marketplace.eclipse.org",
       username: "cguindon",
       currentUser: "",
-      statPlaceholder: null,
+      contentPlaceholder: null,
       errorMsg: "<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.",
       gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
       type: "",
@@ -77,7 +77,18 @@
       $.ajax(url, {
         context: this.element,
         success: function(data) {
-          var container = $(this);
+          var user_msg_count = 0;
+          if (data.posted_msg_count !== undefined) {
+            user_msg_count = data.posted_msg_count;
+          }
+          $(this).children("strong").text(user_msg_count + " posts");
+
+          // Exit now if contentPlaceholder is not defined
+          if (!(self.settings.contentPlaceholder instanceof jQuery)) {
+            return false;
+          }
+
+          var container = $(self.settings.contentPlaceholder);
           var a = $("<a></a>");
 
           container.append($("<h2></h2>").addClass("h3").text("Eclipse Forums"));
@@ -91,14 +102,6 @@
             "class": "btn btn-primary btn-sm",
             "style": "display:block"
           }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
-
-          if (self.settings.statPlaceholder instanceof jQuery) {
-            var user_msg_count = 0;
-            if (data.posted_msg_count !== undefined) {
-              user_msg_count = data.posted_msg_count;
-            }
-            self.settings.statPlaceholder.children("strong").text(user_msg_count + " posts");
-          }
 
           if (data.length === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
@@ -225,12 +228,23 @@
       if (!username && !api_url) {
         return false;
       }
-      var container = $(this.element);
-      var more_marketplace_link = $("<a></a>").attr({
-        "href": self.settings.marketplaceUrl,
-        "class": "btn btn-primary btn-sm",
-        "style": "display:block"
-      }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+      
+      // Add content if contentPlaceholder is defined
+      if (self.settings.contentPlaceholder instanceof jQuery) {
+        var container = $(self.settings.contentPlaceholder);
+        var more_marketplace_link = $("<a></a>").attr({
+          "href": self.settings.marketplaceUrl,
+          "class": "btn btn-primary btn-sm",
+          "style": "display:block"
+        }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+        container.append($("<h2></h2>").addClass("h3").text("Eclipse Marketplace Favorites"));
+        container.append($("<p></p>").append("Eclipse Marketplace is the source for " +
+          "Eclipse-based solutions, products and add-on features. " +
+          "Thousands of developers visit Marketplace on a monthly " +
+          "basis to find new and innovative solutions. Solution providers " +
+          "are encouraged to list their products on Marketplace to " +
+          "gain exposure to the Eclipse developer community."));
+      }
 
       // Build api URI.
       var url = apiUrl + "/marketplace/favorites?name=" + username;
@@ -238,20 +252,17 @@
       $.ajax(url, {
         context: this.element,
         success: function(data) {
-          if (self.settings.statPlaceholder instanceof jQuery) {
-            self.settings.statPlaceholder.children("strong").text(data.total_result_count + " favorites");
+          $(this).children("strong").text(data.total_result_count + " favorites");
+
+          // Exit now if container is not defined
+          if (typeof container === "undefined") {
+            return false;
           }
+
           var nodes = [];
           $.each(data.mpc_favorites, function(k, v) {
             nodes.push(v.content_id);
           });
-          container.append($("<h2></h2>").addClass("h3").text("Eclipse Marketplace Favorites"));
-          container.append($("<p></p>").append("Eclipse Marketplace is the source for " +
-            "Eclipse-based solutions, products and add-on features. " +
-            "Thousands of developers visit Marketplace on a monthly " +
-            "basis to find new and innovative solutions. Solution providers " +
-            "are encouraged to list their products on Marketplace to " +
-            "gain exposure to the Eclipse developer community."));
 
           if (nodes.length === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
@@ -338,9 +349,9 @@
         context: this.element,
         success: function(data) {
           var count = data.merged_changes_count;
-          $(this).text(count + " reviews");
+          $(this).children("strong").text(count + " reviews");
           if (count > 0) {
-            $(this).parent().attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
+            $(this).children("strong").attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
           }
         },
         error: function() {
