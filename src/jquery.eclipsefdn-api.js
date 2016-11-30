@@ -162,7 +162,10 @@
               last_message_last_view: value.read_last_view,
               current_user_id: data.id
             };
-
+            more_forums_link.attr({
+              "href": self.settings.forumsUrl + "/index.php/u/" + request_data.current_user_id + "/",
+            });
+            
             tr = $("<tr></tr>");
 
             // Link to forum
@@ -183,13 +186,13 @@
               .append(" &gt; ")
               .append(request_data.root_subject)
               .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
-            var read_icon = "fa fa-envelope-o";
+            var read_icon = "fa fa-envelope-open-o";
             // Add warning class to row if the user did not see the message
             if (self.settings.currentUser === self.settings.username &&
               request_data.last_message_last_view < request_data.thread_last_post_date &&
               request_data.last_message_poster_id !== request_data.current_user_id) {
               tr.addClass("warning");
-              read_icon = "fa fa-envelope-open-o";
+              read_icon = "fa fa-envelope-o";
             }
 
             if (self.settings.currentUser === self.settings.username) {
@@ -229,7 +232,6 @@
           $(this).html(self.settings.errorMsg);
         }
       });
-
     },
     mpFavorites: function() {
       var self = this;
@@ -244,7 +246,7 @@
       if (self.settings.contentPlaceholder instanceof jQuery) {
         var container = $(self.settings.contentPlaceholder);
         var more_marketplace_link = $("<a></a>").attr({
-          "href": self.settings.marketplaceUrl,
+          "href": self.settings.marketplaceUrl + "/user/" + username + "/favorites",
           "class": "btn btn-primary btn-sm",
           "style": "display:block"
         }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
@@ -362,7 +364,7 @@
           var count = data.merged_changes_count;
           $(this).children("strong").text(count + self.plurialString(" review", count));
           if (count > 0) {
-            $(this).attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
+            $(this).attr({"href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username});
           }
         },
         error: function() {
@@ -384,7 +386,7 @@
 
       function nextGerritRequest(url, container) {
         var more_gerritlink = $("<a></a>").attr({
-          "href": self.settings.gerritUrl,
+          "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username,
           "class": "btn btn-primary btn-sm",
           "style": "display:block"
         }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
