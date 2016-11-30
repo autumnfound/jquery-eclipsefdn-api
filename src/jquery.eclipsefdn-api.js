@@ -80,7 +80,11 @@
           var user_msg_count = 0;
           if (data.posted_msg_count !== undefined) {
             user_msg_count = data.posted_msg_count;
+            $(this).attr({
+              "href": self.settings.forumsUrl + "/index.php/sp/" + data.id + "/",
+            });
           }
+
           $(this).children("strong").text(user_msg_count + self.plurialString(" topic", user_msg_count));
 
           // Exit now if contentPlaceholder is not defined
