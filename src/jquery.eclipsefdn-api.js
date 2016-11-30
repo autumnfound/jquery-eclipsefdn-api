@@ -81,7 +81,7 @@
           if (data.posted_msg_count !== undefined) {
             user_msg_count = data.posted_msg_count;
           }
-          $(this).children("strong").text(user_msg_count + " posts");
+          $(this).children("strong").text(user_msg_count + self.plurialString(" topic", user_msg_count));
 
           // Exit now if contentPlaceholder is not defined
           if (!(self.settings.contentPlaceholder instanceof jQuery)) {
@@ -120,19 +120,23 @@
           var tr = $("<tr></tr>");
           var th = $("<th></th>");
           var td = $("<td></td>");
-          tr.append(th.clone().text("Topic").attr("width", "50%"));
+
+          if (self.settings.currentUser === self.settings.username) {
+            tr.append(th.clone().attr("width", "8%"));
+          }
+
+          tr.append(th.clone().text("Topics").attr("width", "50%"));
           tr.append(th.clone().text("Replies").attr({
-            "width": "10%",
+            "width": "8%",
             "class": "text-center"
           }));
 
           tr.append(th.clone().text("Views").attr({
-            "width": "10%",
+            "width": "8%",
             "class": "text-center"
           }));
 
           tr.append(th.clone().text("Last message").attr({
-            "width": "30%",
             "class": "text-center"
           }));
 
@@ -160,6 +164,7 @@
             };
 
             tr = $("<tr></tr>");
+
             // Link to forum
             var forumLink = a.clone().attr({
               "href": self.settings.forumsUrl + "/index.php/f/" + request_data.forum_id + "/"
@@ -178,6 +183,18 @@
               .append(" &gt; ")
               .append(request_data.root_subject)
               .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
+            var read_icon = "fa fa-envelope-o";
+            // Add warning class to row if the user did not see the message
+            if (self.settings.currentUser === self.settings.username &&
+              request_data.last_message_last_view < request_data.thread_last_post_date &&
+              request_data.last_message_poster_id !== request_data.current_user_id) {
+              tr.addClass("warning");
+              read_icon = "fa fa-envelope-open-o";
+            }
+
+            if (self.settings.currentUser === self.settings.username) {
+              tr.append(td.clone().html("<i class=\"" + read_icon + "\" aria-hidden=\"true\"></i>").attr("class", "text-center"));
+            }
 
             // Topic column
             tr.append(td.clone().html(a.clone().attr({
@@ -199,12 +216,6 @@
             }).text(request_data.last_message_poster_alias));
             tr.append(td.clone().html(last_message).attr("class", "text-center"));
 
-            // Add warning class to row if the user did not see the message
-            if (self.settings.currentUser === self.settings.username &&
-              request_data.last_message_last_view < request_data.thread_last_post_date &&
-              request_data.last_message_poster_id !== request_data.current_user_id) {
-              tr.addClass("warning");
-            }
             table.append(tr);
           });
 
@@ -252,7 +263,7 @@
       $.ajax(url, {
         context: this.element,
         success: function(data) {
-          $(this).children("strong").text(data.total_result_count + " favorites");
+          $(this).children("strong").text(data.total_result_count + self.plurialString(" favorite", data.total_result_count));
 
           // Exit now if container is not defined
           if (typeof container === "undefined") {
@@ -349,9 +360,9 @@
         context: this.element,
         success: function(data) {
           var count = data.merged_changes_count;
-          $(this).children("strong").text(count + " reviews");
+          $(this).children("strong").text(count + self.plurialString(" review", count));
           if (count > 0) {
-            $(this).children("strong").attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
+            $(this).attr({"href": "https://git.eclipse.org/r/#/q/owner:" + self.settings.username});
           }
         },
         error: function() {
@@ -515,6 +526,12 @@
           $(this).html(self.settings.errorMsg);
         }
       });
+    },
+    plurialString: function(string, count) {
+      if (count > 1) {
+        string += "s";
+      }
+      return string;
     },
     dateFormat: function(date) {
       var monthList = [
