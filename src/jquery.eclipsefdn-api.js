@@ -163,7 +163,7 @@
               current_user_id: data.id
             };
             more_forums_link.attr({
-              "href": self.settings.forumsUrl + "/index.php/u/" + request_data.current_user_id + "/",
+              "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.current_user_id + "/",
             });
             
             tr = $("<tr></tr>");
@@ -215,7 +215,7 @@
 
             // Last message column
             var last_message = $("<small></small>").append(self.dateFormat(new Date(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
-              "href": self.settings.forumsUrl + "/index.php/u/" + request_data.last_message_poster_id + "/"
+              "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.last_message_poster_id + "/"
             }).text(request_data.last_message_poster_alias));
             tr.append(td.clone().html(last_message).attr("class", "text-center"));
 
