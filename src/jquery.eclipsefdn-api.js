@@ -26,7 +26,7 @@
       errorMsg: "<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.",
       gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
       type: "",
-      itemsPerPage: 20
+      itemsPerPage: 10
     };
 
   // The actual plugin constructor
@@ -245,7 +245,7 @@
       if (!username && !api_url) {
         return false;
       }
-      
+
       // Add content if contentPlaceholder is defined
       if (self.settings.contentPlaceholder instanceof jQuery) {
         var container = $(self.settings.contentPlaceholder);
@@ -262,7 +262,6 @@
           "are encouraged to list their products on Marketplace to " +
           "gain exposure to the Eclipse developer community."));
       }
-
       // Build api URI.
       var url = apiUrl + "/marketplace/favorites?name=" + username;
       // Execute ajax request
@@ -343,7 +342,6 @@
                 listing.find(".content-last-updated").html(lastupdated);
                 container.append(listing);
               });
-              // container.append(self.getPaginationBar(nodes.length,1,"tab-marketplace"));
               container.append(more_marketplace_link);
             },
             error: function() {
@@ -356,7 +354,7 @@
         }
       });
     },
-    gerritReviewCount: function(){
+    gerritReviewCount: function() {
       var self = this;
       var username = this.settings.username;
       var apiUrl = this.settings.apiUrl;
@@ -378,55 +376,64 @@
     },
     gerritReviews: function() {
       var self = this;
-      // Build gerrit urls
-      var gerrit_outgoing_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username + "+status:open";
-      var gerrit_incoming_url = this.settings.gerritUrl + "/changes/?q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username;
-      // Fetch data
-      gerritRequest(gerrit_outgoing_url, "gerrit-outgoing", "Outgoing Reviews", this.element);
+      // Build gerrit url
+      var gerrit_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username +
+      "+status:open&q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username + "&pp=0";
 
       $(this.element).append($("<h2>Eclipse Gerrit</h2>").addClass("h3"));
       $(this.element).append("<p>Gerrit is a web based code review system, facilitating " +
         "online code reviews for projects using the Git version control system.</p>");
+      // Fetch data
+      gerritRequest(gerrit_url);
 
-      function nextGerritRequest(url, container) {
-        var more_gerritlink = $("<a></a>").attr({
-          "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username,
-          "class": "btn btn-primary btn-sm",
-          "style": "display:block"
-        }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
-        if (url !== gerrit_incoming_url) {
-          gerritRequest(gerrit_incoming_url, "gerrit-incoming", "Incoming Reviews", container);
-        } 
-        else {
-          container.append(more_gerritlink);
-        }
-      }
+      function gerritRequest(url) {
+        var pagesize = 100;
+        var skip = 0;
+        var errorCondition = false;
+        var labels = [["gerrit-outgoing", []],["gerrit-incoming", []]];
 
-      function gerritRequest(url, id, title, context) {
-        $.ajax(url + "&n=10&start=0", {
-          dataType: "gerrit_XSSI",
-          context: context,
-          converters: {
-            "text gerrit_XSSI": function(result) {
-              var lines = result.substring(result.indexOf("\n") + 1);
-              return jQuery.parseJSON(lines);
+        $(self.element).on("drawTableEvent", drawOutput);
+        // get all pages of data
+        getAllPages(url, pagesize, skip);
+
+        function drawOutput() {
+          // table id's and to determine section title
+          $.each(labels,function(index,value) {
+            var title = "";
+            switch(value[0]) {
+            case "gerrit-outgoing":
+              title = "Outgoing Reviews";
+              break;
+            case "gerrit-incoming":
+              title = "Incoming Reviews";
+              break;
             }
-          },
-          success: function(data) {
-            var container = $(this);
             var h2 = $("<h4></h4>").addClass("h4").text(title);
-            container.append(h2);
-            if (data.length === 0) {
-              container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
-                "There are no " + title.toLowerCase() + " for this user." +
-                "</div>");
-              nextGerritRequest(url, container);
-              return false;
+            $(self.element).append(h2);
+            if (value[1].length === 0) {
+              // this result array is empty
+              $(self.element).append("<div class=\"alert alert-warning\" role=\"alert\">" +
+                  "There are no " + title.toLowerCase() + " for this user." +
+                  "</div>");
+              return;
             }
+            $(self.element).append(buildGerritTable(value[0], value[1]));
+            $(self.element).append(self.getPaginationBar(value[1].length,value[0]));
+          });
+          
+          var more_gerritlink = $("<a></a>").attr({
+            "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username,
+            "class": "btn btn-primary btn-sm",
+            "style": "display:block"
+          }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+          $(self.element).append(more_gerritlink);
+
+          function buildGerritTable(id, data) {
             // Create table
             var table = $("<table></table>").attr({
               "width": "100%",
-              "class": "table"
+              "class": "table",
+              "id": id
             });
             var tr = $("<tr></tr>");
             var th = $("<th></th>");
@@ -442,7 +449,6 @@
             }));
             table.append(tr);
             // Insert rows in table
-
             var a = $("<a></a>");
             $.each(data, function(index, value) {
               tr = $("<tr></tr>");
@@ -459,19 +465,53 @@
               tr.append(td.clone().text(date).attr("class", "text-center"));
               table.append(tr);
             });
-            // append rows to ttable
-            container.append(table);
-            nextGerritRequest(url, container);
-          },
-          error: function(data) {
-            if (data.status === 400) {
-              $(this).html(self.settings.gerritUserNotFoundMsg);
-              nextGerritRequest(url, container);
-            } else {
-              $(this).html(self.settings.errorMsg);
-            }
+            return table;
           }
-        });
+        }
+
+        function getAllPages(url, pagesize, skip) {
+          pagesize = (typeof(pagesize) !== "undefined") ? pagesize : 100;
+          skip = (typeof(skip) !== "undefined") ? skip : 0;
+          url += "&start=" + skip + "&n="+ pagesize;
+
+          return $.ajax(url, {
+            dataType: "gerrit_XSSI",
+            context: self.element,
+            converters: {
+              "text gerrit_XSSI": function(result) {
+                var lines = result.substring(result.indexOf("\n") + 1);
+                return jQuery.parseJSON(lines);
+              }
+            },
+            success: function(data) {
+              var lastElement1 = Object;
+              var lastElement2 = Object;
+  
+              if (data[0].length !== 0) {
+                $.merge(labels[0][1],data[0]);
+                lastElement1 = data[0][data[0].length - 1];
+              }
+              if (data[1].length !== 0) {
+                $.merge(labels[1][1],data[1]);
+                lastElement2 = data[1][data[1].length - 1];
+              }
+              if (("_more_changes" in lastElement1 && lastElement1._more_changes === true) ||
+                  ("_more_changes" in lastElement2 && lastElement2._more_changes === true) ) {
+                  getAllPages(url, pagesize, skip+ pagesize);
+              } else {
+                $(self.element).trigger("drawTableEvent");
+              }
+            },
+            error: function(data) {
+              if (data.status === 400) {
+                $(this).html(self.settings.gerritUserNotFoundMsg);
+              } else {
+                $(this).html(self.settings.errorMsg);
+              }
+              errorCondition = true;
+            }
+          });
+        }
       }
     },
     recentEvents: function() {
@@ -574,148 +614,250 @@
       var time = fullDay + ", " + fullMonth + " " + day + ", " + fullYear + " - " + hour + ":" + min;
       return time;
     },
-    getPaginationBar: function(totalItems, currentPageNum, elementID){
+    getPaginationBar: function(totalItems, elementID) {
       var self = this;
-      var type = self.settings.type;
-      if(typeof(totalItems) === "undefined"){
+      if (typeof(totalItems) === "undefined") {
         totalItems = 1;
       }
-      currentPageNum = checkPageNum(currentPageNum);
-      if(totalItems <= 0 || totalItems <= self.settings.itemsPerPage){
+      if (totalItems <= 0 || totalItems <= self.settings.itemsPerPage) {
         // nothing to do or everything fits on single page
         return;
       }
-      // get number of pages
-      var numPages = getMaxPages();
-      var minRange = 1;
-      var maxRange = numPages;
+      //initialize to first page
+      var activePageNum = 1;
       var pageNav = $("<nav></nav>").attr({
-        "arial-label" : "Page navigation"
+        "arial-label" : "Page navigation",
+        "id" : elementID+"-pager"
       }).addClass("text-center");
-      var ul = $("<ul></ul>").addClass("pagination").attr({
-        "data-eclipseFdnApi-type" : type
-      });
-      if (typeof(elementID) !== "undefined"){
-        ul.attr({
-          "data-eclipseFdnApi-elementID" : elementID,
-          "id" : elementID+"-pager"
-        });
-      }
-      var li = $("<li></li>");
-      var a = $("<a></a>");
-      var span = $("<span></span>");
-      var showEllipses = false;
-      var ellipses = "";
-      // cap it at 9
-      if (numPages > 9){
-        minRange = numPages - 8;
-        maxRange = numPages;
-        if (currentPageNum <= minRange + 4){
-          maxRange = 9;
-        }
-        else if (currentPageNum <= numPages - 4) {
-          minRange = currentPageNum - 4;
-          maxRange = currentPageNum + 4;
-        }
-        showEllipses = true;
-        ellipses = li.clone().append(
-          span.clone().attr({
-            "aria-hidden" : "true",
-            "onclick" : "return false;"
-          }).html("...")
-        ).addClass("pager-ellipses disabled");
-      }
-      if( currentPageNum !== 1){
-        ul.append(li.clone().addClass("pager-first").html(
-          a.clone().attr({
-            "href" : "#",
-            "aria-label" : "First",
-            "onclick" : "return false;",
-            "data-goto-page" : "1"
-          }).append(
-            span.clone().attr({
-              "aria-hidden" : "true"
-            }).html("<< first")
-          )
-        ));
-        ul.append(li.clone().html(
-          a.clone().attr({
-            "href" : "#",
-            "aria-label" : "Previous",
-            "onclick" : "return false;",
-            "data-goto-page" : parseInt(currentPageNum-1)
-          }).append(
-            span.clone().attr({
-              "aria-hidden" : "true"
-            }).html("< previous")
-          )
-        ));
-        if (showEllipses === true && minRange > 1){
-                ul.append(ellipses.clone());
-        }
-      }
-      // write out page #'s
-      var i;
-      for (i = minRange; i <= maxRange; i++){
-        var pager = li.clone();
-        var pagerLink = a.clone().attr({
-          "href" : "#",
-          "title" : "Go to page " + parseInt(i),
-          "onclick" : "return false;",
-          "data-goto-page" : parseInt(i)
-        }).text(parseInt(i));
-        if (currentPageNum === i){
-          pager.addClass("active");
-        }
-        pager.html(pagerLink);
-        ul.append(pager);
-      }
-      if (currentPageNum < numPages){
-      // close the pager if not at end of index
-        if (showEllipses === true && maxRange < numPages){
-          ul.append(ellipses.clone());
-        }
-        ul.append(li.clone().html(
-          a.clone().attr({
-            "href" : "#",
-            "aria-label" : "Next",
-            "title" : "Go to next page",
-            "onclick" : "return false;",
-            "data-goto-page" : parseInt(currentPageNum + 1)
-          }).append(
-            span.clone().attr({
-              "aria-hidden" : "true"
-            }).html("next >")
-          )
-        ));
-        ul.append(li.clone().addClass("pager-last").html(
-          a.clone().attr({
-            "href" : "#",
-            "aria-label" : "Last",
-            "title" : "Go to last page",
-            "onclick" : "return false;",
-            "data-goto-page" : parseInt(numPages)
-          }).append(
-            span.clone().attr({
-              "aria-hidden" : "true"
-            }).html("last >>")
-          )
-        ));
-      }
+      var totalPages = getMaxPages();
+      var ul = drawPageNums(totalPages, activePageNum, elementID);
       pageNav.append(ul);
-      return pageNav;
-      function checkPageNum(currentPageNum){
-        // safety check currentPageNum
-        if (typeof(currentPageNum) === "undefined" || currentPageNum < 1) {
-          return 1;
-        }
-        if (currentPageNum > getMaxPages()){
-          return getMaxPages();
-        }
-        return currentPageNum;
+      // create cache
+      if (typeof($("#" + elementID).data("pageCache")) === "undefined") {
+        cachePages();
       }
-      function getMaxPages(){
+      return pageNav;
+
+      function drawPageNums(numPages, currentPageNum, elementID) {
+        var li = $("<li></li>");
+        var a = $("<a></a>");
+        var span = $("<span></span>");
+        var ul = $("<ul></ul>").addClass("pagination");
+        if (typeof(elementID) !== "undefined") {
+          ul.attr({
+            "data-eclipseFdnApi-elementID" : elementID
+          });
+        }
+        var showEllipses = false;
+        var ellipses = "";
+        var minRange = 1;
+        var maxRange = numPages;
+        // cap it at 9
+        if (numPages > 9) {
+          minRange = numPages - 8;
+          if (currentPageNum <= minRange + 4) {
+            maxRange = 9;
+            minRange = 1;
+          }
+          else if (currentPageNum <= numPages - 4) {
+            minRange = currentPageNum - 4;
+            maxRange = currentPageNum + 4;
+          }
+          showEllipses = true;
+          ellipses = li.clone().append(
+            span.clone().attr({
+              "aria-hidden" : "true",
+              "onclick" : "return false;"
+            }).html("...")
+          ).addClass("pager-ellipses disabled");
+        }
+        var clickEvent = function() {
+          var $this = $(this);
+          var toPageNum = $this.attr("data-goto-page");
+          var parentUL = $this.parents(".pagination").eq(0);
+          var elementID = parentUL.data("eclipsefdnapiElementid");
+          $("#" + elementID).trigger("changePageEvent", [toPageNum]);
+        };
+        if (currentPageNum !== 1) {
+          ul.append(li.clone().addClass("pager-first").html(
+            a.clone().attr({
+              "href" : "#",
+              "aria-label" : "First",
+              "onclick" : "return false;",
+              "data-goto-page" : "1"
+            }).on("click", clickEvent).append(
+              span.clone().attr({
+                "aria-hidden" : "true"
+              }).html("<< first")
+            )
+          ));
+          ul.append(li.clone().html(
+            a.clone().attr({
+              "href" : "#",
+              "aria-label" : "Previous",
+              "onclick" : "return false;",
+              "data-goto-page" : parseInt(currentPageNum-1)
+            }).on("click", clickEvent).append(
+              span.clone().attr({
+                "aria-hidden" : "true"
+              }).html("< previous")
+            )
+          ));
+          if (showEllipses === true && minRange > 1) {
+                  ul.append(ellipses.clone());
+          }
+        }
+        // write out page #'s
+        var i;
+        for (i = minRange; i <= maxRange; i++) {
+          var pager = li.clone();
+          var pagerLink = a.clone().attr({
+            "href" : "#",
+            "title" : "Go to page " + parseInt(i),
+            "onclick" : "return false;",
+            "data-goto-page" : parseInt(i)
+          }).text(parseInt(i)).on("click", clickEvent);
+          if (currentPageNum === i) {
+            pager.addClass("active");
+          }
+          pager.html(pagerLink);
+          ul.append(pager);
+        }
+        if (currentPageNum < numPages) {
+        // close the pager if not at end of index
+          if (showEllipses === true && maxRange < numPages) {
+            ul.append(ellipses.clone());
+          }
+          ul.append(li.clone().html(
+            a.clone().attr({
+              "href" : "#",
+              "aria-label" : "Next",
+              "title" : "Go to next page",
+              "onclick" : "return false;",
+              "data-goto-page" : parseInt(currentPageNum + 1)
+            }).on("click", clickEvent).append(
+              span.clone().attr({
+                "aria-hidden" : "true"
+              }).html("next >")
+            )
+          ));
+          ul.append(li.clone().addClass("pager-last").html(
+            a.clone().attr({
+              "href" : "#",
+              "aria-label" : "Last",
+              "title" : "Go to last page",
+              "onclick" : "return false;",
+              "data-goto-page" : parseInt(numPages)
+            }).on("click", clickEvent).append(
+              span.clone().attr({
+                "aria-hidden" : "true"
+              }).html("last >>")
+            )
+          ));
+        }
+        return ul;
+      }
+
+      function getMaxPages() {
         return Math.ceil(totalItems / self.settings.itemsPerPage);
+      }
+
+      function cachePages() {
+        var theElement = $("#" + elementID);
+        var pageCache = [];
+        var pageCacheType;
+        var counter = 0;
+        var pageNum = 0;
+        var page = [];
+        var data;
+        if (theElement.is("table")) {
+          // get the table rows
+          data = theElement.find("tr");
+          pageCacheType = "table";
+        } else if (theElement.is("div") && elementID === "tab-marketplace") {
+          //working with the marketplace tab - get the nodes
+          data = theElement.find(".node");
+          pageCacheType = "nodes";
+        }
+        pageCache = buildPageCache(data);
+        theElement.data("pageCache",pageCache);
+        theElement.data("pageCacheType", pageCacheType);
+        theElement.data("pageCacheTotalPages", totalPages);
+        theElement.on("changePageEvent", changePage);
+        theElement.trigger("changePageEvent", [1]);
+
+        function buildPageCache(data) {
+          var theCache = [];
+          $.each(data, function(index, value) {
+            if (pageCacheType === "table" && index === 0) {
+              // check if it's a table heading
+              if ($(value).children().first().is("th")) {
+                // it's the heading
+                theCache[0] = value;
+                return;
+              }
+            }
+            if (counter === self.settings.itemsPerPage) {
+              counter = 0;
+              pageNum++;
+              theCache[pageNum] = page;
+              page = [];
+            }
+            page[counter] = value;
+            counter++;
+          });
+          if (page.length > 0) {
+            // ended on uneven page
+            theCache[++pageNum] = page;
+          }
+          return theCache;
+        }
+      }
+
+      function changePage (event, gotoPageNum) {
+        var element = $(event.currentTarget);
+        var pageType = element.data("pageCacheType");
+        var pageCache = element.data("pageCache");
+        var totalPages = element.data("pageCacheTotalPages");
+
+        if (typeof(gotoPageNum) === "undefined") {
+          // something is wrong.  set it to 1
+          gotoPageNum = 1;
+        }
+        // comes in as string
+        gotoPageNum = parseInt(gotoPageNum);
+        switch (pageType) {
+        case "table":
+          element.empty();
+          // inject the heading
+          element.append(pageCache[0]);
+          $.each(pageCache[gotoPageNum],function(index,value) {
+            element.append(value);
+          });
+          break;
+        case "nodes":
+          element.find(".node").remove();
+          var insertAfter = element.find(".alert-info");
+          $.each(pageCache[gotoPageNum], function(index,value) {
+            $(value).insertAfter($(insertAfter).last());
+            insertAfter = value;
+          });
+          break;
+        }
+        // get the pager
+        var elementID = element.attr("id");
+        var nav = $("#"+elementID+"-pager");
+        var currentPage = nav.data("currentPage");
+        if (currentPage === null) {
+          currentPage = 1;
+          nav.data("currentPage", currentPage);
+        }
+        if (currentPage !== gotoPageNum){
+          var newUL = drawPageNums(totalPages, gotoPageNum, elementID);
+          //Replace the pager bar with updated layout
+          nav.find("ul").replaceWith(newUL);
+          nav.data("currentPage", gotoPageNum);
+        }
       }
     }
   });
