@@ -169,7 +169,7 @@
             more_forums_link.attr({
               "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.current_user_id + "/",
             });
-            
+
             tr = $("<tr></tr>");
 
             // Link to forum
@@ -274,7 +274,7 @@
           if (typeof container === "undefined") {
             return false;
           }
-
+          // separating from nodes for time being so I retain total count for initial pagination
           var nodes = [];
           $.each(data.mpc_favorites, function(k, v) {
             nodes.push(v.content_id);
@@ -287,72 +287,96 @@
             container.append(more_marketplace_link);
             return false;
           }
-          var nodestr = nodes.join(",");
-          var url = self.settings.marketplaceUrl + "/node/" + nodestr + "/api/p";
-          $.ajax(url, {
-            context: self.element,
-            success: function(data) {
-
-              container.append("<div class=\"alert alert-info\" role=\"alert\">" +
-                "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
-                "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
-                "/favorites\" width=\"100\">" +
-                "</div>");
-
-              var nodes = $("node", data);
-              nodes.each(function(index, value) {
-                // Extract relevant data from XML
-                var node = $(value);
-                var shortdescription = node.find("shortdescription").text();
-                var title = value.getAttribute("name");
-                var timestamp_lastupdated = node.find("changed").text();
-                var owner = node.find("owner").text();
-                var lastupdated = "Last Updated on " + self.dateFormat(new Date(parseInt(timestamp_lastupdated * 1000))) + " by " + owner;
-                var nid = value.getAttribute("id");
-                var listing = $("#mp-listing-template").clone().removeClass("hidden").removeAttr("id");
-                var link = $("<a></a>");
-                var category = $("category", value);
-                var url_listing = self.settings.marketplaceUrl + "/node/" + nid;
-                var image = node.find("image").text();
-                var link_listing = link.clone().attr({
-                  "href": url_listing
-                });
-
-                category.each(function(i, v) {
-                  var catlink = link.clone().attr({
-                    "href": v.getAttribute("url")
-                  }).text(v.getAttribute("name"));
-                  if (category.length !== (i + 1)) {
-                    catlink.append(", ");
-                  }
-                  listing.find(".content-categories").append(catlink);
-                });
-
-                listing.find(".listing-image").attr({
-                  "href": url_listing,
-                  "style": "background:url('" + image + "') no-repeat center;"
-                });
-
-                listing.find(".drag").attr({
-                  "href": self.settings.marketplaceUrl + "/marketplace-client-intro?mpc_install=" + nid,
-                });
-
-                listing.find(".listing-title").html(link_listing.clone().text(title));
-                listing.find(".content-teaser").html(shortdescription);
-                listing.find(".content-last-updated").html(lastupdated);
-                container.append(listing);
-              });
-              container.append(more_marketplace_link);
-            },
-            error: function() {
-              $(this).html(self.settings.errorMsg);
+          // break down the nodestr by itemsPerPage and store in element data for later
+          var nodestrs = [];
+          var page = 1;
+          var counter = 1;
+          nodestrs[page] = [];
+          $.each(nodes, function(index,value) {
+            nodestrs[page].push(value);
+            if (++counter > self.settings.itemsPerPage) {
+              page++;
+              counter = 1;
+              nodestrs[page] = [];
             }
           });
+
+          // set the fetch favorites as custom event
+          container.on("fetchFavoritesEvent", fetchFavorites);
+          container.append("<div class=\"alert alert-info\" role=\"alert\">" +
+              "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
+              "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
+              "/favorites\" width=\"100\">" +
+              "</div>");
+          container.append("<div id=\"mpfavorites-list\"></div>");
+          // store the nodestrs for later fetching
+          container.find("#mpfavorites-list").data("nodestrs", nodestrs);
+          getFavoritesByNodes(nodestrs[1].join());
+          container.append(self.getPaginationBar(nodes.length,"mpfavorites-list"));
+          container.append(more_marketplace_link);
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
         }
       });
+      function getFavoritesByNodes(nodestr) {
+        var url = self.settings.marketplaceUrl + "/node/" + nodestr + "/api/p";
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            var listingContainer = $("#mpfavorites-list");
+            var nodes = $("node", data);
+            nodes.each(function(index, value) {
+              // Extract relevant data from XML
+              var node = $(value);
+              var shortdescription = node.find("shortdescription").text();
+              var title = value.getAttribute("name");
+              var timestamp_lastupdated = node.find("changed").text();
+              var owner = node.find("owner").text();
+              var lastupdated = "Last Updated on " + self.dateFormat(new Date(parseInt(timestamp_lastupdated * 1000))) + " by " + owner;
+              var nid = value.getAttribute("id");
+              var listing = $("#mp-listing-template").clone().removeClass("hidden").removeAttr("id");
+              var link = $("<a></a>");
+              var category = $("category", value);
+              var url_listing = self.settings.marketplaceUrl + "/node/" + nid;
+              var image = node.find("image").text();
+              var link_listing = link.clone().attr({
+                "href": url_listing
+              });
+
+              category.each(function(i, v) {
+                var catlink = link.clone().attr({
+                  "href": v.getAttribute("url")
+                }).text(v.getAttribute("name"));
+                if (category.length !== (i + 1)) {
+                  catlink.append(", ");
+                }
+                listing.find(".content-categories").append(catlink);
+              });
+
+              listing.find(".listing-image").attr({
+                "href": url_listing,
+                "style": "background:url('" + image + "') no-repeat center;"
+              });
+
+              listing.find(".drag").attr({
+                "href": self.settings.marketplaceUrl + "/marketplace-client-intro?mpc_install=" + nid,
+              });
+
+              listing.find(".listing-title").html(link_listing.clone().text(title));
+              listing.find(".content-teaser").html(shortdescription);
+              listing.find(".content-last-updated").html(lastupdated);
+              listingContainer.append(listing);
+            });
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
+      }
+      function fetchFavorites(event, nodestr) {
+        getFavoritesByNodes(nodestr);
+      }
     },
     gerritReviewCount: function() {
       var self = this;
@@ -420,7 +444,7 @@
             $(self.element).append(buildGerritTable(value[0], value[1]));
             $(self.element).append(self.getPaginationBar(value[1].length,value[0]));
           });
-          
+
           var more_gerritlink = $("<a></a>").attr({
             "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username,
             "class": "btn btn-primary btn-sm",
@@ -486,7 +510,7 @@
             success: function(data) {
               var lastElement1 = Object;
               var lastElement2 = Object;
-  
+
               if (data[0].length !== 0) {
                 $.merge(labels[0][1],data[0]);
                 lastElement1 = data[0][data[0].length - 1];
@@ -774,17 +798,23 @@
           // get the table rows
           data = theElement.find("tr");
           pageCacheType = "table";
-        } else if (theElement.is("div") && elementID === "tab-marketplace") {
-          //working with the marketplace tab - get the nodes
-          data = theElement.find(".node");
+          pageCache = buildPageCache(data);
+        } else if (theElement.is("div") && elementID === "mpfavorites-list") {
+          // nothing to cache yet, container & cache fills as needed
           pageCacheType = "nodes";
         }
-        pageCache = buildPageCache(data);
+
         theElement.data("pageCache",pageCache);
         theElement.data("pageCacheType", pageCacheType);
         theElement.data("pageCacheTotalPages", totalPages);
         theElement.on("changePageEvent", changePage);
-        theElement.trigger("changePageEvent", [1]);
+
+        switch(pageCacheType) {
+        case "table":
+          // trigger redraw of first page
+          theElement.trigger("changePageEvent", [1]);
+          break;
+        }
 
         function buildPageCache(data) {
           var theCache = [];
@@ -819,7 +849,14 @@
         var pageType = element.data("pageCacheType");
         var pageCache = element.data("pageCache");
         var totalPages = element.data("pageCacheTotalPages");
-
+        // get the pager
+        var elementID = element.attr("id");
+        var nav = $("#"+elementID+"-pager");
+        var currentPage = nav.data("currentPage");
+        if (typeof(currentPage)=== "undefined" || currentPage === null) {
+          currentPage = 1;
+          nav.data("currentPage", currentPage);
+        }
         if (typeof(gotoPageNum) === "undefined") {
           // something is wrong.  set it to 1
           gotoPageNum = 1;
@@ -836,23 +873,26 @@
           });
           break;
         case "nodes":
-          element.find(".node").remove();
-          var insertAfter = element.find(".alert-info");
-          $.each(pageCache[gotoPageNum], function(index,value) {
-            $(value).insertAfter($(insertAfter).last());
-            insertAfter = value;
+          // add current page to cache if not there
+          if (typeof(pageCache[currentPage]) === "undefined") {
+            var data = element.find(".node");
+            pageCache[currentPage] = data;
+            element.data("pageCache", pageCache);
+          }
+          element.empty();
+          // if gotoPage isn't already cached, fetch it.
+          if (typeof(pageCache[gotoPageNum]) === "undefined") {
+            var nodestrs = element.data("nodestrs")[gotoPageNum].join();
+            element.trigger("fetchFavoritesEvent", [nodestrs]);
+            break;
+          }
+          $.each(pageCache[gotoPageNum],function(index, value) {
+            element.append(value);
           });
           break;
         }
-        // get the pager
-        var elementID = element.attr("id");
-        var nav = $("#"+elementID+"-pager");
-        var currentPage = nav.data("currentPage");
-        if (currentPage === null) {
-          currentPage = 1;
-          nav.data("currentPage", currentPage);
-        }
-        if (currentPage !== gotoPageNum){
+
+        if (currentPage !== gotoPageNum) {
           var newUL = drawPageNums(totalPages, gotoPageNum, elementID);
           //Replace the pager bar with updated layout
           nav.find("ul").replaceWith(newUL);
