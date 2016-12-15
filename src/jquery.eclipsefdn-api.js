@@ -292,7 +292,7 @@
           var page = 1;
           var counter = 1;
           nodestrs[page] = [];
-          $.each(nodes, function(index,value) {
+          $.each(nodes, function(index, value) {
             nodestrs[page].push(value);
             if (++counter > self.settings.itemsPerPage) {
               page++;
@@ -304,21 +304,22 @@
           // set the fetch favorites as custom event
           container.on("fetchFavoritesEvent", fetchFavorites);
           container.append("<div class=\"alert alert-info\" role=\"alert\">" +
-              "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
-              "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
-              "/favorites\" width=\"100\">" +
-              "</div>");
+            "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
+            "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
+            "/favorites\" width=\"100\">" +
+            "</div>");
           container.append("<div id=\"mpfavorites-list\"></div>");
           // store the nodestrs for later fetching
           container.find("#mpfavorites-list").data("nodestrs", nodestrs);
           getFavoritesByNodes(nodestrs[1].join());
-          container.append(self.getPaginationBar(nodes.length,"mpfavorites-list"));
+          container.append(self.getPaginationBar(nodes.length, "mpfavorites-list"));
           container.append(more_marketplace_link);
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
         }
       });
+
       function getFavoritesByNodes(nodestr) {
         var url = self.settings.marketplaceUrl + "/node/" + nodestr + "/api/p";
         $.ajax(url, {
@@ -374,6 +375,7 @@
           }
         });
       }
+
       function fetchFavorites(event, nodestr) {
         getFavoritesByNodes(nodestr);
       }
@@ -390,7 +392,9 @@
           var count = data.merged_changes_count;
           $(this).children("strong").text(count + self.plurialString(" review", count));
           if (count > 0) {
-            $(this).attr({"href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username});
+            $(this).attr({
+              "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username
+            });
           }
         },
         error: function() {
@@ -402,7 +406,7 @@
       var self = this;
       // Build gerrit url
       var gerrit_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username +
-      "+status:open&q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username + "&pp=0";
+        "+status:open&q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username + "&pp=0";
 
       $(this.element).append($("<h2>Eclipse Gerrit</h2>").addClass("h3"));
       $(this.element).append("<p>Gerrit is a web based code review system, facilitating " +
@@ -414,7 +418,10 @@
         var pagesize = 100;
         var skip = 0;
         var errorCondition = false;
-        var labels = [["gerrit-outgoing", []],["gerrit-incoming", []]];
+        var labels = [
+          ["gerrit-outgoing", []],
+          ["gerrit-incoming", []]
+        ];
 
         $(self.element).on("drawTableEvent", drawOutput);
         // get all pages of data
@@ -422,27 +429,27 @@
 
         function drawOutput() {
           // table id's and to determine section title
-          $.each(labels,function(index,value) {
+          $.each(labels, function(index, value) {
             var title = "";
-            switch(value[0]) {
-            case "gerrit-outgoing":
-              title = "Outgoing Reviews";
-              break;
-            case "gerrit-incoming":
-              title = "Incoming Reviews";
-              break;
+            switch (value[0]) {
+              case "gerrit-outgoing":
+                title = "Outgoing Reviews";
+                break;
+              case "gerrit-incoming":
+                title = "Incoming Reviews";
+                break;
             }
             var h2 = $("<h4></h4>").addClass("h4").text(title);
             $(self.element).append(h2);
             if (value[1].length === 0) {
               // this result array is empty
               $(self.element).append("<div class=\"alert alert-warning\" role=\"alert\">" +
-                  "There are no " + title.toLowerCase() + " for this user." +
-                  "</div>");
+                "There are no " + title.toLowerCase() + " for this user." +
+                "</div>");
               return;
             }
             $(self.element).append(buildGerritTable(value[0], value[1]));
-            $(self.element).append(self.getPaginationBar(value[1].length,value[0]));
+            $(self.element).append(self.getPaginationBar(value[1].length, value[0]));
           });
 
           var more_gerritlink = $("<a></a>").attr({
@@ -496,7 +503,7 @@
         function getAllPages(url, pagesize, skip) {
           pagesize = (typeof(pagesize) !== "undefined") ? pagesize : 100;
           skip = (typeof(skip) !== "undefined") ? skip : 0;
-          url += "&start=" + skip + "&n="+ pagesize;
+          url += "&start=" + skip + "&n=" + pagesize;
 
           return $.ajax(url, {
             dataType: "gerrit_XSSI",
@@ -512,16 +519,16 @@
               var lastElement2 = Object;
 
               if (data[0].length !== 0) {
-                $.merge(labels[0][1],data[0]);
+                $.merge(labels[0][1], data[0]);
                 lastElement1 = data[0][data[0].length - 1];
               }
               if (data[1].length !== 0) {
-                $.merge(labels[1][1],data[1]);
+                $.merge(labels[1][1], data[1]);
                 lastElement2 = data[1][data[1].length - 1];
               }
               if (("_more_changes" in lastElement1 && lastElement1._more_changes === true) ||
-                  ("_more_changes" in lastElement2 && lastElement2._more_changes === true) ) {
-                  getAllPages(url, pagesize, skip+ pagesize);
+                ("_more_changes" in lastElement2 && lastElement2._more_changes === true)) {
+                getAllPages(url, pagesize, skip + pagesize);
               } else {
                 $(self.element).trigger("drawTableEvent");
               }
@@ -650,8 +657,8 @@
       //initialize to first page
       var activePageNum = 1;
       var pageNav = $("<nav></nav>").attr({
-        "arial-label" : "Page navigation",
-        "id" : elementID+"-pager"
+        "arial-label": "Page navigation",
+        "id": elementID + "-pager"
       }).addClass("text-center");
       var totalPages = getMaxPages();
       var ul = drawPageNums(totalPages, activePageNum, elementID);
@@ -669,7 +676,7 @@
         var ul = $("<ul></ul>").addClass("pagination");
         if (typeof(elementID) !== "undefined") {
           ul.attr({
-            "data-eclipseFdnApi-elementID" : elementID
+            "data-eclipseFdnApi-elementID": elementID
           });
         }
         var showEllipses = false;
@@ -682,16 +689,15 @@
           if (currentPageNum <= minRange + 4) {
             maxRange = 9;
             minRange = 1;
-          }
-          else if (currentPageNum <= numPages - 4) {
+          } else if (currentPageNum <= numPages - 4) {
             minRange = currentPageNum - 4;
             maxRange = currentPageNum + 4;
           }
           showEllipses = true;
           ellipses = li.clone().append(
             span.clone().attr({
-              "aria-hidden" : "true",
-              "onclick" : "return false;"
+              "aria-hidden": "true",
+              "onclick": "return false;"
             }).html("...")
           ).addClass("pager-ellipses disabled");
         }
@@ -705,30 +711,30 @@
         if (currentPageNum !== 1) {
           ul.append(li.clone().addClass("pager-first").html(
             a.clone().attr({
-              "href" : "#",
-              "aria-label" : "First",
-              "onclick" : "return false;",
-              "data-goto-page" : "1"
+              "href": "#",
+              "aria-label": "First",
+              "onclick": "return false;",
+              "data-goto-page": "1"
             }).on("click", clickEvent).append(
               span.clone().attr({
-                "aria-hidden" : "true"
+                "aria-hidden": "true"
               }).html("<< first")
             )
           ));
           ul.append(li.clone().html(
             a.clone().attr({
-              "href" : "#",
-              "aria-label" : "Previous",
-              "onclick" : "return false;",
-              "data-goto-page" : parseInt(currentPageNum-1)
+              "href": "#",
+              "aria-label": "Previous",
+              "onclick": "return false;",
+              "data-goto-page": parseInt(currentPageNum - 1)
             }).on("click", clickEvent).append(
               span.clone().attr({
-                "aria-hidden" : "true"
+                "aria-hidden": "true"
               }).html("< previous")
             )
           ));
           if (showEllipses === true && minRange > 1) {
-                  ul.append(ellipses.clone());
+            ul.append(ellipses.clone());
           }
         }
         // write out page #'s
@@ -736,10 +742,10 @@
         for (i = minRange; i <= maxRange; i++) {
           var pager = li.clone();
           var pagerLink = a.clone().attr({
-            "href" : "#",
-            "title" : "Go to page " + parseInt(i),
-            "onclick" : "return false;",
-            "data-goto-page" : parseInt(i)
+            "href": "#",
+            "title": "Go to page " + parseInt(i),
+            "onclick": "return false;",
+            "data-goto-page": parseInt(i)
           }).text(parseInt(i)).on("click", clickEvent);
           if (currentPageNum === i) {
             pager.addClass("active");
@@ -748,33 +754,33 @@
           ul.append(pager);
         }
         if (currentPageNum < numPages) {
-        // close the pager if not at end of index
+          // close the pager if not at end of index
           if (showEllipses === true && maxRange < numPages) {
             ul.append(ellipses.clone());
           }
           ul.append(li.clone().html(
             a.clone().attr({
-              "href" : "#",
-              "aria-label" : "Next",
-              "title" : "Go to next page",
-              "onclick" : "return false;",
-              "data-goto-page" : parseInt(currentPageNum + 1)
+              "href": "#",
+              "aria-label": "Next",
+              "title": "Go to next page",
+              "onclick": "return false;",
+              "data-goto-page": parseInt(currentPageNum + 1)
             }).on("click", clickEvent).append(
               span.clone().attr({
-                "aria-hidden" : "true"
+                "aria-hidden": "true"
               }).html("next >")
             )
           ));
           ul.append(li.clone().addClass("pager-last").html(
             a.clone().attr({
-              "href" : "#",
-              "aria-label" : "Last",
-              "title" : "Go to last page",
-              "onclick" : "return false;",
-              "data-goto-page" : parseInt(numPages)
+              "href": "#",
+              "aria-label": "Last",
+              "title": "Go to last page",
+              "onclick": "return false;",
+              "data-goto-page": parseInt(numPages)
             }).on("click", clickEvent).append(
               span.clone().attr({
-                "aria-hidden" : "true"
+                "aria-hidden": "true"
               }).html("last >>")
             )
           ));
@@ -804,16 +810,16 @@
           pageCacheType = "nodes";
         }
 
-        theElement.data("pageCache",pageCache);
+        theElement.data("pageCache", pageCache);
         theElement.data("pageCacheType", pageCacheType);
         theElement.data("pageCacheTotalPages", totalPages);
         theElement.on("changePageEvent", changePage);
 
-        switch(pageCacheType) {
-        case "table":
-          // trigger redraw of first page
-          theElement.trigger("changePageEvent", [1]);
-          break;
+        switch (pageCacheType) {
+          case "table":
+            // trigger redraw of first page
+            theElement.trigger("changePageEvent", [1]);
+            break;
         }
 
         function buildPageCache(data) {
@@ -844,16 +850,16 @@
         }
       }
 
-      function changePage (event, gotoPageNum) {
+      function changePage(event, gotoPageNum) {
         var element = $(event.currentTarget);
         var pageType = element.data("pageCacheType");
         var pageCache = element.data("pageCache");
         var totalPages = element.data("pageCacheTotalPages");
         // get the pager
         var elementID = element.attr("id");
-        var nav = $("#"+elementID+"-pager");
+        var nav = $("#" + elementID + "-pager");
         var currentPage = nav.data("currentPage");
-        if (typeof(currentPage)=== "undefined" || currentPage === null) {
+        if (typeof(currentPage) === "undefined" || currentPage === null) {
           currentPage = 1;
           nav.data("currentPage", currentPage);
         }
@@ -864,32 +870,32 @@
         // comes in as string
         gotoPageNum = parseInt(gotoPageNum);
         switch (pageType) {
-        case "table":
-          element.empty();
-          // inject the heading
-          element.append(pageCache[0]);
-          $.each(pageCache[gotoPageNum],function(index,value) {
-            element.append(value);
-          });
-          break;
-        case "nodes":
-          // add current page to cache if not there
-          if (typeof(pageCache[currentPage]) === "undefined") {
-            var data = element.find(".node");
-            pageCache[currentPage] = data;
-            element.data("pageCache", pageCache);
-          }
-          element.empty();
-          // if gotoPage isn't already cached, fetch it.
-          if (typeof(pageCache[gotoPageNum]) === "undefined") {
-            var nodestrs = element.data("nodestrs")[gotoPageNum].join();
-            element.trigger("fetchFavoritesEvent", [nodestrs]);
+          case "table":
+            element.empty();
+            // inject the heading
+            element.append(pageCache[0]);
+            $.each(pageCache[gotoPageNum], function(index, value) {
+              element.append(value);
+            });
             break;
-          }
-          $.each(pageCache[gotoPageNum],function(index, value) {
-            element.append(value);
-          });
-          break;
+          case "nodes":
+            // add current page to cache if not there
+            if (typeof(pageCache[currentPage]) === "undefined") {
+              var data = element.find(".node");
+              pageCache[currentPage] = data;
+              element.data("pageCache", pageCache);
+            }
+            element.empty();
+            // if gotoPage isn't already cached, fetch it.
+            if (typeof(pageCache[gotoPageNum]) === "undefined") {
+              var nodestrs = element.data("nodestrs")[gotoPageNum].join();
+              element.trigger("fetchFavoritesEvent", [nodestrs]);
+              break;
+            }
+            $.each(pageCache[gotoPageNum], function(index, value) {
+              element.append(value);
+            });
+            break;
         }
 
         if (currentPage !== gotoPageNum) {
