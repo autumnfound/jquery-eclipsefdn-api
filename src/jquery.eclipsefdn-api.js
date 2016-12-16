@@ -56,11 +56,105 @@
         "gerritReviews",
         "recentEvents",
         "forumsMsg",
-        "gerritReviewCount"
+        "gerritReviewCount",
+        "projectsList"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
       }
+    },
+    projectsList: function() {
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      // Build api URI.
+      var url = apiUrl + "/account/profile/" + username + "/projects";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+
+          var project_count = Object.keys(data).length;
+          if (project_count === undefined) {
+            project_count = 0;
+          }
+          $(this).attr({
+            "href": "https://projects.eclipse.org/users/" + username,
+          });
+
+          $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
+
+
+          // Exit now if contentPlaceholder is not defined
+          if (!(self.settings.contentPlaceholder instanceof jQuery)) {
+            return false;
+          }
+
+          var container = $(self.settings.contentPlaceholder);
+          var a = $("<a></a>");
+
+          container.append($("<h2></h2>").addClass("h3").text("Eclipse Projects"));
+
+          if (project_count === 0) {
+            container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
+              "This user is not involved in any Eclipse Projectsit ." +
+              "</div>");
+            return false;
+          }
+
+          // Create table
+          var table = $("<table></table>").attr({
+            "width": "100%",
+            "class": "table"
+          });
+
+          var tr = $("<tr></tr>");
+          var th = $("<th></th>");
+          var td = $("<td></td>");
+
+          tr.append(th.clone().text("Project").attr("width", "85%"));
+
+          tr.append(th.clone().text("Relation").attr({
+            "width": "15%",
+            "class": "text-center"
+          }));
+
+          table.append(tr);
+          // Insert rows in table
+          $.each(data, function(index, value) {
+            var roles = [];
+            var projectName = "";
+            var activeDate = "";
+            $.each(value, function(i, v) {
+              roles.push(v.Relation.Description);
+              projectName = v.ProjectName;
+              activeDate = v.ActiveDate;
+              if (v.url !== "") {
+                projectName = a.clone().attr({
+                  "href": v.url
+                }).text(projectName);
+              }
+            });
+            tr = $("<tr></tr>");
+            // Replies column
+            tr.append(td.clone().html(projectName).append("<br/><small>Since: " + self.dateFormat(new Date(activeDate)) + "</small>"));
+            tr.append(td.clone().text(roles.join(", ")).attr("class", "text-center"));
+            table.append(tr);
+          });
+
+          // append rows to ttable
+          container.append(table);
+
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
     },
     forumsMsg: function() {
       var self = this;
