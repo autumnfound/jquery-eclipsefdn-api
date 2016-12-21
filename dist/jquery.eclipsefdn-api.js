@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.9
+ *  jquery-eclipsefdn-api - v0.0.10
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
@@ -109,7 +109,12 @@
           var a = $("<a></a>");
 
           container.append($("<h2></h2>").addClass("h3").text("Eclipse Projects"));
-
+          container.append("<p>Projects are the organizational unit for open source " +
+          "development work at the Eclipse Foundation. Projects have developers " +
+          "(committers), source code repositories, build servers, downloads, " +
+          "and other resources. The Eclipse Foundation's open source projects " +
+          "are governed by the <a href=\"https://eclipse.org/projects/dev_process/\">Eclipse Development Process</a>.</p>");
+          
           if (project_count === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
               "This user is not involved in any Eclipse Projectsit ." +
