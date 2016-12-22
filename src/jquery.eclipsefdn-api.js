@@ -84,7 +84,7 @@
             project_count = 0;
           }
           $(this).attr({
-            "href": "https://projects.eclipse.org/users/" + username,
+            "href": "https://projects.eclipse.org/",
           });
 
           $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
@@ -107,7 +107,7 @@
           
           if (project_count === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
-              "This user is not involved in any Eclipse Projectsit ." +
+              "This user is not involved in any Eclipse Projects." +
               "</div>");
             return false;
           }
