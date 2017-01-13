@@ -89,7 +89,6 @@
 
           $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
 
-
           // Exit now if contentPlaceholder is not defined
           if (!(self.settings.contentPlaceholder instanceof jQuery)) {
             return false;
@@ -100,11 +99,11 @@
 
           container.append($("<h2></h2>").addClass("h3").text("Eclipse Projects"));
           container.append("<p>Projects are the organizational unit for open source " +
-          "development work at the Eclipse Foundation. Projects have developers " +
-          "(committers), source code repositories, build servers, downloads, " +
-          "and other resources. The Eclipse Foundation's open source projects " +
-          "are governed by the <a href=\"https://eclipse.org/projects/dev_process/\">Eclipse Development Process</a>.</p>");
-          
+            "development work at the Eclipse Foundation. Projects have developers " +
+            "(committers), source code repositories, build servers, downloads, " +
+            "and other resources. The Eclipse Foundation's open source projects " +
+            "are governed by the <a href=\"https://eclipse.org/projects/dev_process/\">Eclipse Development Process</a>.</p>");
+
           if (project_count === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
               "This user is not involved in any Eclipse Projects." +
@@ -171,11 +170,11 @@
       }
 
       // Build api URI.
-      var url = apiUrl + "/account/profile/" + username + "/forum";
+      var url = apiUrl + "/account/profile/" + username + "/forum?page=1&pagesize=" + self.settings.itemsPerPage;
       // Execute ajax request
       $.ajax(url, {
         context: this.element,
-        success: function(data) {
+        success: function(data, textStatus, jqXHR) {
           var user_msg_count = 0;
           if (data.posted_msg_count !== undefined) {
             user_msg_count = data.posted_msg_count;
@@ -217,12 +216,12 @@
           // Create table
           var table = $("<table></table>").attr({
             "width": "100%",
-            "class": "table"
+            "class": "table",
+            "id": "forum-posts"
           });
 
           var tr = $("<tr></tr>");
           var th = $("<th></th>");
-          var td = $("<td></td>");
 
           if (self.settings.currentUser === self.settings.username) {
             tr.append(th.clone().attr("width", "8%"));
@@ -242,92 +241,31 @@
           tr.append(th.clone().text("Last message").attr({
             "class": "text-center"
           }));
-
+          // Insert heading row in table
           table.append(tr);
-          // Insert rows in table
-
-          $.each(data.posts, function(index, value) {
-            var request_data = {
-              forum_id: value.thread_forum_id,
-              forum_name: value.forum_name,
-              forum_cat_id: value.forum_name,
-              forum_cat_name: value.cat_name,
-              root_subject: value.root_msg_subject,
-              current_user_last_post_timestamp: value.msg_group_post_stamp,
-              current_user_last_post_subject: value.last_user_msg_subject,
-              thread_id: value.msg_thread_id,
-              thread_reply_count: value.thread_replies,
-              thread_views_count: value.thread_views,
-              thread_last_post_date: value.thread_last_post_date,
-              last_message_timestamp: value.last_msg_post_stamp,
-              last_message_poster_id: value.last_msg_poster_id,
-              last_message_poster_alias: value.last_poster_alias,
-              last_message_last_view: value.read_last_view,
-              current_user_id: data.id
-            };
-            more_forums_link.attr({
-              "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.current_user_id + "/",
-            });
-
-            tr = $("<tr></tr>");
-
-            // Link to forum
-            var forumLink = a.clone().attr({
-              "href": self.settings.forumsUrl + "/index.php/f/" + request_data.forum_id + "/"
-            }).text(request_data.forum_name);
-
-            // Link to category
-            var catLink = a.clone().attr({
-              "href": self.settings.forumsUrl + "/index.php/i/" + request_data.forum_cat_id + "/"
-            }).text(request_data.forum_cat_name);
-
-            // Concatenate  category and form link
-            var forum_cat_link = $("<small></small>").append("<br/>")
-              .append(catLink)
-              .append(" &gt; ")
-              .append(forumLink)
-              .append(" &gt; ")
-              .append(request_data.root_subject)
-              .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
-            var read_icon = "fa fa-envelope-open-o";
-            // Add warning class to row if the user did not see the message
-            if (self.settings.currentUser === self.settings.username &&
-              request_data.last_message_last_view < request_data.thread_last_post_date &&
-              request_data.last_message_poster_id !== request_data.current_user_id) {
-              tr.addClass("warning");
-              read_icon = "fa fa-envelope-o";
-            }
-
-            if (self.settings.currentUser === self.settings.username) {
-              tr.append(td.clone().html("<i class=\"" + read_icon + "\" aria-hidden=\"true\"></i>").attr("class", "text-center"));
-            }
-
-            // Topic column
-            tr.append(td.clone().html(a.clone().attr({
-                  "href": self.settings.forumsUrl + "/index.php/t/" + request_data.thread_id + "/"
-                })
-                .text(request_data.current_user_last_post_subject))
-              .append(forum_cat_link)
-            );
-
-            // Replies column
-            tr.append(td.clone().text(request_data.thread_reply_count).attr("class", "text-center"));
-
-            // Views column
-            tr.append(td.clone().text(request_data.thread_views_count).attr("class", "text-center"));
-
-            // Last message column
-            var last_message = $("<small></small>").append(self.dateFormat(new Date(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
-              "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.last_message_poster_id + "/"
-            }).text(request_data.last_message_poster_alias));
-            tr.append(td.clone().html(last_message).attr("class", "text-center"));
-
-            table.append(tr);
-          });
-
-          // append rows to ttable
+          // append table to container
           container.append(table);
-
+          // draw the inital row data
+          drawForumRows(data);
+          // check the link header for total pages
+          var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+          var lastPage = linkHeader.getLastPageNum();
+          // check if itemsPerPage should be updated to returned value
+          if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+            self.settings.itemsPerPage = linkHeader.getPageSize();
+          }
+          // set fetch posts event
+          table.on("fetchPageItemsEvent", fetchForumPosts);
+          // store items per page so we know how many to fetch per page
+          table.data("postsPerPage", self.settings.itemsPerPage);
+          // add pagination bar
+          container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "forum-posts"));
+          // get the user id
+          var current_user_id = data.id;
+          // update more forums link
+          more_forums_link.attr({
+            "href": self.settings.forumsUrl + "/index.php/sp/" + current_user_id + "/",
+          });
           // append read more link
           container.append(more_forums_link);
         },
@@ -335,6 +273,112 @@
           $(this).html(self.settings.errorMsg);
         }
       });
+
+      function drawForumRows(data) {
+        var forumTable = $("#forum-posts");
+        $.each(data.posts, function(index, value) {
+          var request_data = {
+            forum_id: value.thread_forum_id,
+            forum_name: value.forum_name,
+            forum_cat_id: value.forum_name,
+            forum_cat_name: value.cat_name,
+            root_subject: value.root_msg_subject,
+            current_user_last_post_timestamp: value.msg_group_post_stamp,
+            current_user_last_post_subject: value.last_user_msg_subject,
+            thread_id: value.msg_thread_id,
+            thread_reply_count: value.thread_replies,
+            thread_views_count: value.thread_views,
+            thread_last_post_date: value.thread_last_post_date,
+            last_message_timestamp: value.last_msg_post_stamp,
+            last_message_poster_id: value.last_msg_poster_id,
+            last_message_poster_alias: value.last_poster_alias,
+            last_message_last_view: value.read_last_view,
+            current_user_id: data.id
+          };
+
+          var tr = $("<tr></tr>");
+          var td = $("<td></td>");
+          var a = $("<a></a>");
+          // Link to forum
+          var forumLink = a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/f/" + request_data.forum_id + "/"
+          }).text(request_data.forum_name);
+
+          // Link to category
+          var catLink = a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/i/" + request_data.forum_cat_id + "/"
+          }).text(request_data.forum_cat_name);
+
+          // Concatenate  category and form link
+          var forum_cat_link = $("<small></small>").append("<br/>")
+            .append(catLink)
+            .append(" &gt; ")
+            .append(forumLink)
+            .append(" &gt; ")
+            .append(request_data.root_subject)
+            .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
+          var read_icon = "fa fa-envelope-open-o";
+          // Add warning class to row if the user did not see the message
+          if (self.settings.currentUser === self.settings.username &&
+            request_data.last_message_last_view < request_data.thread_last_post_date &&
+            request_data.last_message_poster_id !== request_data.current_user_id) {
+            tr.addClass("warning");
+            read_icon = "fa fa-envelope-o";
+          }
+
+          if (self.settings.currentUser === self.settings.username) {
+            tr.append(td.clone().html("<i class=\"" + read_icon + "\" aria-hidden=\"true\"></i>").attr("class", "text-center"));
+          }
+
+          // Topic column
+          tr.append(td.clone().html(a.clone().attr({
+                "href": self.settings.forumsUrl + "/index.php/t/" + request_data.thread_id + "/"
+              })
+              .text(request_data.current_user_last_post_subject))
+            .append(forum_cat_link)
+          );
+          // Replies column
+          tr.append(td.clone().text(request_data.thread_reply_count).attr("class", "text-center"));
+
+          // Views column
+          tr.append(td.clone().text(request_data.thread_views_count).attr("class", "text-center"));
+
+          // Last message column
+          var last_message = $("<small></small>").append(self.dateFormat(new Date(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.last_message_poster_id + "/"
+          }).text(request_data.last_message_poster_alias));
+          tr.append(td.clone().html(last_message).attr("class", "text-center"));
+
+          forumTable.append(tr);
+        });
+      }
+
+      function fetchForumPosts(event, page, numPosts) {
+        getForumPostsByPage(page, numPosts);
+      }
+
+      function getForumPostsByPage(pageNum, pageSize) {
+        if (typeof(pageNum) === "undefined") {
+          // default to page 1
+          pageNum = 1;
+        }
+        if (typeof(pageSize) === "undefined") {
+          // default to settings
+          pageSize = self.settings.itemsPerPage;
+        }
+
+        // Build api URI.
+        var url = apiUrl + "/account/profile/" + username + "/forum?page=" + pageNum + "&pagesize=" + pageSize;
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            drawForumRows(data);
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
+      }
     },
     mpFavorites: function() {
       var self = this;
@@ -362,18 +406,17 @@
           "gain exposure to the Eclipse developer community."));
       }
       // Build api URI.
-      var url = apiUrl + "/marketplace/favorites?name=" + username;
+      var url = apiUrl + "/marketplace/favorites?name=" + username + "&page=1&pagesize=" + self.settings.itemsPerPage;
       // Execute ajax request
       $.ajax(url, {
         context: this.element,
-        success: function(data) {
+        success: function(data, textStatus, jqXHR) {
           $(this).children("strong").text(data.total_result_count + self.plurialString(" favorite", data.total_result_count));
-
           // Exit now if container is not defined
           if (typeof container === "undefined") {
             return false;
           }
-          // separating from nodes for time being so I retain total count for initial pagination
+         // break down the nodestr by itemsPerPage
           var nodes = [];
           $.each(data.mpc_favorites, function(k, v) {
             nodes.push(v.content_id);
@@ -386,32 +429,24 @@
             container.append(more_marketplace_link);
             return false;
           }
-          // break down the nodestr by itemsPerPage and store in element data for later
-          var nodestrs = [];
-          var page = 1;
-          var counter = 1;
-          nodestrs[page] = [];
-          $.each(nodes, function(index, value) {
-            nodestrs[page].push(value);
-            if (++counter > self.settings.itemsPerPage) {
-              page++;
-              counter = 1;
-              nodestrs[page] = [];
-            }
-          });
-
+          // check the link header for total pages
+          var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+          var lastPage = linkHeader.getLastPageNum();
+          // check if itemsPerPage should be updated to returned value
+          if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+            self.settings.itemsPerPage = linkHeader.getPageSize();
+          }
           // set the fetch favorites as custom event
-          container.on("fetchFavoritesEvent", fetchFavorites);
+          container.on("fetchPageItemsEvent", fetchFavorites);
           container.append("<div class=\"alert alert-info\" role=\"alert\">" +
             "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
             "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
             "/favorites\" width=\"100\">" +
             "</div>");
           container.append("<div id=\"mpfavorites-list\"></div>");
-          // store the nodestrs for later fetching
-          container.find("#mpfavorites-list").data("nodestrs", nodestrs);
-          getFavoritesByNodes(nodestrs[1].join());
-          container.append(self.getPaginationBar(nodes.length, "mpfavorites-list"));
+          container.find("#mpfavorites-list").data("postsPerPage", self.settings.itemsPerPage);
+          getFavoritesByNodes(nodes.join());
+          container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "mpfavorites-list"));
           container.append(more_marketplace_link);
         },
         error: function() {
@@ -475,8 +510,33 @@
         });
       }
 
-      function fetchFavorites(event, nodestr) {
-        getFavoritesByNodes(nodestr);
+      function fetchFavorites(event, page, numPosts) {
+        getFavoritesListByPage(page, numPosts);
+      }
+
+      function getFavoritesListByPage(pageNum, totalItems){
+        if (typeof(pageNum) === "undefined") {
+          // default to page 1
+          pageNum = 1;
+        }
+        if (typeof(totalItems) === "undefined") {
+          // default to settings
+          totalItems = self.settings.itemsPerPage;
+        }
+        var url = apiUrl + "/marketplace/favorites?name=" + username + "&page=" + pageNum + "&pagesize=" + totalItems;
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            var nodes = [];
+            $.each(data.mpc_favorites, function(k, v) {
+              nodes.push(v.content_id);
+            });
+            getFavoritesByNodes(nodes.join());
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
       }
     },
     gerritReviewCount: function() {
@@ -744,6 +804,70 @@
       var time = fullDay + ", " + fullMonth + " " + day + ", " + fullYear + " - " + hour + ":" + min;
       return time;
     },
+    // Class to parse and fetch values from the link header pagination
+   linkHeaderParser: function(header) {
+      var self = this;
+      this.links = 0;
+      this.getLastPageNum = function() {
+        if (typeof(self.links.last) === "undefined") {
+          return 0;
+        }
+        return getParamValue(self.links.last, "page");
+      };
+
+      this.getPageSize = function() {
+        // grab pagesize from the first item
+        if (typeof(self.links.first) === "undefined") {
+          return 0;
+        }
+        return getParamValue(self.links.first, "pagesize");
+      };
+
+      if (typeof(header) === "undefined" || header === null) {
+        // nothing to do
+        return;
+      }
+
+      // Split the links by comma
+      var linkItem = header.split(",");
+      var links = {};
+
+      // Parse each link item
+      for (var i = 0; i < linkItem.length; i++) {
+        // convert any &amp; back to &
+        linkItem[i] = linkItem[i].replace("&amp;", "&");
+        var section = linkItem[i].split(";");
+        if (section.length < 2) {
+          // Missing sections from link header, skip to next item
+          continue;
+        }
+        // store the url and query params
+        var url = section[0].replace(/<(.*)>/, "$1").trim();
+        // use name as index (next, prev, first, last)
+        var name = section[1].replace(/rel="(.*)"/, "$1").trim();
+        links[name] = url;
+      }
+
+      this.links = links;
+
+      function getParamValue(link, param) {
+
+        if (typeof(param) === "undefined" || typeof(link) === "undefined") {
+          return 0;
+        }
+        var query = link.substr(link.lastIndexOf("?") + 1);
+        var params = query.split("&");
+        for (var i = 0; i < params.length; i++) {
+          var queryItem = params[i].split("=");
+          if (decodeURIComponent(queryItem[0]) === param) {
+            // return query param value
+            return decodeURIComponent(queryItem[1]);
+          }
+        }
+        // no matching query param found
+        return 0;
+      }
+    },
     getPaginationBar: function(totalItems, elementID) {
       var self = this;
       if (typeof(totalItems) === "undefined") {
@@ -759,19 +883,18 @@
         "arial-label": "Page navigation",
         "id": elementID + "-pager"
       }).addClass("text-center");
-      var totalPages = getMaxPages();
+      var totalPages = Math.ceil(totalItems / self.settings.itemsPerPage);
       var ul = drawPageNums(totalPages, activePageNum, elementID);
       pageNav.append(ul);
       // create cache
       if (typeof($("#" + elementID).data("pageCache")) === "undefined") {
         cachePages();
       }
+      // return the pagination bar
       return pageNav;
 
       function drawPageNums(numPages, currentPageNum, elementID) {
         var li = $("<li></li>");
-        var a = $("<a></a>");
-        var span = $("<span></span>");
         var ul = $("<ul></ul>").addClass("pagination");
         if (typeof(elementID) !== "undefined") {
           ul.attr({
@@ -782,24 +905,6 @@
         var ellipses = "";
         var minRange = 1;
         var maxRange = numPages;
-        // cap it at 9
-        if (numPages > 9) {
-          minRange = numPages - 8;
-          if (currentPageNum <= minRange + 4) {
-            maxRange = 9;
-            minRange = 1;
-          } else if (currentPageNum <= numPages - 4) {
-            minRange = currentPageNum - 4;
-            maxRange = currentPageNum + 4;
-          }
-          showEllipses = true;
-          ellipses = li.clone().append(
-            span.clone().attr({
-              "aria-hidden": "true",
-              "onclick": "return false;"
-            }).html("...")
-          ).addClass("pager-ellipses disabled");
-        }
         var clickEvent = function() {
           var $this = $(this);
           var toPageNum = $this.attr("data-goto-page");
@@ -807,30 +912,34 @@
           var elementID = parentUL.data("eclipsefdnapiElementid");
           $("#" + elementID).trigger("changePageEvent", [toPageNum]);
         };
+
+        // if num pages > 9 then set the page range
+        if (numPages > 9) {
+          // default to first of last 9 pages
+          minRange = numPages - 8;
+          if (currentPageNum <= 5) {
+            maxRange = 9;
+            minRange = 1;
+          } else if (currentPageNum <= numPages - 4) {
+            // center the page range relative to current page
+            minRange = currentPageNum - 4;
+            maxRange = currentPageNum + 4;
+          }
+          showEllipses = true;
+          var span = $("<span></span>");
+          ellipses = li.clone().append(
+            span.clone().html("...").attr({
+              "aria-hidden": "true"
+            })
+          ).addClass("pager-ellipses disabled");
+        }
+
         if (currentPageNum !== 1) {
           ul.append(li.clone().addClass("pager-first").html(
-            a.clone().attr({
-              "href": "#",
-              "aria-label": "First",
-              "onclick": "return false;",
-              "data-goto-page": "1"
-            }).on("click", clickEvent).append(
-              span.clone().attr({
-                "aria-hidden": "true"
-              }).html("<< first")
-            )
+            getPagerLink("First", "first page", 1, "<< first").on("click", clickEvent)
           ));
           ul.append(li.clone().html(
-            a.clone().attr({
-              "href": "#",
-              "aria-label": "Previous",
-              "onclick": "return false;",
-              "data-goto-page": parseInt(currentPageNum - 1)
-            }).on("click", clickEvent).append(
-              span.clone().attr({
-                "aria-hidden": "true"
-              }).html("< previous")
-            )
+            getPagerLink("Previous", "previous page", currentPageNum - 1, "< previous").on("click", clickEvent)
           ));
           if (showEllipses === true && minRange > 1) {
             ul.append(ellipses.clone());
@@ -840,109 +949,106 @@
         var i;
         for (i = minRange; i <= maxRange; i++) {
           var pager = li.clone();
-          var pagerLink = a.clone().attr({
-            "href": "#",
-            "title": "Go to page " + parseInt(i),
-            "onclick": "return false;",
-            "data-goto-page": parseInt(i)
-          }).text(parseInt(i)).on("click", clickEvent);
+          var pagerLink = getPagerLink("Page " + parseInt(i), "page " + parseInt(i), i).on("click", clickEvent);
           if (currentPageNum === i) {
             pager.addClass("active");
           }
           pager.html(pagerLink);
           ul.append(pager);
         }
+        // close the pager if not at end of index
         if (currentPageNum < numPages) {
-          // close the pager if not at end of index
           if (showEllipses === true && maxRange < numPages) {
             ul.append(ellipses.clone());
           }
           ul.append(li.clone().html(
-            a.clone().attr({
-              "href": "#",
-              "aria-label": "Next",
-              "title": "Go to next page",
-              "onclick": "return false;",
-              "data-goto-page": parseInt(currentPageNum + 1)
-            }).on("click", clickEvent).append(
-              span.clone().attr({
-                "aria-hidden": "true"
-              }).html("next >")
-            )
+            getPagerLink("Next", "next page", currentPageNum + 1, "next >").on("click", clickEvent)
           ));
           ul.append(li.clone().addClass("pager-last").html(
-            a.clone().attr({
-              "href": "#",
-              "aria-label": "Last",
-              "title": "Go to last page",
-              "onclick": "return false;",
-              "data-goto-page": parseInt(numPages)
-            }).on("click", clickEvent).append(
-              span.clone().attr({
-                "aria-hidden": "true"
-              }).html("last >>")
-            )
+            getPagerLink("Last", "last page", numPages, "last >>").on("click", clickEvent)
           ));
         }
         return ul;
       }
 
-      function getMaxPages() {
-        return Math.ceil(totalItems / self.settings.itemsPerPage);
+      function getPagerLink(label, titlePiece, gotoPage, text) {
+        if (typeof(text) === "undefined") {
+          // use the page num
+          text = parseInt(gotoPage);
+        }
+        var a = $("<a></a>");
+        return a.attr({
+          "aria-label": label,
+          "href": "#",
+          "onclick": "return false;",
+          "title": "Go to " + titlePiece,
+          "data-goto-page": parseInt(gotoPage)
+        }).text(text);
       }
 
       function cachePages() {
         var theElement = $("#" + elementID);
         var pageCache = [];
         var pageCacheType;
-        var counter = 0;
-        var pageNum = 0;
-        var page = [];
-        var data;
-        if (theElement.is("table")) {
-          // get the table rows
-          data = theElement.find("tr");
-          pageCacheType = "table";
-          pageCache = buildPageCache(data);
-        } else if (theElement.is("div") && elementID === "mpfavorites-list") {
-          // nothing to cache yet, container & cache fills as needed
-          pageCacheType = "nodes";
+        // set the cache type and perform any special handling if needed
+        switch (elementID) {
+          case "gerrit-incoming":
+          case "gerrit-outgoing":
+            pageCacheType = "gerrit";
+            // build out entire page cache based on existing element data
+            pageCache = buildPageCache(theElement.find("tr"));
+            break;
+          case "mpfavorites-list":
+            pageCacheType = "mpfav";
+            break;
+          case "forum-posts":
+            pageCacheType = "forum";
+            pageCache = buildPageCache(theElement.find("tr"));
+            break;
+          default:
+            pageCacheType = "generic";
         }
-
+        // setup the element data and event for changing pages
         theElement.data("pageCache", pageCache);
         theElement.data("pageCacheType", pageCacheType);
         theElement.data("pageCacheTotalPages", totalPages);
         theElement.on("changePageEvent", changePage);
 
         switch (pageCacheType) {
-          case "table":
+          case "gerrit":
             // trigger redraw of first page
             theElement.trigger("changePageEvent", [1]);
             break;
         }
 
         function buildPageCache(data) {
+          var counter = 0;
+          var pageNum = 0;
+          var page = [];
           var theCache = [];
+          // grab the heading row if this is gerrit or forum table
+          switch (pageCacheType) {
+            case "gerrit":
+            case "forum":
+              // set heading row in cache
+              theCache[0] = data[0];
+              break;
+          }
           $.each(data, function(index, value) {
-            if (pageCacheType === "table" && index === 0) {
-              // check if it's a table heading
-              if ($(value).children().first().is("th")) {
-                // it's the heading
-                theCache[0] = value;
-                return;
-              }
+            if ($(value).children().first().is("th")) {
+              // don't cache table headings
+              return true;
             }
             if (counter === self.settings.itemsPerPage) {
               counter = 0;
-              pageNum++;
-              theCache[pageNum] = page;
+              theCache[++pageNum] = page;
               page = [];
             }
-            page[counter] = value;
-            counter++;
+            page[counter++] = value;
           });
+          // check if any remainder items in page
           if (page.length > 0) {
-            // ended on uneven page
+            // add page to the cache
             theCache[++pageNum] = page;
           }
           return theCache;
@@ -953,55 +1059,87 @@
         var element = $(event.currentTarget);
         var pageType = element.data("pageCacheType");
         var pageCache = element.data("pageCache");
-        var totalPages = element.data("pageCacheTotalPages");
         // get the pager
         var elementID = element.attr("id");
         var nav = $("#" + elementID + "-pager");
+        // get pager's current page
         var currentPage = nav.data("currentPage");
         if (typeof(currentPage) === "undefined" || currentPage === null) {
+          // if it's not set, assume it's 1st page
           currentPage = 1;
-          nav.data("currentPage", currentPage);
         }
         if (typeof(gotoPageNum) === "undefined") {
-          // something is wrong.  set it to 1
+          // something is wrong. go back to 1st page
           gotoPageNum = 1;
         }
         // comes in as string
         gotoPageNum = parseInt(gotoPageNum);
         switch (pageType) {
-          case "table":
-            element.empty();
-            // inject the heading
-            element.append(pageCache[0]);
-            $.each(pageCache[gotoPageNum], function(index, value) {
-              element.append(value);
-            });
+          case "gerrit":
+            fillElementWithPage();
             break;
-          case "nodes":
-            // add current page to cache if not there
-            if (typeof(pageCache[currentPage]) === "undefined") {
-              var data = element.find(".node");
-              pageCache[currentPage] = data;
-              element.data("pageCache", pageCache);
-            }
-            element.empty();
-            // if gotoPage isn't already cached, fetch it.
-            if (typeof(pageCache[gotoPageNum]) === "undefined") {
-              var nodestrs = element.data("nodestrs")[gotoPageNum].join();
-              element.trigger("fetchFavoritesEvent", [nodestrs]);
-              break;
-            }
-            $.each(pageCache[gotoPageNum], function(index, value) {
-              element.append(value);
-            });
+          default:
+            addCurrentPageToCache();
+            fillElementWithPage();
             break;
         }
-
+        //Replace the pager bar with updated layout
         if (currentPage !== gotoPageNum) {
+          var totalPages = element.data("pageCacheTotalPages");
           var newUL = drawPageNums(totalPages, gotoPageNum, elementID);
-          //Replace the pager bar with updated layout
           nav.find("ul").replaceWith(newUL);
           nav.data("currentPage", gotoPageNum);
+        }
+
+        function fillElementWithPage() {
+          // empty element first
+          element.empty();
+          //if not in cache
+          if (typeof(pageCache[gotoPageNum]) === "undefined") {
+            var params = [];
+            // different params for mpc or forum
+            switch (pageType) {
+              case "mpfav":
+              case "forum":
+                params.push(gotoPageNum);
+                params.push(element.data("postsPerPage"));
+                break;
+            }
+            element.trigger("fetchPageItemsEvent", params);
+            return;
+          }
+          // if in cache
+          // prefill heading from cache index 0 for tables
+          if (element.is("table")) {
+            element.append(pageCache[0]);
+          }
+          $.each(pageCache[gotoPageNum], function(index, value) {
+            element.append(value);
+          });
+        }
+
+        function addCurrentPageToCache() {
+          // only store it if current page is not currently cached
+          if (typeof(pageCache[currentPage]) === "undefined") {
+            var items = [];
+            pageCache[currentPage] = [];
+            if (element.is("table")) {
+              // pull out the table rows
+              items = element.find("tr");
+            } else if (element.is("div")) {
+              // assume mpc nodes
+              items = element.find(".node");
+            }
+            $.each(items, function(index, value) {
+              if ($(value).children().first().is("th")) {
+                // heading is already cached - skip to next
+                return true;
+              }
+              pageCache[currentPage].push(value);
+            });
+            // update stored cache
+            element.data("pageCache", pageCache);
+          }
         }
       }
     }
