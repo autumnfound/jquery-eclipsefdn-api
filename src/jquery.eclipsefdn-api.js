@@ -104,9 +104,14 @@
             "and other resources. The Eclipse Foundation's open source projects " +
             "are governed by the <a href=\"https://eclipse.org/projects/dev_process/\">Eclipse Development Process</a>.</p>");
 
+          var warning_prefix = "This user is";
+          if (self.settings.currentUser === self.settings.username) {
+            warning_prefix = "You are";
+          }
+
           if (project_count === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
-              "This user is not involved in any Eclipse Projects." +
+              warning_prefix + " not involved in any Eclipse Projects." +
               "</div>");
             return false;
           }
