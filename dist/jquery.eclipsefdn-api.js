@@ -166,9 +166,12 @@
             table.append(tr);
           });
 
-          // append rows to ttable
-          container.append(table);
-
+          // append table to container
+          var responsive_wrapper = $("<div></div>").attr({
+            "class": "table-responsive"
+          });
+          responsive_wrapper.append(table);
+          container.append(responsive_wrapper);
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
@@ -258,8 +261,14 @@
           }));
           // Insert heading row in table
           table.append(tr);
+
           // append table to container
-          container.append(table);
+          var responsive_wrapper = $("<div></div>").attr({
+            "class": "table-responsive"
+          });
+          responsive_wrapper.append(table);
+          container.append(responsive_wrapper);
+          
           // draw the inital row data
           drawForumRows(data);
           // check the link header for total pages
@@ -670,7 +679,13 @@
               tr.append(td.clone().text(date).attr("class", "text-center"));
               table.append(tr);
             });
-            return table;
+
+            // append table to container
+            var responsive_wrapper = $("<div></div>").attr({
+              "class": "table-responsive"
+            });
+            responsive_wrapper.append(table);
+            return responsive_wrapper;
           }
         }
 
