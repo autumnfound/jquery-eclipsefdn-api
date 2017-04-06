@@ -9,7 +9,7 @@
   "keywords": [
     "eclipse foundation api"
   ],
-  "main": "src/jquery.eclipse-api.js",
+  "main": "src/jquery.eclipsefdn-api.js",
   "dependencies": {
     "jquery": "1.9.1"
   },

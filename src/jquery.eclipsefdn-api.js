@@ -26,7 +26,8 @@
       errorMsg: "<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.",
       gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
       type: "",
-      itemsPerPage: 10
+      itemsPerPage: 10,
+      accountsUrl: "https://accounts.eclipse.org"
     };
 
   // The actual plugin constructor
@@ -57,11 +58,260 @@
         "recentEvents",
         "forumsMsg",
         "gerritReviewCount",
-        "projectsList"
+        "projectsList",
+        "errorReports"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
       }
+    },
+    errorReports: function() {
+      var self = this;
+      var userEmail;
+      var container = self.element;
+      var dontProceed = false;
+      // error for unable to get account email info
+      var dspAcctError = "Unable to retrieve account information required to process this request.";
+      // error for authorization denied / failed
+      var dspAuthError = "Authorization to retrieve error reports was denied.";
+      // we're going to need the user's email address to pull in the reports
+      var accountApi = self.settings.apiUrl + "/account/profile/" + self.settings.username;
+      // igc settings
+      // use default auth url for AERI, which will be production accounts
+      var igcSettings = {
+        clientName: "aeriReports",
+        apiUrl: "https://dev.eclipse.org",
+        completeOnAuthorization: false,
+        username: self.settings.username,
+        encodeStorage: true,
+      };
+      // we'll use this to build the request path, with email in the middle and page options trailing
+      var pathPrefix = "/recommenders/community/aeri/v2/api/v1/reporters/";
+      var pathSuffix = "/problems";
+      // default request options, will build path before request
+      var requestOptions = {
+        path: "",
+        method: "GET",
+        cid: "aeri_reports",
+        scope: "eclipse_aeri_view_own_report email openid",
+        // we'll set success callback individually for initial calls and paginated calls
+        successCallback: "",
+        // error callback can be the same for both
+        errorCallback: function(jqXHR) {
+          // display default error msg - we may get more details later if necessary
+          switch (jqXHR.status) {
+            case 404:
+              displayErrorMsg("No submissions found.");
+              break;
+            default:
+              displayErrorMsg();
+          }
+        }
+      };
+      // event handler for authorization failed event
+      $(document).on("igcAuthFailed", function(event, authError) {
+        // this is probably message worthy
+        if (authError.clientName === igcSettings.clientName) {
+          displayErrorMsg(dspAuthError);
+          dontProceed = true;
+        }
+      });
+      // initialize IGC, if an authorization error is pending it should get triggered in the init
+      $(container).eclipseFdnIgc(igcSettings);
+
+      // we probably want to check if the user cancelled the authorization and not proceed.
+      // timing may be an issue here.
+      if (dontProceed) {
+        // msg already displayed at this point
+        return;
+      }
+
+      $.ajax({
+          url: accountApi,
+          context: self.element
+        })
+        .done(function(data) {
+          if (typeof(data.mail) === "undefined") {
+            displayErrorMsg(dspAcctError, true);
+            return;
+          }
+          userEmail = data.mail;
+          // check again if we should proceed.  authorization failure/cancel should have been flagged by now
+          if (dontProceed) {
+            // if we got here, the initial error was not displayed.
+            displayErrorMsg(dspAuthError);
+            return;
+          }
+          
+          // make the call to get the data, we'll need initial lot to build pager
+          requestOptions.path = pathPrefix + userEmail + pathSuffix + "?page=1&size=" + self.settings.itemsPerPage;
+          requestOptions.successCallback = function(data, textStatus, jqXHR) {
+            
+            // create the error reports table
+            buildReportTable(data);
+            // check the link header for total pages
+            // currently the jqXHR object is returned, consider just returning header block along with data
+            var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+            var lastPage = linkHeader.getLastPageNum();
+            // check if itemsPerPage should be updated to returned value
+            if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+              self.settings.itemsPerPage = linkHeader.getPageSize();
+            }
+            // set fetch posts event
+            $("#aeri-reports").on("fetchPageItemsEvent", fetchErrorReports);
+            // store items per page so we know how many to fetch per page
+            $("#aeri-reports").data("postsPerPage", self.settings.itemsPerPage);
+            // add pagination bar
+            $(container).append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "aeri-reports"));
+          };
+          
+          $(document).eclipseFdnIgc.makeRequest(requestOptions);
+        })
+        .fail(function() {
+          // we're not capturing the reason it failed, but we will display it on the page
+          displayErrorMsg(dspAcctError, true);
+        });
+
+      function buildReportTable(data) {
+        // Create table
+        var table = $("<table></table>").attr({
+          "width": "100%",
+          "class": "table",
+          "id": "aeri-reports"
+        });
+
+        var tr = $("<tr></tr>");
+        var th = $("<th></th>");
+
+        // Title Header
+        tr.append(th.clone().text("Title").attr("width", "50%"));
+
+        // Status Header
+        tr.append(th.clone().text("Status").attr({
+          "width": "10%",
+          "class": "text-center"
+        }));
+
+        // Resolution Header
+        tr.append(th.clone().text("Resolution").attr({
+          "width": "10%",
+          "class": "text-center"
+        }));
+
+        // Reporters Header
+        tr.append(th.clone().text("Reporters").attr({
+          "width": "10%",
+          "class": "text-center"
+        }));
+
+        // Your First Report Header
+        tr.append(th.clone().text("Your First Report").attr({
+          "width": "20%",
+          "class": "text-center"
+        }));
+
+        // Insert heading row in table
+        table.append(tr);
+
+        // Responsive container to wrap the table
+        var responsive_wrapper = $("<div></div>").attr({
+          "class": "table-responsive"
+        });
+        
+        // append table to container
+        responsive_wrapper.append(table);
+        $(container).append(responsive_wrapper);
+        
+        // Add a row in the table for each Error Reports
+        $.each(data, function(index, value) {
+          var tr = $("<tr></tr>");
+          var td = $("<td></td>");
+          var a = $("<a></a>");
+          var submissionLinks = $("<ul></ul>");
+          var li = $("<li></li>");
+          // main title / problem link
+          var problemLink;
+          // open links in new window
+          a.attr("target", "_blank");
+          // cycle through links and build out Title column
+          $.each(value.links, function(index, link) {
+            if (link.rel === "problem") {
+              //the problem link - main title link
+              problemLink = a.clone().attr({
+                "href": link.href
+              }).text(link.title);
+            }
+            if (link.rel === "submission") {
+              submissionLinks.append(li.clone().append(a.clone().attr({
+                "href": link.href
+              }).html(
+                "<small>" + link.title + "</small>"
+              )));
+            }
+          });
+
+          // Title column
+          tr.append(td.clone().append(problemLink).append(submissionLinks));
+          // Status column
+          tr.append(td.clone().text(value.status).attr("class", "text-center"));
+          // Resolution column
+          tr.append(td.clone().text(value.resolution).attr("class", "text-center"));
+          // # Reporters column
+          var span = $("<span></span>").attr("class", "badge");
+          span.text(value.numberOfReporters);
+          tr.append(td.clone().append(span).attr("class", "text-center"));
+
+          // Date column
+          var d = new Date(value.firstReported);
+          var month = d.getMonth() < 10 ? "0" + d.getMonth() : d.getMonth();
+          var day = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+          var reportedOn = d.getFullYear() + "-" + month + "-" + day;
+          tr.append(td.clone().text(reportedOn).attr("class", "text-center"));
+          table.append(tr);
+        });
+      }
+
+      function displayErrorMsg(msg, prependDefault) {
+
+        if (typeof(prependDefault) !== "boolean") {
+          prependDefault = false;
+        }
+
+        if (typeof(msg) === "undefined") {
+          // use the default msg
+          msg = self.settings.errorMsg;
+        }
+
+        if (prependDefault) {
+          msg = self.settings.errorMsg + msg;
+        }
+        var feedback = $("<p></p>").append(msg);
+        $(self.element).append(feedback);
+      }
+
+      function fetchErrorReports(event, page, pageSize) {
+        getErrorReportsByPage(page, pageSize);
+      }
+      // fetch reports by page number and use regular call handler
+      // we already have pager and everything setup.
+      function getErrorReportsByPage(pageNum, pageSize) {
+        if (typeof(pageNum) === "undefined") {
+          // default to page 1
+          pageNum = 1;
+        }
+        if (typeof(pageSize) === "undefined") {
+          // default to settings
+          pageSize = self.settings.itemsPerPage;
+        }
+        // make the call to get the data, we'll need initial lot to build pager
+        requestOptions.path = pathPrefix + userEmail + pathSuffix + "?page=" + pageNum + "&size=" + pageSize;
+        requestOptions.successCallback = function(data) {
+          // send diretly to addReportRows
+          addReportRows(data);
+        };
+        $(document).eclipseFdnIgc.makeRequest(requestOptions);
+      }
+
     },
     projectsList: function() {
       var self = this;
@@ -860,7 +1110,13 @@
         if (typeof(self.links.first) === "undefined") {
           return 0;
         }
-        return getParamValue(self.links.first, "pagesize");
+        // check first for pagesize, which we use
+        var size = getParamValue(self.links.first, "pagesize");
+        if (size === 0) {
+          // it's not there, try size (used by aeri)
+          return getParamValue(self.links.first, "size");
+        }
+        return size;
       };
 
       if (typeof(header) === "undefined" || header === null) {
@@ -1042,7 +1298,8 @@
             pageCacheType = "mpfav";
             break;
           case "forum-posts":
-            pageCacheType = "forum";
+          case "aeri-reports":
+            pageCacheType = "table";
             pageCache = buildPageCache(theElement.find("tr"));
             break;
           default:
@@ -1069,7 +1326,7 @@
           // grab the heading row if this is gerrit or forum table
           switch (pageCacheType) {
             case "gerrit":
-            case "forum":
+            case "table":
               // set heading row in cache
               theCache[0] = data[0];
               break;
@@ -1137,19 +1394,23 @@
           //if not in cache
           if (typeof(pageCache[gotoPageNum]) === "undefined") {
             var params = [];
-            // different params for mpc or forum
+            // different params for mpc or forum / AERI
             switch (pageType) {
               case "mpfav":
-              case "forum":
+              case "table":
                 params.push(gotoPageNum);
                 params.push(element.data("postsPerPage"));
                 break;
             }
+            // if table, put the heading back before triggering fetch and returning
+            if (element.is("table")) {
+              // this should be just the heading
+              element.append(pageCache[0]);
+            }
             element.trigger("fetchPageItemsEvent", params);
             return;
           }
-          // if in cache
-          // prefill heading from cache index 0 for tables
+          // fill in items from cache
           if (element.is("table")) {
             element.append(pageCache[0]);
           }
