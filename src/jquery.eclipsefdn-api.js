@@ -425,7 +425,7 @@
       $.ajax(url, {
         context: this.element,
         success: function(data, textStatus, jqXHR) {
-          $(this).children("strong").text(data.total_result_count + self.plurialString(" favorite", data.total_result_count));
+          $(this).children("strong").text(data.result.count + self.plurialString(" favorite", data.result.count));
           // Exit now if container is not defined
           if (typeof container === "undefined") {
             return false;
