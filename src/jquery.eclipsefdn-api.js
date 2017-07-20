@@ -450,18 +450,38 @@
           if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
             self.settings.itemsPerPage = linkHeader.getPageSize();
           }
+
           // set the fetch favorites as custom event
           container.on("fetchPageItemsEvent", fetchFavorites);
-          container.append("<div class=\"alert alert-info\" role=\"alert\">" +
-            "<label>Copy this URL and paste it into MPC to install this list of favorites in your workspace: </label>" +
-            "<input class=\"text-full form-control form-text\" type=\"text\" readonly value=\"https://marketplace.eclipse.org/user/" + self.settings.username +
-            "/favorites\" width=\"100\">" +
-            "</div>");
+          container.append("<h3 id=\"mpc_list_name\">" + data.mpc_list_name + "</h3>");
+          container.append("<div class=\"row\"><div class=\"col-md-17\"><div class=\"form-item form-type-textfield form-disabled\">" +
+          "<label>Favorites URL <a href=\"#\" class=\"install-user-favorites\" data-container=\"body\" data-toggle=\"popover\" data-placement=\"top\" title=\"\" data-original-title=\"How to install?\">" +
+          "<i class=\"fa fa-question-circle\" aria-hidden=\"true\"></i></a> </label>" +
+          "<input disabled=\"true\" class=\"form-control form-text\" type=\"text\" value=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" size=\"60\" maxlength=\"128\">" +
+          "</div></div><div class=\"col-md-7 margin-top-25 text-right\"><div class=\"drag_installbutton drag_installbutton_v2 drag-install-favorites\">" +
+          "<a href=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" class=\"drag\" title=\"How to install?\">" +
+          "<span class=\"btn btn-simple\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
+          "<div class=\"tooltip tooltip-below-right\"><h3>Drag to Install!</h3>" +
+          "Drag to your running Eclipse<sup>*</sup> workspace to install this " +
+          "favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>");
           container.append("<div id=\"mpfavorites-list\"></div>");
           container.find("#mpfavorites-list").data("postsPerPage", self.settings.itemsPerPage);
           getFavoritesByNodes(nodes.join());
           container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "mpfavorites-list"));
           container.append(more_marketplace_link);
+          // Add instructions to popover
+          $("a.install-user-favorites").on("click", function (e) {
+              e.preventDefault();
+          });
+          $("a.install-user-favorites").popover({html: true, content: function() {
+             return $("<ol></ol>")
+                .addClass("padding-left-20")
+                .append("<li>Copy <strong>URL</strong> from textfield.</li>")
+                .append("<li>Open Eclipse Marketplace Client (MPC).</li>")
+                .append("<li>Open <strong>Favorites</strong> tab.</li>")
+                .append("<li>Click on <strong>Import Favorites list</strong>.</li>")
+                .append("<li>Paste <strong>URL</strong> in the textfield.</li>");
+          }});
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
