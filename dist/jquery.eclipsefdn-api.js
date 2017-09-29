@@ -252,6 +252,9 @@
               }).text(link.title);
             }
             if (link.rel === "submission") {
+              if (!link.title) {
+                link.title = "(No error message)";
+              }
               submissionLinks.append(li.clone().append(a.clone().attr({
                 "href": link.href
               }).html(
