@@ -264,7 +264,7 @@
           });
 
           // Title column
-          tr.append(td.clone().append(problemLink).append(submissionLinks));
+          tr.append(td.clone().append(problemLink).append(submissionLinks).attr({"class": "ellipsis white-space-normal", "style": "max-width:200px;"}));
           // Status column
           tr.append(td.clone().text(value.status).attr("class", "text-center"));
           // Resolution column
