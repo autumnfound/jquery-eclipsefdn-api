@@ -69,7 +69,8 @@
         "forumsMsg",
         "gerritReviewCount",
         "projectsList",
-        "errorReports"
+        "errorReports",
+        "mailingListSubscription"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -857,6 +858,103 @@
           $(this).html(self.settings.errorMsg);
         }
       });
+    },
+    mailingListSubscription: function() {
+      var self = this;
+      var username = self.settings.username;
+      var currentUser = self.settings.currentUser;
+      var currentUserUid = self.settings.currentUserUid;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      var container = self.element;
+      var url = apiUrl + "/account/profile/" + username + "/mailing-list";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+          var subsriptions = data.mailing_list_subscriptions;
+          var p = $("<p></p>");
+          var h2 = $("<h2></h2>");
+          var a = $("<a></a>");
+          var strong = $("<strong></strong>");
+
+          var message_user = "This user is";
+          if (currentUser === username) {
+            message_user = "You are";
+          }
+
+          $(container).append(h2.text("Eclipse Mailing Lists"));
+
+          if (!jQuery.isEmptyObject(subsriptions)) {
+            $(container).append(p.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project."));
+            $(container).append(p.clone().text("Below is a list of the public mailing lists that " +
+                message_user.toLowerCase() + " currently  subscribed to at Eclipse.org. When posting emails " +
+                   "to our mailing lists, please remember that these lists are public, avoid posting ")
+                   .append(strong.clone().text("personal")).append(" or ").append(strong.clone().text("private information")).append("."));
+            $(container).append(p.clone().text("If you are having trouble using our mailing lists, please contact ")
+                .append(a.clone().attr("href", "mailto:mailman@eclipse.org").text("mailman@eclipse.org")).append("."));
+
+            // Create table
+            var table = $("<table></table>").attr({
+              "width": "100%",
+              "class": "table",
+              "id": "aeri-reports"
+            });
+
+            var tr = $("<tr></tr>");
+            var th = $("<th></th>");
+
+            // Title Header
+            tr.append(th.clone().text("Mailing List").attr("width", "30%"));
+            tr.append(th.clone().text("Description").attr("width", "70%"));
+
+            // Insert heading row in table
+            table.append(tr);
+
+            // Responsive container to wrap the table
+            var responsive_wrapper = $("<div></div>").attr({
+              "class": "table-responsive"
+            });
+
+            // append table to container
+            responsive_wrapper.append(table);
+            $(container).append(responsive_wrapper);
+            $(container).append(p);
+            // Add a row in the table for each Error Reports
+            $.each(subsriptions, function(index, value) {
+              var tr = $("<tr></tr>");
+              var td = $("<td></td>");
+
+              // Title column
+              tr.append(td.clone().append(a.clone().attr("href", "/mailing-list/" + value.list_name).text(value.list_name)));
+
+              // Description column
+              tr.append(td.clone().append(value.list_description));
+
+              table.append(tr);
+            });
+          }
+          else {
+            $(container).append(p.clone().text(message_user + " not subscribed to any Eclipse mailing list."));
+          }
+
+          if (currentUser === username) {
+            $(container).append(p.clone().append(a.clone().attr({
+              "href": "/user/" + currentUserUid + "/mailing-list",
+              "class": "btn btn-primary btn-xs"
+            }).text("Manage your Mailing Lists")));
+          }
+          
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+
     },
     gerritReviews: function() {
       var self = this;
