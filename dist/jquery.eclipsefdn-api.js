@@ -864,6 +864,7 @@
       var username = self.settings.username;
       var currentUser = self.settings.currentUser;
       var currentUserUid = self.settings.currentUserUid;
+      var userCanEditOwnMailingList = self.settings.userCanEditOwnMailingList;
       var apiUrl = this.settings.apiUrl;
       // Exit if variables are not set.
       if (!username && !api_url) {
@@ -942,7 +943,7 @@
             $(container).append(p.clone().text(message_user + " not subscribed to any Eclipse mailing list."));
           }
 
-          if (currentUser === username) {
+          if (currentUser === username && userCanEditOwnMailingList) {
             $(container).append(p.clone().append(a.clone().attr({
               "href": "/user/" + currentUserUid + "/mailing-list",
               "class": "btn btn-primary btn-xs"
