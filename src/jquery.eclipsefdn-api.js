@@ -878,7 +878,12 @@
             message_user = "You are";
           }
 
-          $(container).append(h2.text("Eclipse Mailing Lists"));
+          var link = a.clone().attr({
+            "href":"/user/" + currentUserUid + "/mailing-list",
+            "class":"fa fa-pencil",
+            "aria-hidden":"true"
+          });
+          $(container).append(h2.text("Eclipse Mailing Lists ").append(link));
 
           if (!jQuery.isEmptyObject(subsriptions)) {
             $(container).append(p.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project."));

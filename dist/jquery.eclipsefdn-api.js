@@ -888,7 +888,12 @@
             message_user = "You are";
           }
 
-          $(container).append(h2.text("Eclipse Mailing Lists"));
+          var link = a.clone().attr({
+            "href":"/user/" + currentUserUid + "/mailing-list",
+            "class":"fa fa-pencil",
+            "aria-hidden":"true"
+          });
+          $(container).append(h2.text("Eclipse Mailing Lists ").append(link));
 
           if (!jQuery.isEmptyObject(subsriptions)) {
             $(container).append(p.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project."));
@@ -942,14 +947,12 @@
           else {
             $(container).append(p.clone().text(message_user + " not subscribed to any Eclipse mailing list."));
           }
-
           if (currentUser === username && userCanEditOwnMailingList) {
             $(container).append(p.clone().append(a.clone().attr({
               "href": "/user/" + currentUserUid + "/mailing-list",
               "class": "btn btn-primary btn-xs"
             }).text("Manage your Mailing Lists")));
           }
-          
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
