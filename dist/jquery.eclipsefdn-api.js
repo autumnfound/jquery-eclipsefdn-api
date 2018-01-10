@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.21
+ *  jquery-eclipsefdn-api - v0.0.22
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
@@ -947,6 +947,7 @@
           else {
             $(container).append(p.clone().text(message_user + " not subscribed to any Eclipse mailing list."));
           }
+
           if (currentUser === username && userCanEditOwnMailingList) {
             $(container).append(p.clone().append(a.clone().attr({
               "href": "/user/" + currentUserUid + "/mailing-list",
