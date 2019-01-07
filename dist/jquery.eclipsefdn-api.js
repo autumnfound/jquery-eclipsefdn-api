@@ -724,7 +724,7 @@
           "<input disabled=\"true\" class=\"form-control form-text\" type=\"text\" value=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" size=\"60\" maxlength=\"128\">" +
           "</div></div><div class=\"col-md-7 margin-top-25 text-right\"><div class=\"drag_installbutton drag_installbutton_v2 drag-install-favorites\">" +
           "<a href=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" class=\"drag\" title=\"How to install?\">" +
-          "<span class=\"btn btn-simple\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
+          "<span class=\"btn btn-default\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
           "<div class=\"tooltip tooltip-below-right\"><h3>Drag to Install!</h3>" +
           "Drag to your running Eclipse<sup>*</sup> workspace to install this " +
           "favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>");
@@ -954,6 +954,7 @@
               "class": "btn btn-primary btn-xs"
             }).text("Manage your Mailing Lists")));
           }
+          
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
