@@ -337,9 +337,6 @@
           if (project_count === undefined) {
             project_count = 0;
           }
-          $(this).attr({
-            "href": "https://projects.eclipse.org/",
-          });
 
           $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
 

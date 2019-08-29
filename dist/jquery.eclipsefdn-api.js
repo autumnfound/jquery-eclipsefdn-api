@@ -347,9 +347,6 @@
           if (project_count === undefined) {
             project_count = 0;
           }
-          $(this).attr({
-            "href": "https://projects.eclipse.org/",
-          });
 
           $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
 
@@ -736,7 +733,7 @@
           // Add instructions to popover
           $("a.install-user-favorites").on("click", function (e) {
               e.preventDefault();
-          });
+          }); 
           $("a.install-user-favorites").popover({html: true, content: function() {
              return $("<ol></ol>")
                 .addClass("padding-left-20")
