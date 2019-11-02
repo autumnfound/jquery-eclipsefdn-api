@@ -20,7 +20,7 @@
   "homepage": "https://github.com/EclipseFdn/jquery-eclipsefdn-api",
   "license": "MIT",
   "dependencies": {
-    "jquery": "1.9.1"
+    "jquery": "3.4.1"
   },
   "contributors": [
     {
