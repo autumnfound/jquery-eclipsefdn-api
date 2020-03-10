@@ -11,7 +11,7 @@
 // the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 (function($, window, document, undefined) {
-  "use strict";
+  "use strict"; 
 
   // undefined is used here as the undefined global variable in ECMAScript 3 is
   // mutable (ie. it can be changed by someone else). undefined isn"t really being
@@ -445,7 +445,7 @@
         context: this.element,
         success: function(data, textStatus, jqXHR) {
           var user_msg_count = 0;
-          if (data.posted_msg_count !== undefined) {
+          if (data.posted_msg_count !== undefined && data.id !== undefined) {
             user_msg_count = data.posted_msg_count;
             $(this).attr({
               "href": self.settings.forumsUrl + "/index.php/sp/" + data.id + "/",
@@ -474,7 +474,7 @@
             "style": "display:block"
           }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
 
-          if (data.length === 0) {
+          if (data.posts.length === 0) {
             container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
               "This user does not have any activities on Eclipse Forums." +
               "</div>");
