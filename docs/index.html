@@ -15,6 +15,20 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script src="https://raw.githubusercontent.com/EclipseFdn/jquery-eclipsefdn-api/master/dist/jquery.eclipsefdn-api.min.js"></script>  
+    <!-- Eclipse Dashboard Demo -->
+    <script>
+      $( function() {
+        $(".statistics-mp-favorites strong").eclipseFdnApi({
+          type: "mpFavoritesCount",
+        });
+        $(".sld-events").eclipseFdnApi({
+          type: "recentEvents"
+        });
+        $("#gerrit").eclipseFdnApi({
+          type: "gerritReviews"
+        });
+      });
+    </script>
   </head>
   <body>
     <div class="container">
@@ -86,19 +100,5 @@
         </div>
       </div>
     </div>
-    <!-- Eclipse Dashboard Demo -->
-    <script>
-      $( function() {
-        $(".statistics-mp-favorites strong").eclipseFdnApi({
-          type: "mpFavoritesCount",
-        });
-        $(".sld-events").eclipseFdnApi({
-          type: "recentEvents"
-        });
-        $("#gerrit").eclipseFdnApi({
-          type: "gerritReviews"
-        });
-      });
-    </script>
   </body>
 </html>
