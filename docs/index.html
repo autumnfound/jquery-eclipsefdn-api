@@ -17,71 +17,71 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-eclipsefdn-api/dist/jquery.eclipsefdn-api.min.js"></script>  
     <!-- Eclipse Dashboard Demo -->
     <script>
-      $( function() {
-       
+    $(function() {
+
         var username = 'cguindon';
         var currentUser = 'cguindon';
-        var currentUserUid =  9;
+        var currentUserUid = 9;
         var userCanEditOwnMailingList = true;
         var apiUrl = "https://api.eclipse.org";
         var marketplaceUrl = "https://marketplace.eclipse.org";
         var accountsUrl = "https://accounts.eclipse.org";
         var profileUser = "cguindon"
-      
-           if (username && apiUrl && marketplaceUrl) {
-                  $(".statistics-mp-favorites a").eclipseFdnApi({
-                    username: username,
-                    apiUrl: apiUrl,
-                    marketplaceUrl: marketplaceUrl,
-                    type: "mpFavorites",
-                    contentPlaceholder: $("#tab-marketplace")
-                  });
-      
-                  $(".statistics-forums a").eclipseFdnApi({
-                    username: username,
-                    currentUser: currentUser,
-                    apiUrl: apiUrl,
-                    type: "forumsMsg",
-                    contentPlaceholder: $("#tab-forums")
-                  });
-                  
-                  $(".statistics-projects a").eclipseFdnApi({
-                    username: username,
-                    currentUser: currentUser,
-                    apiUrl: apiUrl,
-                    type: "projectsList",
-                    contentPlaceholder: $("#tab-projects")
-                  });
-      
-                  $(".statistics-gerrit a").eclipseFdnApi({
-                    username: username,
-                    apiUrl: apiUrl,
-                    type: "gerritReviewCount",
-                  });
-                }
-      
-                if (username) {
-                  $("#tab-gerrit").eclipseFdnApi({
-                    username: username,
-                    type: "gerritReviews",
-                  });
-                  
-                  $("#tab-mailing-list").eclipseFdnApi({
-                    username: username,
-                    currentUser: currentUser,
-                    currentUserUid: currentUserUid,
-                    apiUrl: apiUrl,
-                    userCanEditOwnMailingList: userCanEditOwnMailingList,
-                    type: "mailingListSubscription",
-                  });
-                }
-      
-                // Eclipse Events
-                $(".sld-events").eclipseFdnApi({
-                  type: "recentEvents"
-                });
-           }
-      }
+
+        if (username && apiUrl && marketplaceUrl) {
+          $(".statistics-mp-favorites a").eclipseFdnApi({
+            username: username,
+            apiUrl: apiUrl,
+            marketplaceUrl: marketplaceUrl,
+            type: "mpFavorites",
+            contentPlaceholder: $("#tab-marketplace")
+          });
+
+          $(".statistics-forums a").eclipseFdnApi({
+            username: username,
+            currentUser: currentUser,
+            apiUrl: apiUrl,
+            type: "forumsMsg",
+            contentPlaceholder: $("#tab-forums")
+          });
+
+          $(".statistics-projects a").eclipseFdnApi({
+            username: username,
+            currentUser: currentUser,
+            apiUrl: apiUrl,
+            type: "projectsList",
+            contentPlaceholder: $("#tab-projects")
+          });
+
+          $(".statistics-gerrit a").eclipseFdnApi({
+            username: username,
+            apiUrl: apiUrl,
+            type: "gerritReviewCount",
+          });
+        }
+
+        if (username) {
+          $("#tab-gerrit").eclipseFdnApi({
+            username: username,
+            type: "gerritReviews",
+          });
+
+          $("#tab-mailing-list").eclipseFdnApi({
+            username: username,
+            currentUser: currentUser,
+            currentUserUid: currentUserUid,
+            apiUrl: apiUrl,
+            userCanEditOwnMailingList: userCanEditOwnMailingList,
+            type: "mailingListSubscription",
+          });
+        }
+
+        // Eclipse Events
+        $(".sld-events").eclipseFdnApi({
+          type: "recentEvents"
+        });
+
+      });
     </script>
   </head>
   <body>
