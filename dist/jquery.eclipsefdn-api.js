@@ -37,7 +37,8 @@
       gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
       type: "",
       itemsPerPage: 10,
-      accountsUrl: "https://accounts.eclipse.org"
+      accountsUrl: "https://accounts.eclipse.org",
+      newsroomUrl: "https://newsroom.eclipse.org/api"
     };
 
   // The actual plugin constructor
@@ -70,7 +71,8 @@
         "gerritReviewCount",
         "projectsList",
         "errorReports",
-        "mailingListSubscription"
+        "mailingListSubscription",
+        "newsItems"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1556,6 +1558,86 @@
             element.data("pageCache", pageCache);
           }
         }
+      }
+    },
+    newsItems: function() {
+      var self = this;
+      // get the container element for the current call
+      var $container = $($(this)[0].element);
+      // check how many to display with a default of 5
+      var displayCount = $container.data("news-count") || 5;
+      var filter = "?";
+      // generate filters based on publish and type targets
+      var publishTarget = $container.data("publish-target") || "eclipse_org";
+      if (Array.isArray(publishTarget)) {
+        for (var publishIdx in publishTarget) {
+          if (filter.length !== 1) {
+            filter+="&";
+          }
+          filter += "parameters%5Bpublish_to%5D=" + publishTarget[publishIdx];
+        }
+      } else {
+        if (filter.length !== 1) {
+          filter+="&";
+        }
+        filter += "parameters%5Bpublish_to%5D=" + publishTarget;
+      }
+      var typeTarget = $container.data("news-type") || "news";
+      if (Array.isArray(typeTarget)) {
+        for (var typeIdx in typeTarget) {
+          if (filter.length !== 1) {
+            filter+="&";
+          }
+          filter += "parameters%5Bnews_type%5D=" + typeTarget[typeIdx];
+        }
+      } else {
+          if (filter.length !== 1) {
+            filter+="&";
+          }
+        filter += "parameters%5Bnews_type%5D=" + typeTarget;
+      }
+      // create the GET URL for news items
+      var url = this.settings.newsroomUrl + "/news" + filter;
+      $.ajax(url, {
+        success: function(data) {
+          var newsItems = data["news"];
+          if (newsItems.length > displayCount) {
+              newsItems = newsItems.slice(0, displayCount);
+          }
+          // post process the date to update date format
+          for (var i = 0; i < newsItems.length; i++) {
+            newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+          }
+          // allow template ID to be set on a per run basis with a default.
+          var templateId = $container.data("template-id") || "template-news-items";
+          var template = getTemplate(templateId);
+          var rendered = Mustache.render(template, { news: newsItems });
+          // clear the container before creating elements
+          $container.html(rendered);
+        },
+        error: function() {
+          // clear the loading placeholder
+          $container.empty();
+          // display an error message
+          var $errorEl = $("<div></div>");
+          $errorEl.attr("class", "alert alert-warning");
+          $errorEl.text("Unable to load news content currently.");
+          $container.append($errorEl);
+        }
+      });
+      
+      function getTemplate(templateId) {
+        var newsTemplate = $("#" + templateId);
+        if (newsTemplate !== undefined && newsTemplate.length !== 0) {
+          return newsTemplate[0].innerHTML;
+        }
+        return "{{#news}}" +
+          "<div class=\"block-summary-item match-height-item\">" +
+          "<p>{{ date }}</p>" +
+          "<h4><a href=\"{{ link }}\">{{ title }}</a></h4>" +
+          "<p>{{ body }}</p>" +
+          "</div>" +
+          "{{/news}}";
       }
     }
   });

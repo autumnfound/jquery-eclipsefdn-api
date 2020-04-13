@@ -80,8 +80,23 @@
         $(".sld-events").eclipseFdnApi({
           type: "recentEvents"
         });
+        // Eclipse News
+        $("#tab-news-list").eclipseFdnApi({
+          type: "newsItems"
+        });
 
       });
+    </script>
+    <script id="template-news-items" type="x-tmpl-mustache">
+    	{{#news}}
+		<div class="templated block-summary-item match-height-item">
+			<p>{{ date }}</p>
+			<h4>
+				<a href="{{ link }}">{{ title }}</a>
+			</h4>
+			<p>{{ body }}</p>
+		</div>
+		{{/news}}
     </script>
   </head>
   <body>
@@ -111,6 +126,9 @@
           <li role="presentation">
             <a href="#tab-mailing-list" aria-controls="tab-mailing-list" role="tab" data-toggle="tab">Mailing Lists</a>
           </li>
+          <li role="presentation">
+            <a href="#tab-news-list" aria-controls="tab-news-list" role="tab" data-toggle="tab">News Lists</a>
+          </li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content" style="min-height:550px;  border-left: 1px solid #ddd;border-right: 1px solid #ddd;padding: 10px 20px;">
@@ -119,6 +137,7 @@
           <div role="tabpanel" class="tab-pane" id="tab-gerrit"></div>
           <div role="tabpanel" class="tab-pane" id="tab-forums"></div>
           <div role="tabpanel" class="tab-pane" id="tab-mailing-list"></div>
+          <div role="tabpanel" class="tab-pane" id="tab-news-list" data-news-type="community_news"></div>
         </div>
       </div>
       <div class="col-md-4">

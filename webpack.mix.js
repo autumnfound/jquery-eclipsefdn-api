@@ -3,6 +3,7 @@ const prependFile = require('prepend-file');
 const path = require('path');
 const APP_DIR = path.resolve(__dirname, "./src/");
 const OUT_DIR = path.resolve(__dirname, "./dist/");
+const MODULES_DIR = path.resolve(__dirname, "./node_modules/");
 
 // required for legal reuse of components
 var header = "/*\n" +
@@ -21,7 +22,10 @@ require('laravel-mix')
 	.setPublicPath('dist')
 	.copy(`${APP_DIR}/jquery.eclipsefdn-api.js`, `${OUT_DIR}/jquery.eclipsefdn-api.js`)
 	.copy(`${APP_DIR}/jquery.eclipsefdn-igc.js`, `${OUT_DIR}/jquery.eclipsefdn-igc.js`)
-	.scripts(`${APP_DIR}/jquery.eclipsefdn-api.js`, `${OUT_DIR}/jquery.eclipsefdn-api.min.js`)
+	.scripts([
+		`${APP_DIR}/jquery.eclipsefdn-api.js`,
+		`${MODULES_DIR}/mustache/mustache.min.js`
+	], `${OUT_DIR}/jquery.eclipsefdn-api.min.js`)
 	.scripts(`${APP_DIR}/jquery.eclipsefdn-igc.js`, `${OUT_DIR}/jquery.eclipsefdn-igc.min.js`)
 	.then(function () {
 		prependFile(`${OUT_DIR}/jquery.eclipsefdn-api.js`, header, function(err) {
