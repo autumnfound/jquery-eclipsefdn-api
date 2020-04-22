@@ -155,7 +155,7 @@
             displayErrorMsg(dspAuthError);
             return;
           }
-          
+           
           // make the call to get the data, we'll need initial lot to build pager
           requestOptions.path = pathPrefix + userEmail + pathSuffix + "?page=1&size=" + self.settings.itemsPerPage;
           requestOptions.successCallback = function(data, textStatus, jqXHR) {
@@ -972,7 +972,6 @@
         "online code reviews for projects using the Git version control system.</p>");
       // Fetch data
       gerritRequest(gerrit_url);
-
       function gerritRequest(url) {
         var pagesize = 100;
         var skip = 0;
@@ -1280,6 +1279,23 @@
         return 0;
       }
     },
+    /**
+	 * Create and instantiate the pagination bar for content. In order to make use of this 
+	 * pagination bar, the given content type must have a listener for the event 'fetchPageItemsEvent'. 
+	 * 
+	 * The implementation for the fetchPageItemsEvent listener should have the parameters 
+	 * (pageNumber, itemsPerPage) to fetch the paged items, and inject them into the 
+	 * current container context. This will be called when pagination links on the bar are 
+	 * clicked.
+	 * 
+	 * @param totalItems -
+	 *            number of items that will be paginated over.
+	 * @param elementID -
+	 *            string constant representing different types of operations
+	 *            that can be performed. This value should match the ID of 
+	 *            a container that can be acted upon within the application.
+	 * @returns a jQuery element containing a navigation bar
+	 */
     getPaginationBar: function(totalItems, elementID) {
       var self = this;
       if (typeof(totalItems) === "undefined") {
@@ -1305,6 +1321,19 @@
       // return the pagination bar
       return pageNav;
 
+      /**
+       * Writes each of the numbered pagination links for the pagination bar.
+       * Each of the links will trigger an event to reload the section it is
+       * acting on rather than reload the entire page.
+       * 
+       * @param numPages -
+       *            maximum number of pages
+       * @param currentPageNum -
+       *            the current page number
+       * @param elementID -
+       *            the ID of the element calling for an update. This is used
+       *            for content matching + event triggers
+       */
       function drawPageNums(numPages, currentPageNum, elementID) {
         var li = $("<li></li>");
         var ul = $("<ul></ul>").addClass("pagination");
@@ -1383,6 +1412,9 @@
         return ul;
       }
 
+      /**
+       * Creates the pagination link given the following attributes.
+       */
       function getPagerLink(label, titlePiece, gotoPage, text) {
         if (typeof(text) === "undefined") {
           // use the page num
@@ -1398,6 +1430,11 @@
         }).text(text);
       }
 
+     /**
+	  * Builds the page cache for the current container. This will only live
+	  * for the current page, and will disappear when the page is left as
+	  * this cache lives on request rather than in-browser or elsewhere.
+	  */
       function cachePages() {
         var theElement = $("#" + elementID);
         var pageCache = [];
@@ -1417,6 +1454,9 @@
           case "aeri-reports":
             pageCacheType = "table";
             pageCache = buildPageCache(theElement.find("tr"));
+            break;
+          case "news-container":
+            pageCacheType = "news";
             break;
           default:
             pageCacheType = "generic";
@@ -1468,6 +1508,23 @@
         }
       }
 
+    /**
+	 * Callback for page changes events triggered by pagination links. This
+	 * will trigger a call to update the containers content with the next
+	 * pages content, as well as update the pagination bar with the new page
+	 * set as current. Numbers are shifted if necessary to properly display
+	 * the current and following pages.
+	 * 
+	 * This method is internal and requires a listener function be
+	 * registered for the 'fetchPageItemsEvent' event. Without the listener
+	 * registered, this function will not be able to update content based on
+	 * pagination requests.
+	 * 
+	 * @param event -
+	 *            the triggering pagination update request.
+	 * @param goToPageNum -
+	 *            the requested page number
+	 */
       function changePage(event, gotoPageNum) {
         var element = $(event.currentTarget);
         var pageType = element.data("pageCacheType");
@@ -1514,6 +1571,7 @@
             switch (pageType) {
               case "mpfav":
               case "table":
+              case "news":
                 params.push(gotoPageNum);
                 params.push(element.data("postsPerPage"));
                 break;
@@ -1535,6 +1593,10 @@
           });
         }
 
+        /**
+         * Creates an entry in the page cache for the current container with the 
+         * current page of data. This reduces outward calls while browsing between pages
+         */
         function addCurrentPageToCache() {
           // only store it if current page is not currently cached
           if (typeof(pageCache[currentPage]) === "undefined") {
@@ -1544,8 +1606,8 @@
               // pull out the table rows
               items = element.find("tr");
             } else if (element.is("div")) {
-              // assume mpc nodes
-              items = element.find(".node");
+              // assume mpc nodes or items
+              items = element.find(".node,.item");
             }
             $.each(items, function(index, value) {
               if ($(value).children().first().is("th")) {
@@ -1560,79 +1622,146 @@
         }
       }
     },
-    newsItems: function() {
+
+    /**
+	 * Injects news items into the page from the Eclipse newsroom, given a few
+	 * HTML data attributes on the element this is called on. The data
+	 * attributes that can be used will filter the results that are displayed on
+	 * page.
+     */
+    newsItems: function(includePagination) {
+      // set up initial state and call data
       var self = this;
-      // get the container element for the current call
       var $container = $($(this)[0].element);
-      // check how many to display with a default of 5
-      var displayCount = $container.data("news-count") || 5;
-      var filter = "?";
-      // generate filters based on publish and type targets
-      var publishTarget = $container.data("publish-target") || "eclipse_org";
-      if (Array.isArray(publishTarget)) {
-        for (var publishIdx in publishTarget) {
-          if (filter.length !== 1) {
-            filter+="&";
-          }
-          filter += "parameters%5Bpublish_to%5D=" + publishTarget[publishIdx];
-        }
-      } else {
-        if (filter.length !== 1) {
-          filter+="&";
-        }
-        filter += "parameters%5Bpublish_to%5D=" + publishTarget;
+      // get the news item container
+      var $newsContainer = $container.find("> div.news-container");
+      if ($newsContainer.length === 0) {
+        $newsContainer = $("<div></div>");
+        $newsContainer.attr({
+            "class": "news-container",
+            "id": "news-container"
+          });
+        $container.append($newsContainer);
       }
-      var typeTarget = $container.data("news-type") || "news";
-      if (Array.isArray(typeTarget)) {
-        for (var typeIdx in typeTarget) {
-          if (filter.length !== 1) {
-            filter+="&";
-          }
-          filter += "parameters%5Bnews_type%5D=" + typeTarget[typeIdx];
-        }
-      } else {
-          if (filter.length !== 1) {
-            filter+="&";
-          }
-        filter += "parameters%5Bnews_type%5D=" + typeTarget;
+      if ($container.data("pagination") === true) {
+        $newsContainer.on("fetchPageItemsEvent", retrieveNewsItems);
       }
-      // create the GET URL for news items
-      var url = this.settings.newsroomUrl + "/news" + filter;
-      $.ajax(url, {
-        success: function(data) {
-          var newsItems = data["news"];
-          if (newsItems.length > displayCount) {
-              newsItems = newsItems.slice(0, displayCount);
-          }
-          // post process the date to update date format
-          for (var i = 0; i < newsItems.length; i++) {
-            newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
-          }
-          // allow template ID to be set on a per run basis with a default.
-          var templateId = $container.data("template-id") || "template-news-items";
-          var template = getTemplate(templateId);
-          var rendered = Mustache.render(template, { news: newsItems });
-          // clear the container before creating elements
-          $container.html(rendered);
-        },
-        error: function() {
-          // clear the loading placeholder
-          $container.empty();
-          // display an error message
-          var $errorEl = $("<div></div>");
-          $errorEl.attr("class", "alert alert-warning");
-          $errorEl.text("Unable to load news content currently.");
-          $container.append($errorEl);
-        }
-      });
+      retrieveNewsItemsByPage($newsContainer, 1, 5);
+
+      /**
+       * Listener callback method for fetchPageItemsEvent event.
+       */	  
+      function retrieveNewsItems(event, page, pageSize) {
+        retrieveNewsItemsByPage(event.target, page, pageSize);
+      }
       
+
+    /**
+	 * Retrieves news items for the given page, injected into the element that is passed
+	 * as the context element. This method uses the following data attributes to filter 
+	 * the data, allowing the use of strings or array values:
+	 * 
+	 *  - data-publish-target
+	 *  - data-news-count
+	 *  - data-news-type
+	 *  
+	 * The data attribute 'data-template-id' can be used to defined a new mustache script 
+	 * template ID. This script would need to be present on the page and would be used in 
+	 * place of the default template to generate news items. 
+	 * 
+	 * @param contextEl -
+	 *            the element that called for the news items injection
+	 * @param page -
+	 *            page of news items to retrieve
+	 * @param pageSize -
+	 *            the number of items to retrieve. This is overridden by whatever is 
+	 *            explicitly defined in the data-news-count attribute on the parent container.
+	 */
+      function retrieveNewsItemsByPage(contextEl, page, pageSize) {
+        // get the container element for the current call
+        var $newsContainer = $(contextEl);
+        var $parent = $newsContainer.parent();
+        
+        // check how many to display with a default of 5
+        var displayCount = $parent.data("news-count") || pageSize || 5;
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+        // generate filters based on publish and type targets
+        var publishTarget = $parent.data("publish-target") || "eclipse_org";
+        if (Array.isArray(publishTarget)) {
+          for (var publishIdx in publishTarget) {
+            filter += "&parameters%5Bpublish_to%5D=" + publishTarget[publishIdx];
+          }
+        } else {
+          filter += "&parameters%5Bpublish_to%5D=" + publishTarget;
+        }
+        var typeTarget = $parent.data("news-type") || "news";
+        if (Array.isArray(typeTarget)) {
+          for (var typeIdx in typeTarget) {
+            filter += "&parameters%5Bnews_type%5D=" + typeTarget[typeIdx];
+          }
+        } else {
+          filter += "&parameters%5Bnews_type%5D=" + typeTarget;
+        }
+        
+        // create the GET URL for news items
+        var url = self.settings.newsroomUrl + "/news" + filter;
+        $.ajax(url, {
+          success: function(data, textStatus, jqXHR) {
+            var newsItems = data["news"];
+            if (newsItems.length > displayCount) {
+                newsItems = newsItems.slice(0, displayCount);
+            }
+            // post process the date to update date format
+            for (var i = 0; i < newsItems.length; i++) {
+              newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+            }
+            // allow template ID to be set on a per run basis with a default.
+            var templateId = $parent.data("template-id") || "template-news-items";
+            var template = getTemplate(templateId);
+            var rendered = Mustache.render(template, { news: newsItems });
+            // clear the container before creating elements
+            $newsContainer.html(rendered);
+            
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+	            var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+	            var lastPage = linkHeader.getLastPageNum();
+	            // check if itemsPerPage should be updated to returned value
+	            if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+	              self.settings.itemsPerPage = linkHeader.getPageSize();
+	            }
+	            // add pagination bar
+	            $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, $newsContainer.attr("id")));
+            }
+          },
+          error: function() {
+            // clear the loading placeholder
+            $container.empty();
+            // display an error message
+            var $errorEl = $("<div></div>");
+            $errorEl.attr("class", "alert alert-warning");
+            $errorEl.text("Unable to load news content currently.");
+            $container.append($errorEl);
+          }
+        });
+      }
+      
+
+    /**
+	 * Returns the mustache template for generating the list of news items from
+	 * the JSON data.
+	 * 
+	 * @param templateId -
+	 *            the ID of the script template to use when generating the news items
+	 * @returns the mustache template for generating the news list HTML
+	 */
       function getTemplate(templateId) {
         var newsTemplate = $("#" + templateId);
         if (newsTemplate !== undefined && newsTemplate.length !== 0) {
           return newsTemplate[0].innerHTML;
         }
         return "{{#news}}" +
-          "<div class=\"block-summary-item match-height-item\">" +
+          "<div class=\"item block-summary-item match-height-item\">" +
           "<p>{{ date }}</p>" +
           "<h4><a href=\"{{ link }}\">{{ title }}</a></h4>" +
           "<p>{{ body }}</p>" +
