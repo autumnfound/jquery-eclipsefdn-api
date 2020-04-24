@@ -77,11 +77,15 @@
 
         // Eclipse Events
         $(".sld-events").eclipseFdnApi({
-          type: "recentEvents"
+          type: "filteredEvents"
         });
         // Eclipse News
         $("#tab-news-list").eclipseFdnApi({
           type: "newsItems"
+        });
+        // Eclipse Events
+        $("#tab-event-list").eclipseFdnApi({
+          type: "filteredEvents"
         });
 
       });
@@ -128,6 +132,9 @@
           <li role="presentation">
             <a href="#tab-news-list" aria-controls="tab-news-list" role="tab" data-toggle="tab">News Lists</a>
           </li>
+          <li role="presentation">
+            <a href="#tab-event-list" aria-controls="tab-event-list" role="tab" data-toggle="tab">Event Lists</a>
+          </li>
         </ul>
         <!-- Tab panes -->
         <div class="tab-content" style="min-height:550px;  border-left: 1px solid #ddd;border-right: 1px solid #ddd;padding: 10px 20px;">
@@ -137,6 +144,7 @@
           <div role="tabpanel" class="tab-pane" id="tab-forums"></div>
           <div role="tabpanel" class="tab-pane" id="tab-mailing-list"></div>
           <div role="tabpanel" class="tab-pane" id="tab-news-list" data-pagination="true" data-news-type="community_news"></div>
+          <div role="tabpanel" class="tab-pane" id="tab-event-list" data-pagination="true" data-archive="true" data-type="ec"></div>
         </div>
       </div>
       <div class="col-md-4">
@@ -159,7 +167,6 @@
           </div>
           <div  class="panel-body">
             <div class="sld-events">
-              <div class="loading" style="padding:10px 15px;">Loading <strong class="pull-right"><i class="fa fa-spinner fa-pulse fa-fw"></i></strong></div>
             </div>
           </div>
         </div>
