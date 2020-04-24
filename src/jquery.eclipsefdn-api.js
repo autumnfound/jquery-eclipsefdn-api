@@ -62,7 +62,8 @@
         "projectsList",
         "errorReports",
         "mailingListSubscription",
-        "newsItems"
+        "newsItems",
+        "filteredEvents"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1446,8 +1447,11 @@
             pageCache = buildPageCache(theElement.find("tr"));
             break;
           case "news-container":
-            pageCacheType = "news";
-            break;
+              pageCacheType = "news";
+              break;
+          case "events-container":
+              pageCacheType = "events";
+              break;
           default:
             pageCacheType = "generic";
         }
@@ -1562,6 +1566,7 @@
               case "mpfav":
               case "table":
               case "news":
+              case "events":
                 params.push(gotoPageNum);
                 params.push(element.data("postsPerPage"));
                 break;
@@ -1619,7 +1624,7 @@
 	 * attributes that can be used will filter the results that are displayed on
 	 * page.
      */
-    newsItems: function(includePagination) {
+    newsItems: function() {
       // set up initial state and call data
       var self = this;
       var $container = $($(this)[0].element);
@@ -1676,23 +1681,10 @@
         var displayCount = $parent.data("news-count") || pageSize || 5;
         var filter = "?page=" + page;
         filter += "&pagesize=" + displayCount;
+        
         // generate filters based on publish and type targets
-        var publishTarget = $parent.data("publish-target") || "eclipse_org";
-        if (Array.isArray(publishTarget)) {
-          for (var publishIdx in publishTarget) {
-            filter += "&parameters%5Bpublish_to%5D=" + publishTarget[publishIdx];
-          }
-        } else {
-          filter += "&parameters%5Bpublish_to%5D=" + publishTarget;
-        }
-        var typeTarget = $parent.data("news-type") || "news";
-        if (Array.isArray(typeTarget)) {
-          for (var typeIdx in typeTarget) {
-            filter += "&parameters%5Bnews_type%5D=" + typeTarget[typeIdx];
-          }
-        } else {
-          filter += "&parameters%5Bnews_type%5D=" + typeTarget;
-        }
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", "eclipse_org");
+        filter += convertDataToURLParameters($parent, "news-type", "news_type", "news");
         
         // create the GET URL for news items
         var url = self.settings.newsroomUrl + "/news" + filter;
@@ -1759,8 +1751,169 @@
           "</div>" +
           "{{/news}}";
       }
+    },
+
+    filteredEvents : function() {
+      // set up initial state and call data
+      var self = this;
+      var $container = $($(this)[0].element);
+      // get the news item container
+      var $eventsContainer = $container.find("> div.events-container");
+      if ($eventsContainer.length === 0) {
+        $eventsContainer = $("<div></div>");
+        $eventsContainer.attr({
+          "class" : "events-container",
+          "id" : "events-container"
+        });
+        $container.append($eventsContainer);
+      }
+      if ($container.data("pagination") === true) {
+        $eventsContainer.on("fetchPageItemsEvent", retrieveFilteredEvents);
+      }
+      retrieveFilteredEventsByPage($eventsContainer, 1, 5);
+  
+      /**
+       * Listener callback method for fetchPageItemsEvent event.
+       */
+      function retrieveFilteredEvents(event, page, pageSize) {
+        retrieveFilteredEventsByPage(event.target, page, pageSize);
+      }
+      
+      /**
+       * Retrieves event items for the given page, injected into the element that is passed
+       * as the context element. This method uses the following data attributes to filter 
+       * the data, allowing the use of strings or array values:
+       * 
+       *  - data-publish-target
+       *  - data-count
+       *  - data-type
+       *  - data-upcoming
+       *  
+       * The data attribute 'data-template-id' can be used to defined a new mustache script 
+       * template ID. This script would need to be present on the page and would be used in 
+       * place of the default template to generate event items. 
+       * 
+       * @param contextEl -
+       *            the element that called for the news items injection
+       * @param page -
+       *            page of news items to retrieve
+       * @param pageSize -
+       *            the number of items to retrieve. This is overridden by whatever is 
+       *            explicitly defined in the data-count attribute on the parent container.
+       */
+      function retrieveFilteredEventsByPage(contextEl, page, pageSize) {
+        // get the container element for the currentcall
+        var $eventsContainer = $(contextEl);
+        var $parent = $eventsContainer.parent();
+        var displayCount = $parent.data("count") || pageSize || 5;
+  
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
+        filter += convertDataToURLParameters($parent, "type", "type", undefined);
+        filter += convertDataToURLParameters($parent, "upcoming", "upcoming_only", undefined);
+  
+        // create the GET URL for news items
+        var url = self.settings.newsroomUrl + "/events" + filter;
+        $.ajax(url, {
+          success : function(data, textStatus, jqXHR) {
+            var events = data["events"];
+            if (events.length > displayCount) {
+              events = events.slice(0, displayCount);
+            }
+            // post process the date to update date format
+            for (var i = 0; i < events.length; i++) {
+                if (Date.now() > new Date(events[i]["end-date"])) {
+                	delete events[i]["registration"];
+                }
+                
+                events[i].date = self.dateFormat(new Date(events[i].date));
+                events[i]["end-date"] = self.dateFormat(new Date(events[i]["end-date"]));
+            }
+            // allow template ID to be set on a per run basis with a default.
+            var templateId = $parent.data("template-id") || "template-event-items";
+            var isArchive = $parent.data("archive") || false;
+            var template = getTemplate(templateId, isArchive);
+            var rendered = Mustache.render(template, {
+                  "events" : events
+                });
+            // set the container HTML to the rendered HTML
+            $eventsContainer.html(rendered);
+  
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
+                      $eventsContainer.attr("id")));
+            }
+            $parent.trigger("shown.ef.events");
+          },
+          error : function() {
+            // clear the loading placeholder
+            $container.empty();
+            // display an error message
+            var $errorEl = $("<div></div>");
+            $errorEl.attr("class", "alert alert-warning");
+            $errorEl.text("Unable to load events content currently.");
+            $container.append($errorEl);
+          }
+        });
+      }
+  
+      /**
+       * Returns the mustache template for generating the
+       * list of events from the JSON data.
+       * 
+       * @param templateId -
+       *            the ID of the script template to use
+       *            when generating the events
+       * @returns the mustache template for generating the
+       *          events list HTML
+       */
+      function getTemplate(templateId, isArchive) {
+        var eventsTemplate = $("#" + templateId);
+        if (eventsTemplate !== undefined && eventsTemplate.length !== 0) {
+          return eventsTemplate[0].innerHTML;
+        }
+        if (isArchive) {
+            return "{{#events}}"
+                + "<div class=\"item block-summary-item match-height-item\">"
+                + "<h3 class=\"h4\">{{ title }}</h3>"
+                + "<p>{{ locationName }}</p>"
+                + "<p>{{ date }} - {{ end-date }}</p>"
+                + "<p class=\"margin-bottom-0\">"
+                + "{{#registration}}" 
+                + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
+                + "{{/registration}}"
+                + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+                + "</p>" 
+                + "</div>" 
+                + "{{/events}}";
+        }
+        return "{{#events}}"
+            + "<div class=\"col-sm-12 col-md-6 event item match-height-item-by-row flex-column\">"
+            + "<h3 class=\"h4 flex-grow\">{{ title }}</h3>"
+            + "<p>{{ locationName }}</p>"
+            + "<p class=\"flex-grow\">{{ date }} - {{ end-date }}</p>"
+            + "<p class=\"margin-bottom-0\">"
+            + "{{#registration}}" 
+            + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
+            + "{{/registration}}"
+            + "{{^registration}}" 
+            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+            + "{{/registration}}" 
+            + "</p>" 
+            + "</div>" 
+            + "{{/events}}";
+      }
     }
   });
+  
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -1773,4 +1926,16 @@
     });
   };
 
+  var convertDataToURLParameters = function(el, name, parameterName, defaultVal) {
+	  var dataValue = el.data(name) || defaultVal;
+	  var filter = "";
+      if (Array.isArray(dataValue)) {
+        for (var dataIdx in dataValue) {
+          filter += "&parameters%5B" + parameterName + "%5D=" + dataValue[dataIdx];
+        }
+      } else if(dataValue !== undefined){
+        filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
+      }
+      return filter;
+  };
 })(jQuery, window, document);
