@@ -1733,6 +1733,7 @@
 	            // add pagination bar
 	            $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, $newsContainer.attr("id")));
             }
+            $parent.trigger("shown.ef.news");
           },
           error: function() {
             // clear the loading placeholder
