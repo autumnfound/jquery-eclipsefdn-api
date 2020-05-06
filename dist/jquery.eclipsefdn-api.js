@@ -27,7 +27,7 @@
     defaults = {
       apiUrl: "https://api.eclipse.org",
       gerritUrl: "https://git.eclipse.org/r",
-      eventUrl: "https://events.eclipse.org/data/EclipseEvents.json",
+      eventUrl: "https://newsroom.eclipse.org/api/events",
       forumsUrl: "https://www.eclipse.org/forums",
       marketplaceUrl: "https://marketplace.eclipse.org",
       username: "cguindon",
