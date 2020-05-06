@@ -1931,7 +1931,7 @@
 	  var filter = "";
       if (Array.isArray(dataValue)) {
         for (var dataIdx in dataValue) {
-          filter += "&parameters%5B" + parameterName + "%5D=" + dataValue[dataIdx];
+          filter += "&parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
         }
       } else if(dataValue !== undefined){
         filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
