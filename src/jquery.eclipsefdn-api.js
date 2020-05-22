@@ -1684,7 +1684,7 @@
         
         // generate filters based on publish and type targets
         filter += convertDataToURLParameters($parent, "publish-target", "publish_to", "eclipse_org");
-        filter += convertDataToURLParameters($parent, "news-type", "news_type", "news");
+        filter += convertDataToURLParameters($parent, "news-type", "news_type", "");
         
         // create the GET URL for news items
         var url = self.settings.newsroomUrl + "/news" + filter;
