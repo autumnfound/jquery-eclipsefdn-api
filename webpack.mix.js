@@ -24,7 +24,8 @@ require('laravel-mix')
 	.copy(`${APP_DIR}/jquery.eclipsefdn-igc.js`, `${OUT_DIR}/jquery.eclipsefdn-igc.js`)
 	.scripts([
 		`${APP_DIR}/jquery.eclipsefdn-api.js`,
-		`${MODULES_DIR}/mustache/mustache.min.js`
+		`${MODULES_DIR}/mustache/mustache.min.js`,
+		`${MODULES_DIR}/dayjs/dayjs.min.js`
 	], `${OUT_DIR}/jquery.eclipsefdn-api.min.js`)
 	.scripts(`${APP_DIR}/jquery.eclipsefdn-igc.js`, `${OUT_DIR}/jquery.eclipsefdn-igc.min.js`)
 	.then(function () {

@@ -28,6 +28,7 @@
     "watch": "NODE_ENV=development webpack --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "dependencies": {
+    "dayjs": "^1.8.27",
     "jquery": "3.3.1",
     "mustache": "^4.0.1"
   },

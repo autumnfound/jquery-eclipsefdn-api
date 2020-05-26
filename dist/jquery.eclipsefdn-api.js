@@ -415,7 +415,7 @@
             });
             tr = $("<tr></tr>");
             // Replies column
-            tr.append(td.clone().html(projectName).append("<br/><small>Since: " + self.dateFormat(new Date(activeDate)) + "</small>"));
+            tr.append(td.clone().html(projectName).append("<br/><small>Since: " + self.dateFormat(dayjs(activeDate)) + "</small>"));
             tr.append(td.clone().text(roles.join(", ")).attr("class", "text-center"));
             table.append(tr);
           });
@@ -594,7 +594,7 @@
             .append(forumLink)
             .append(" &gt; ")
             .append(request_data.root_subject)
-            .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
+            .append("<br>Posted on " + self.dateFormat(dayjs(parseInt(request_data.current_user_last_post_timestamp * 1000))));
           var read_icon = "fa fa-envelope-open-o";
           // Add warning class to row if the user did not see the message
           if (self.settings.currentUser === self.settings.username &&
@@ -622,7 +622,7 @@
           tr.append(td.clone().text(request_data.thread_views_count).attr("class", "text-center"));
 
           // Last message column
-          var last_message = $("<small></small>").append(self.dateFormat(new Date(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
+          var last_message = $("<small></small>").append(self.dateFormat(dayjs(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
             "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.last_message_poster_id + "/"
           }).text(request_data.last_message_poster_alias));
           tr.append(td.clone().html(last_message).attr("class", "text-center"));
@@ -766,7 +766,7 @@
               var title = value.getAttribute("name");
               var timestamp_lastupdated = node.find("changed").text();
               var owner = node.find("owner").text();
-              var lastupdated = "Last Updated on " + self.dateFormat(new Date(parseInt(timestamp_lastupdated * 1000))) + " by " + owner;
+              var lastupdated = "Last Updated on " + self.dateFormat(dayjs(parseInt(timestamp_lastupdated * 1000))) + " by " + owner;
               var nid = value.getAttribute("id");
               var listing = $("#mp-listing-template").clone().removeClass("hidden").removeAttr("id");
               var link = $("<a></a>");
@@ -1126,7 +1126,7 @@
 
           // Fetch only upcoming events.
           for (var i in data.events) {
-            data.events[i].dateTime = new Date(data.events[i].date);
+            data.events[i].dateTime = dayjs(data.events[i].date);
             if (data.events[i].dateTime >= today) {
               upcomingEvents.push(data.events[i]);
             }
@@ -1176,39 +1176,7 @@
       return string;
     },
     dateFormat: function(date) {
-      var monthList = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December"
-      ];
-
-      var dayList = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-
-      var fullYear = date.getFullYear();
-      var fullMonth = monthList[date.getMonth()];
-      var fullDay = dayList[date.getDay()];
-      var day = date.getDate();
-      var hour = ("0" + (date.getHours())).slice(-2);
-      var min = ("0" + (date.getMinutes())).slice(-2);
-      var time = fullDay + ", " + fullMonth + " " + day + ", " + fullYear + " - " + hour + ":" + min;
-      return time;
+      return date.format("dddd, MMMM D, YYYY - HH:mm");
     },
     // Class to parse and fetch values from the link header pagination
    linkHeaderParser: function(header) {
@@ -1706,7 +1674,7 @@
             }
             // post process the date to update date format
             for (var i = 0; i < newsItems.length; i++) {
-              newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+              newsItems[i].date = self.dateFormat(dayjs(newsItems[i].date));
             }
             // allow template ID to be set on a per run basis with a default.
             var templateId = $parent.data("template-id") || "template-news-items";
@@ -1837,8 +1805,8 @@
                 	delete events[i]["registration"];
                 }
                 
-                events[i].date = self.dateFormat(new Date(events[i].date));
-                events[i]["end-date"] = self.dateFormat(new Date(events[i]["end-date"]));
+                events[i].date = self.dateFormat(dayjs(events[i].date));
+                events[i]["end-date"] = self.dateFormat(dayjs(events[i]["end-date"]));
             }
             // allow template ID to be set on a per run basis with a default.
             var templateId = $parent.data("template-id") || "template-event-items";
