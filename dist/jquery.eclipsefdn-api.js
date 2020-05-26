@@ -51,7 +51,6 @@
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
-
   }
 
   // Avoid Plugin.prototype conflicts
@@ -1953,8 +1952,6 @@
       var $container = $($(this)[0].element);
       updateFeaturedContent($container, "footer", this.settings);
     }
-
-
   });
 
 
@@ -1968,7 +1965,6 @@
       }
     });
   };
-
   var updateFeaturedContent = function(container, type, settings) {
     var $container = $(container);
     var url = settings.newsroomUrl + "/featured_story";
@@ -1995,7 +1991,6 @@
         // make sure we have a promotion to display
         if (json.length > 0) {
           var item = json[0];
-
           // get the content container and append the content
           var $featuredContentContainer = $container.find(".featured-container");
           $featuredContentContainer.addClass("featured-story-nid-" + item.id);
@@ -2048,6 +2043,28 @@
    * source:
    * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
    */
+  var shuffleArray = function(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  };
+  
+  var getMustacheTemplate = function(templateId, defaultTemplate) {
+    var template = $("#" + templateId);
+    if (template !== undefined && template.length !== 0) {
+      return template[0].innerHTML;
+    }
+    return defaultTemplate;
+  }
+
+  /**
+   * Randomize array element order in-place. Using Durstenfeld shuffle algorithm.
+   * source:
+   * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   */	
   var shuffleArray = function(array) {
     for (var i = array.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));

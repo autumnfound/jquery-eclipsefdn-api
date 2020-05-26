@@ -1,0 +1,58 @@
+[
+	{
+		"bgImgSrc": "https://www.eclipse.org/home/images/ece-2019-banner.jpg",
+		"content": "Test content no1",
+		"content_class": "sample-class",
+		"endDate": "2099-07-30",
+		"header_class": "header-class second-class",
+		"link": {
+    		"href": "/documents/insights/2019-jakarta-ee-developer-survey.pdf",
+    		"value": "See the report!",
+    		"class": "btn btn-primary btn-lg"
+		},
+        "post_content": {
+          "value": "Some post content",
+          "post_class": "post-content-class" 
+        },
+        "preamble": {
+          "value": "Some preamble content",
+          "preamble_class": "preamble-class" 
+        },
+		"startDate": "2019-07-17",
+		"title": "The 2019 Jakarta EE <strong>Developer Survey</strong> results are out!",
+		"type": "both"
+	},
+	   {
+        "bgImgSrc": "https://www.eclipse.org/home/images/ece-2019-banner.jpg",
+        "content": "Test content no2 (no classes)",
+        "endDate": "2099-07-30",
+        "link": {
+            "href": "/documents/insights/2019-jakarta-ee-developer-survey.pdf",
+            "value": "See the report!"
+        },
+        "post_content": {
+          "value": "Some post content"
+        },
+        "preamble": {
+          "value": "Some preamble content"
+        },
+        "startDate": "2019-07-17",
+        "title": "The 2019 Jakarta EE <strong>Developer Survey</strong> results are out!",
+        "type": "footer"
+    },  {
+        "bgImgSrc": "https://www.eclipse.org/home/images/ece-2019-banner.jpg",
+        "content": "Test content no3",
+        "content_class": "sample-class",
+        "endDate": "2099-07-30",
+        "header_class": "header-class second-class",
+        "link": {
+            "href": "/documents/insights/2019-jakarta-ee-developer-survey.pdf",
+            "value": "See the report!",
+            "class": "btn btn-primary btn-lg"
+        },
+        "startDate": "2019-07-17",
+        "title": "The 2019 Jakarta EE <strong>Developer Survey</strong> results are out!",
+        "type": "story"
+    }
+]
+
