@@ -1798,6 +1798,8 @@
        *  - data-count
        *  - data-type
        *  - data-upcoming
+       *  - data-sort-order
+       *  - data-sort-field
        *  
        * The data attribute 'data-template-id' can be used to defined a new mustache script 
        * template ID. This script would need to be present on the page and would be used in 
@@ -1822,6 +1824,15 @@
         filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
         filter += convertDataToURLParameters($parent, "type", "type", undefined);
         filter += convertDataToURLParameters($parent, "upcoming", "upcoming_only", undefined);
+        
+        // if upcoming is set to 1 (PHP true) then set default sorting
+        var upcoming = $parent.data("upcoming") === 1 ? true : false;
+        var sortOrder = $parent.data("sort-order") || (upcoming ? "ASC" : undefined);
+        var sortField = $parent.data("sort-field") || (upcoming ? "field_event_date" : undefined);
+        // special treatment for sort option
+        if (sortOrder && sortField) {
+        	filter += "&options%5Borderby%5D%5B" + sortField + "%5D="+ sortOrder;
+        }
   
         // create the GET URL for news items
         var url = self.settings.newsroomUrl + "/events" + filter;
@@ -1833,8 +1844,12 @@
             }
             // post process the date to update date format
             for (var i = 0; i < events.length; i++) {
-                if (Date.now() > new Date(events[i]["end-date"])) {
+            	// remove registration completely if event is in the past or link is missing
+                if (Date.now() > new Date(events[i]["end-date"]) || !events[i]["registration"]) {
                 	delete events[i]["registration"];
+                }
+                if (!events[i]["infoLink"]) {
+                	delete events[i]["infoLink"];
                 }
                 
                 events[i].date = self.dateFormat(new Date(events[i].date));
@@ -1900,7 +1915,9 @@
                 + "{{#registration}}" 
                 + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
                 + "{{/registration}}"
+                + "{{#infoLink}}" 
                 + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+                + "{{/infoLink}}" 
                 + "</p>" 
                 + "</div>" 
                 + "{{/events}}";
@@ -1911,12 +1928,14 @@
             + "<p>{{ locationName }}</p>"
             + "<p class=\"flex-grow\">{{ date }} - {{ end-date }}</p>"
             + "<p class=\"margin-bottom-0\">"
+            + "{{#infoLink}}" 
+            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+            + "{{/infoLink}}" 
+            + "{{^infoLink}}" 
             + "{{#registration}}" 
             + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
             + "{{/registration}}"
-            + "{{^registration}}" 
-            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
-            + "{{/registration}}" 
+            + "{{/infoLink}}" 
             + "</p>" 
             + "</div>" 
             + "{{/events}}";
