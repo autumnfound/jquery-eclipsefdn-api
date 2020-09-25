@@ -1955,6 +1955,7 @@
       }
     });
   };
+
   var updateFeaturedContent = function(container, type, settings) {
     var $container = $(container);
     var url = settings.newsroomUrl + "/featured_story";
@@ -2033,28 +2034,6 @@
    * source:
    * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
    */
-  var shuffleArray = function(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-  };
-  
-  var getMustacheTemplate = function(templateId, defaultTemplate) {
-    var template = $("#" + templateId);
-    if (template !== undefined && template.length !== 0) {
-      return template[0].innerHTML;
-    }
-    return defaultTemplate;
-  }
-
-  /**
-   * Randomize array element order in-place. Using Durstenfeld shuffle algorithm.
-   * source:
-   * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-   */	
   var shuffleArray = function(array) {
     for (var i = array.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
