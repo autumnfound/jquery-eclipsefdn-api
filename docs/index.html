@@ -87,7 +87,14 @@
         $("#tab-event-list").eclipseFdnApi({
           type: "filteredEvents"
         });
-
+        // Featured Footer
+        $(".featured-footer").eclipseFdnApi({
+          type: "featuredFooter"
+        });
+        // Featured Footer
+        $(".featured-story").eclipseFdnApi({
+          type: "featuredStory"
+        });
       });
     </script>
     <script id="template-news-items" type="x-tmpl-mustache">
@@ -104,13 +111,18 @@
   </head>
   <body>
     <div class="container">
-      <div class="col-md-12">
-        <h1>jquery-eclipsefdn-api</h1>
-        <p><a href="http://www.chrisguindon.com">Christopher Guindon</a> | <i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/chrisguindon">@chrisguindon</a><br/></p>
-        <div class="alert alert-info" role="alert">Some assets for this demo are protected by 
-          <a href="https://www.w3.org/TR/cors/">Cross-Origin Resource Sharing (CORS)</a> and won't load.
+      <div class="row">
+        <div class="col-md-12">
+          <h1>jquery-eclipsefdn-api</h1>
+          <p>
+            <a href="http://www.chrisguindon.com">Christopher Guindon</a> | <i class="fa fa-twitter" aria-hidden="true"></i> <a href="https://twitter.com/chrisguindon">@chrisguindon</a><br />
+          </p>
+          <div class="alert alert-info" role="alert">
+            Some assets for this demo are protected by <a href="https://www.w3.org/TR/cors/">Cross-Origin Resource Sharing (CORS)</a> and won't load.
+          </div>
         </div>
       </div>
+      <div class="row">
       <div class="col-md-8">
         <!-- Nav tabs -->
         <ul class="nav nav-tabs solstice-tabs solstice-horizontal-tabs-list solstice-tabs-dark" role="tablist">
@@ -167,6 +179,39 @@
           </div>
           <div  class="panel-body">
             <div class="sld-events">
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Featured Story</h2>
+          <div class="featured-story" data-url="featured.json">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-6 col-sm-offset-1 col-md-8 col-md-offset-0 featured-story-block featured-story-block-content featured-container match-height-item-by-row">
+                </div>
+                <div class="col-sm-5 col-md-4 featured-ad featured-story-block match-height-item-by-row">
+                  <div class="featured-ad-content text-center">
+                    <h3>Sample ad content</h3>
+                    <p>Such adverts, much wow</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Featured Footer</h2>
+          <div class="featured-footer" data-url="featured.json">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-12 featured-container">
+                </div>
+              </div>
             </div>
           </div>
         </div>

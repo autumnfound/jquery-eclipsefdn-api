@@ -1,7 +1,7 @@
 // the semi-colon before function invocation is a safety net against concatenated
 // scripts and/or other plugins which may not be closed properly.
 (function($, window, document, undefined) {
-  "use strict"; 
+  "use strict";
 
   // undefined is used here as the undefined global variable in ECMAScript 3 is
   // mutable (ie. it can be changed by someone else). undefined isn"t really being
@@ -30,7 +30,6 @@
       accountsUrl: "https://accounts.eclipse.org",
       newsroomUrl: "https://newsroom.eclipse.org/api"
     };
-
   // The actual plugin constructor
   function Plugin(element, options) {
     this.element = element;
@@ -42,6 +41,7 @@
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
+
   }
 
   // Avoid Plugin.prototype conflicts
@@ -63,7 +63,9 @@
         "errorReports",
         "mailingListSubscription",
         "newsItems",
-        "filteredEvents"
+        "filteredEvents",
+        "featuredStory",
+        "featuredFooter"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -131,11 +133,11 @@
       }
 
       $.ajax({
-          url: accountApi,
-          context: self.element
-        })
+        url: accountApi,
+        context: self.element
+      })
         .done(function(data) {
-          if (typeof(data.mail) === "undefined") {
+          if (typeof (data.mail) === "undefined") {
             displayErrorMsg(dspAcctError, true);
             return;
           }
@@ -146,11 +148,11 @@
             displayErrorMsg(dspAuthError);
             return;
           }
-           
+
           // make the call to get the data, we'll need initial lot to build pager
           requestOptions.path = pathPrefix + userEmail + pathSuffix + "?page=1&size=" + self.settings.itemsPerPage;
           requestOptions.successCallback = function(data, textStatus, jqXHR) {
-            
+
             // create the error reports table
             buildReportTable(data);
             // check the link header for total pages
@@ -168,7 +170,7 @@
             // add pagination bar
             $(container).append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "aeri-reports"));
           };
-          
+
           $(document).eclipseFdnIgc.makeRequest(requestOptions);
         })
         .fail(function() {
@@ -221,11 +223,11 @@
         var responsive_wrapper = $("<div></div>").attr({
           "class": "table-responsive"
         });
-        
+
         // append table to container
         responsive_wrapper.append(table);
         $(container).append(responsive_wrapper);
-        
+
         // Add a row in the table for each Error Reports
         $.each(data, function(index, value) {
           var tr = $("<tr></tr>");
@@ -258,7 +260,7 @@
           });
 
           // Title column
-          tr.append(td.clone().append(problemLink).append(submissionLinks).attr({"class": "ellipsis white-space-normal", "style": "max-width:200px;"}));
+          tr.append(td.clone().append(problemLink).append(submissionLinks).attr({ "class": "ellipsis white-space-normal", "style": "max-width:200px;" }));
           // Status column
           tr.append(td.clone().text(value.status).attr("class", "text-center"));
           // Resolution column
@@ -280,11 +282,11 @@
 
       function displayErrorMsg(msg, prependDefault) {
 
-        if (typeof(prependDefault) !== "boolean") {
+        if (typeof (prependDefault) !== "boolean") {
           prependDefault = false;
         }
 
-        if (typeof(msg) === "undefined") {
+        if (typeof (msg) === "undefined") {
           // use the default msg
           msg = self.settings.errorMsg;
         }
@@ -302,11 +304,11 @@
       // fetch reports by page number and use regular call handler
       // we already have pager and everything setup.
       function getErrorReportsByPage(pageNum, pageSize) {
-        if (typeof(pageNum) === "undefined") {
+        if (typeof (pageNum) === "undefined") {
           // default to page 1
           pageNum = 1;
         }
-        if (typeof(pageSize) === "undefined") {
+        if (typeof (pageSize) === "undefined") {
           // default to settings
           pageSize = self.settings.itemsPerPage;
         }
@@ -512,7 +514,7 @@
           });
           responsive_wrapper.append(table);
           container.append(responsive_wrapper);
-          
+
           // draw the inital row data
           drawForumRows(data);
           // check the link header for total pages
@@ -600,9 +602,9 @@
 
           // Topic column
           tr.append(td.clone().html(a.clone().attr({
-                "href": self.settings.forumsUrl + "/index.php/t/" + request_data.thread_id + "/"
-              })
-              .text(request_data.current_user_last_post_subject))
+            "href": self.settings.forumsUrl + "/index.php/t/" + request_data.thread_id + "/"
+          })
+            .text(request_data.current_user_last_post_subject))
             .append(forum_cat_link)
           );
           // Replies column
@@ -626,11 +628,11 @@
       }
 
       function getForumPostsByPage(pageNum, pageSize) {
-        if (typeof(pageNum) === "undefined") {
+        if (typeof (pageNum) === "undefined") {
           // default to page 1
           pageNum = 1;
         }
-        if (typeof(pageSize) === "undefined") {
+        if (typeof (pageSize) === "undefined") {
           // default to settings
           pageSize = self.settings.itemsPerPage;
         }
@@ -684,7 +686,7 @@
           if (typeof container === "undefined") {
             return false;
           }
-         // break down the nodestr by itemsPerPage
+          // break down the nodestr by itemsPerPage
           var nodes = [];
           $.each(data.mpc_favorites, function(k, v) {
             nodes.push(v.content_id);
@@ -709,33 +711,35 @@
           container.on("fetchPageItemsEvent", fetchFavorites);
           container.append("<h3 id=\"mpc_list_name\">" + data.mpc_list_name + "</h3>");
           container.append("<div class=\"row\"><div class=\"col-md-17\"><div class=\"form-item form-type-textfield form-disabled\">" +
-          "<label>Favorites URL <a href=\"#\" class=\"install-user-favorites\" data-container=\"body\" data-toggle=\"popover\" data-placement=\"top\" title=\"\" data-original-title=\"How to install?\">" +
-          "<i class=\"fa fa-question-circle\" aria-hidden=\"true\"></i></a> </label>" +
-          "<input disabled=\"true\" class=\"form-control form-text\" type=\"text\" value=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" size=\"60\" maxlength=\"128\">" +
-          "</div></div><div class=\"col-md-7 margin-top-25 text-right\"><div class=\"drag_installbutton drag_installbutton_v2 drag-install-favorites\">" +
-          "<a href=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" class=\"drag\" title=\"How to install?\">" +
-          "<span class=\"btn btn-default\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
-          "<div class=\"tooltip tooltip-below-right\"><h3>Drag to Install!</h3>" +
-          "Drag to your running Eclipse<sup>*</sup> workspace to install this " +
-          "favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>");
+            "<label>Favorites URL <a href=\"#\" class=\"install-user-favorites\" data-container=\"body\" data-toggle=\"popover\" data-placement=\"top\" title=\"\" data-original-title=\"How to install?\">" +
+            "<i class=\"fa fa-question-circle\" aria-hidden=\"true\"></i></a> </label>" +
+            "<input disabled=\"true\" class=\"form-control form-text\" type=\"text\" value=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" size=\"60\" maxlength=\"128\">" +
+            "</div></div><div class=\"col-md-7 margin-top-25 text-right\"><div class=\"drag_installbutton drag_installbutton_v2 drag-install-favorites\">" +
+            "<a href=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" class=\"drag\" title=\"How to install?\">" +
+            "<span class=\"btn btn-default\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
+            "<div class=\"tooltip tooltip-below-right\"><h3>Drag to Install!</h3>" +
+            "Drag to your running Eclipse<sup>*</sup> workspace to install this " +
+            "favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>");
           container.append("<div id=\"mpfavorites-list\"></div>");
           container.find("#mpfavorites-list").data("postsPerPage", self.settings.itemsPerPage);
           getFavoritesByNodes(nodes.join());
           container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "mpfavorites-list"));
           container.append(more_marketplace_link);
           // Add instructions to popover
-          $("a.install-user-favorites").on("click", function (e) {
-              e.preventDefault();
-          }); 
-          $("a.install-user-favorites").popover({html: true, content: function() {
-             return $("<ol></ol>")
+          $("a.install-user-favorites").on("click", function(e) {
+            e.preventDefault();
+          });
+          $("a.install-user-favorites").popover({
+            html: true, content: function() {
+              return $("<ol></ol>")
                 .addClass("padding-left-20")
                 .append("<li>Copy <strong>URL</strong> from textfield.</li>")
                 .append("<li>Open Eclipse Marketplace Client (MPC).</li>")
                 .append("<li>Open <strong>Favorites</strong> tab.</li>")
                 .append("<li>Click on <strong>Import Favorites list</strong>.</li>")
                 .append("<li>Paste <strong>URL</strong> in the textfield.</li>");
-          }});
+            }
+          });
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
@@ -802,12 +806,12 @@
         getFavoritesListByPage(page, numPosts);
       }
 
-      function getFavoritesListByPage(pageNum, totalItems){
-        if (typeof(pageNum) === "undefined") {
+      function getFavoritesListByPage(pageNum, totalItems) {
+        if (typeof (pageNum) === "undefined") {
           // default to page 1
           pageNum = 1;
         }
-        if (typeof(totalItems) === "undefined") {
+        if (typeof (totalItems) === "undefined") {
           // default to settings
           totalItems = self.settings.itemsPerPage;
         }
@@ -879,20 +883,20 @@
           }
 
           var link = a.clone().attr({
-            "href":"/user/" + currentUserUid + "/mailing-list",
-            "class":"fa fa-pencil",
-            "aria-hidden":"true"
+            "href": "/user/" + currentUserUid + "/mailing-list",
+            "class": "fa fa-pencil",
+            "aria-hidden": "true"
           });
           $(container).append(h2.text("Eclipse Mailing Lists ").append(link));
 
           if (!jQuery.isEmptyObject(subsriptions)) {
             $(container).append(p.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project."));
             $(container).append(p.clone().text("Below is a list of the public mailing lists that " +
-                message_user.toLowerCase() + " currently  subscribed to at Eclipse.org. When posting emails " +
-                   "to our mailing lists, please remember that these lists are public, avoid posting ")
-                   .append(strong.clone().text("personal")).append(" or ").append(strong.clone().text("private information")).append("."));
+              message_user.toLowerCase() + " currently  subscribed to at Eclipse.org. When posting emails " +
+              "to our mailing lists, please remember that these lists are public, avoid posting ")
+              .append(strong.clone().text("personal")).append(" or ").append(strong.clone().text("private information")).append("."));
             $(container).append(p.clone().text("If you are having trouble using our mailing lists, please contact ")
-                .append(a.clone().attr("href", "mailto:mailman@eclipse.org").text("mailman@eclipse.org")).append("."));
+              .append(a.clone().attr("href", "mailto:mailman@eclipse.org").text("mailman@eclipse.org")).append("."));
 
             // Create table
             var table = $("<table></table>").attr({
@@ -944,7 +948,7 @@
               "class": "btn btn-primary btn-xs"
             }).text("Manage your Mailing Lists")));
           }
-          
+
         },
         error: function() {
           $(this).html(self.settings.errorMsg);
@@ -1056,8 +1060,8 @@
         }
 
         function getAllPages(url, pagesize, skip) {
-          pagesize = (typeof(pagesize) !== "undefined") ? pagesize : 100;
-          skip = (typeof(skip) !== "undefined") ? skip : 0;
+          pagesize = (typeof (pagesize) !== "undefined") ? pagesize : 100;
+          skip = (typeof (skip) !== "undefined") ? skip : 0;
           url += "&start=" + skip + "&n=" + pagesize;
 
           return $.ajax(url, {
@@ -1136,8 +1140,8 @@
             var formatedDate = self.dateFormat(ed);
 
             var link = $("<a>").attr({
-                "href": upcomingEvents[x].infoLink
-              })
+              "href": upcomingEvents[x].infoLink
+            })
               .html(upcomingEvents[x].title + "<br/><small>" + formatedDate + "</small>");
             var item = $("<li></li>").append(link);
             list.append(item);
@@ -1201,11 +1205,11 @@
       return time;
     },
     // Class to parse and fetch values from the link header pagination
-   linkHeaderParser: function(header) {
+    linkHeaderParser: function(header) {
       var self = this;
       this.links = 0;
       this.getLastPageNum = function() {
-        if (typeof(self.links.last) === "undefined") {
+        if (typeof (self.links.last) === "undefined") {
           return 0;
         }
         return getParamValue(self.links.last, "page");
@@ -1213,7 +1217,7 @@
 
       this.getPageSize = function() {
         // grab pagesize from the first item
-        if (typeof(self.links.first) === "undefined") {
+        if (typeof (self.links.first) === "undefined") {
           return 0;
         }
         // check first for pagesize, which we use
@@ -1225,7 +1229,7 @@
         return size;
       };
 
-      if (typeof(header) === "undefined" || header === null) {
+      if (typeof (header) === "undefined" || header === null) {
         // nothing to do
         return;
       }
@@ -1254,7 +1258,7 @@
 
       function getParamValue(link, param) {
 
-        if (typeof(param) === "undefined" || typeof(link) === "undefined") {
+        if (typeof (param) === "undefined" || typeof (link) === "undefined") {
           return 0;
         }
         var query = link.substr(link.lastIndexOf("?") + 1);
@@ -1289,7 +1293,7 @@
 	 */
     getPaginationBar: function(totalItems, elementID) {
       var self = this;
-      if (typeof(totalItems) === "undefined") {
+      if (typeof (totalItems) === "undefined") {
         totalItems = 1;
       }
       if (totalItems <= 0 || totalItems <= self.settings.itemsPerPage) {
@@ -1306,7 +1310,7 @@
       var ul = drawPageNums(totalPages, activePageNum, elementID);
       pageNav.append(ul);
       // create cache
-      if (typeof($("#" + elementID).data("pageCache")) === "undefined") {
+      if (typeof ($("#" + elementID).data("pageCache")) === "undefined") {
         cachePages();
       }
       // return the pagination bar
@@ -1328,7 +1332,7 @@
       function drawPageNums(numPages, currentPageNum, elementID) {
         var li = $("<li></li>");
         var ul = $("<ul></ul>").addClass("pagination");
-        if (typeof(elementID) !== "undefined") {
+        if (typeof (elementID) !== "undefined") {
           ul.attr({
             "data-eclipseFdnApi-elementID": elementID
           });
@@ -1407,7 +1411,7 @@
        * Creates the pagination link given the following attributes.
        */
       function getPagerLink(label, titlePiece, gotoPage, text) {
-        if (typeof(text) === "undefined") {
+        if (typeof (text) === "undefined") {
           // use the page num
           text = parseInt(gotoPage);
         }
@@ -1421,11 +1425,11 @@
         }).text(text);
       }
 
-     /**
-	  * Builds the page cache for the current container. This will only live
-	  * for the current page, and will disappear when the page is left as
-	  * this cache lives on request rather than in-browser or elsewhere.
-	  */
+      /**
+     * Builds the page cache for the current container. This will only live
+     * for the current page, and will disappear when the page is left as
+     * this cache lives on request rather than in-browser or elsewhere.
+     */
       function cachePages() {
         var theElement = $("#" + elementID);
         var pageCache = [];
@@ -1447,11 +1451,11 @@
             pageCache = buildPageCache(theElement.find("tr"));
             break;
           case "news-container":
-              pageCacheType = "news";
-              break;
+            pageCacheType = "news";
+            break;
           case "events-container":
-              pageCacheType = "events";
-              break;
+            pageCacheType = "events";
+            break;
           default:
             pageCacheType = "generic";
         }
@@ -1502,23 +1506,23 @@
         }
       }
 
-    /**
-	 * Callback for page changes events triggered by pagination links. This
-	 * will trigger a call to update the containers content with the next
-	 * pages content, as well as update the pagination bar with the new page
-	 * set as current. Numbers are shifted if necessary to properly display
-	 * the current and following pages.
-	 * 
-	 * This method is internal and requires a listener function be
-	 * registered for the 'fetchPageItemsEvent' event. Without the listener
-	 * registered, this function will not be able to update content based on
-	 * pagination requests.
-	 * 
-	 * @param event -
-	 *            the triggering pagination update request.
-	 * @param goToPageNum -
-	 *            the requested page number
-	 */
+      /**
+     * Callback for page changes events triggered by pagination links. This
+     * will trigger a call to update the containers content with the next
+     * pages content, as well as update the pagination bar with the new page
+     * set as current. Numbers are shifted if necessary to properly display
+     * the current and following pages.
+     * 
+     * This method is internal and requires a listener function be
+     * registered for the 'fetchPageItemsEvent' event. Without the listener
+     * registered, this function will not be able to update content based on
+     * pagination requests.
+     * 
+     * @param event -
+     *            the triggering pagination update request.
+     * @param goToPageNum -
+     *            the requested page number
+     */
       function changePage(event, gotoPageNum) {
         var element = $(event.currentTarget);
         var pageType = element.data("pageCacheType");
@@ -1528,11 +1532,11 @@
         var nav = $("#" + elementID + "-pager");
         // get pager's current page
         var currentPage = nav.data("currentPage");
-        if (typeof(currentPage) === "undefined" || currentPage === null) {
+        if (typeof (currentPage) === "undefined" || currentPage === null) {
           // if it's not set, assume it's 1st page
           currentPage = 1;
         }
-        if (typeof(gotoPageNum) === "undefined") {
+        if (typeof (gotoPageNum) === "undefined") {
           // something is wrong. go back to 1st page
           gotoPageNum = 1;
         }
@@ -1559,7 +1563,7 @@
           // empty element first
           element.empty();
           //if not in cache
-          if (typeof(pageCache[gotoPageNum]) === "undefined") {
+          if (typeof (pageCache[gotoPageNum]) === "undefined") {
             var params = [];
             // different params for mpc or forum / AERI
             switch (pageType) {
@@ -1594,7 +1598,7 @@
          */
         function addCurrentPageToCache() {
           // only store it if current page is not currently cached
-          if (typeof(pageCache[currentPage]) === "undefined") {
+          if (typeof (pageCache[currentPage]) === "undefined") {
             var items = [];
             pageCache[currentPage] = [];
             if (element.is("table")) {
@@ -1633,9 +1637,9 @@
       if ($newsContainer.length === 0) {
         $newsContainer = $("<div></div>");
         $newsContainer.attr({
-            "class": "news-container",
-            "id": "news-container"
-          });
+          "class": "news-container",
+          "id": "news-container"
+        });
         $container.append($newsContainer);
       }
       if ($container.data("pagination") === true) {
@@ -1645,54 +1649,54 @@
 
       /**
        * Listener callback method for fetchPageItemsEvent event.
-       */	  
+       */
       function retrieveNewsItems(event, page, pageSize) {
         retrieveNewsItemsByPage(event.target, page, pageSize);
       }
-      
 
-    /**
-	 * Retrieves news items for the given page, injected into the element that is passed
-	 * as the context element. This method uses the following data attributes to filter 
-	 * the data, allowing the use of strings or array values:
-	 * 
-	 *  - data-publish-target
-	 *  - data-news-count
-	 *  - data-news-type
-	 *  
-	 * The data attribute 'data-template-id' can be used to defined a new mustache script 
-	 * template ID. This script would need to be present on the page and would be used in 
-	 * place of the default template to generate news items. 
-	 * 
-	 * @param contextEl -
-	 *            the element that called for the news items injection
-	 * @param page -
-	 *            page of news items to retrieve
-	 * @param pageSize -
-	 *            the number of items to retrieve. This is overridden by whatever is 
-	 *            explicitly defined in the data-news-count attribute on the parent container.
-	 */
+
+      /**
+     * Retrieves news items for the given page, injected into the element that is passed
+     * as the context element. This method uses the following data attributes to filter 
+     * the data, allowing the use of strings or array values:
+     * 
+     *  - data-publish-target
+     *  - data-news-count
+     *  - data-news-type
+     *  
+     * The data attribute 'data-template-id' can be used to defined a new mustache script 
+     * template ID. This script would need to be present on the page and would be used in 
+     * place of the default template to generate news items. 
+     * 
+     * @param contextEl -
+     *            the element that called for the news items injection
+     * @param page -
+     *            page of news items to retrieve
+     * @param pageSize -
+     *            the number of items to retrieve. This is overridden by whatever is 
+     *            explicitly defined in the data-news-count attribute on the parent container.
+     */
       function retrieveNewsItemsByPage(contextEl, page, pageSize) {
         // get the container element for the current call
         var $newsContainer = $(contextEl);
         var $parent = $newsContainer.parent();
-        
+
         // check how many to display with a default of 5
         var displayCount = $parent.data("news-count") || pageSize || 5;
         var filter = "?page=" + page;
         filter += "&pagesize=" + displayCount;
-        
+
         // generate filters based on publish and type targets
         filter += convertDataToURLParameters($parent, "publish-target", "publish_to", "eclipse_org");
         filter += convertDataToURLParameters($parent, "news-type", "news_type", "");
-        
+
         // create the GET URL for news items
         var url = self.settings.newsroomUrl + "/news" + filter;
         $.ajax(url, {
           success: function(data, textStatus, jqXHR) {
             var newsItems = data["news"];
             if (newsItems.length > displayCount) {
-                newsItems = newsItems.slice(0, displayCount);
+              newsItems = newsItems.slice(0, displayCount);
             }
             // post process the date to update date format
             for (var i = 0; i < newsItems.length; i++) {
@@ -1704,16 +1708,16 @@
             var rendered = Mustache.render(template, { news: newsItems });
             // clear the container before creating elements
             $newsContainer.html(rendered);
-            
+
             if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
-	            var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
-	            var lastPage = linkHeader.getLastPageNum();
-	            // check if itemsPerPage should be updated to returned value
-	            if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
-	              self.settings.itemsPerPage = linkHeader.getPageSize();
-	            }
-	            // add pagination bar
-	            $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, $newsContainer.attr("id")));
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, $newsContainer.attr("id")));
             }
             $parent.trigger("shown.ef.news");
           },
@@ -1728,16 +1732,16 @@
           }
         });
       }
-      
 
-    /**
-	 * Returns the mustache template for generating the list of news items from
-	 * the JSON data.
-	 * 
-	 * @param templateId -
-	 *            the ID of the script template to use when generating the news items
-	 * @returns the mustache template for generating the news list HTML
-	 */
+
+      /**
+     * Returns the mustache template for generating the list of news items from
+     * the JSON data.
+     * 
+     * @param templateId -
+     *            the ID of the script template to use when generating the news items
+     * @returns the mustache template for generating the news list HTML
+     */
       function getTemplate(templateId) {
         var newsTemplate = $("#" + templateId);
         if (newsTemplate !== undefined && newsTemplate.length !== 0) {
@@ -1753,7 +1757,7 @@
       }
     },
 
-    filteredEvents : function() {
+    filteredEvents: function() {
       // set up initial state and call data
       var self = this;
       var $container = $($(this)[0].element);
@@ -1762,8 +1766,8 @@
       if ($eventsContainer.length === 0) {
         $eventsContainer = $("<div></div>");
         $eventsContainer.attr({
-          "class" : "events-container",
-          "id" : "events-container"
+          "class": "events-container",
+          "id": "events-container"
         });
         $container.append($eventsContainer);
       }
@@ -1771,14 +1775,14 @@
         $eventsContainer.on("fetchPageItemsEvent", retrieveFilteredEvents);
       }
       retrieveFilteredEventsByPage($eventsContainer, 1, 5);
-  
+
       /**
        * Listener callback method for fetchPageItemsEvent event.
        */
       function retrieveFilteredEvents(event, page, pageSize) {
         retrieveFilteredEventsByPage(event.target, page, pageSize);
       }
-      
+
       /**
        * Retrieves event items for the given page, injected into the element that is passed
        * as the context element. This method uses the following data attributes to filter 
@@ -1808,53 +1812,53 @@
         var $eventsContainer = $(contextEl);
         var $parent = $eventsContainer.parent();
         var displayCount = $parent.data("count") || pageSize || 5;
-  
+
         var filter = "?page=" + page;
         filter += "&pagesize=" + displayCount;
         filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
         filter += convertDataToURLParameters($parent, "type", "type", undefined);
         filter += convertDataToURLParameters($parent, "upcoming", "upcoming_only", undefined);
-        
+
         // if upcoming is set to 1 (PHP true) then set default sorting
         var upcoming = $parent.data("upcoming") === 1 ? true : false;
         var sortOrder = $parent.data("sort-order") || (upcoming ? "ASC" : undefined);
         var sortField = $parent.data("sort-field") || (upcoming ? "field_event_date" : undefined);
         // special treatment for sort option
         if (sortOrder && sortField) {
-        	filter += "&options%5Borderby%5D%5B" + sortField + "%5D="+ sortOrder;
+          filter += "&options%5Borderby%5D%5B" + sortField + "%5D=" + sortOrder;
         }
-  
+
         // create the GET URL for news items
         var url = self.settings.newsroomUrl + "/events" + filter;
         $.ajax(url, {
-          success : function(data, textStatus, jqXHR) {
+          success: function(data, textStatus, jqXHR) {
             var events = data["events"];
             if (events.length > displayCount) {
               events = events.slice(0, displayCount);
             }
             // post process the date to update date format
             for (var i = 0; i < events.length; i++) {
-            	// remove registration completely if event is in the past or link is missing
-                if (Date.now() > new Date(events[i]["end-date"]) || !events[i]["registration"]) {
-                	delete events[i]["registration"];
-                }
-                if (!events[i]["infoLink"]) {
-                	delete events[i]["infoLink"];
-                }
-                
-                events[i].date = self.dateFormat(new Date(events[i].date));
-                events[i]["end-date"] = self.dateFormat(new Date(events[i]["end-date"]));
+              // remove registration completely if event is in the past or link is missing
+              if (Date.now() > new Date(events[i]["end-date"]) || !events[i]["registration"]) {
+                delete events[i]["registration"];
+              }
+              if (!events[i]["infoLink"]) {
+                delete events[i]["infoLink"];
+              }
+
+              events[i].date = self.dateFormat(new Date(events[i].date));
+              events[i]["end-date"] = self.dateFormat(new Date(events[i]["end-date"]));
             }
             // allow template ID to be set on a per run basis with a default.
             var templateId = $parent.data("template-id") || "template-event-items";
             var isArchive = $parent.data("archive") || false;
             var template = getTemplate(templateId, isArchive);
             var rendered = Mustache.render(template, {
-                  "events" : events
-                });
+              "events": events
+            });
             // set the container HTML to the rendered HTML
             $eventsContainer.html(rendered);
-  
+
             if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
               var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
               var lastPage = linkHeader.getLastPageNum();
@@ -1864,11 +1868,11 @@
               }
               // add pagination bar
               $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
-                      $eventsContainer.attr("id")));
+                $eventsContainer.attr("id")));
             }
             $parent.trigger("shown.ef.events");
           },
-          error : function() {
+          error: function() {
             // clear the loading placeholder
             $container.empty();
             // display an error message
@@ -1879,7 +1883,7 @@
           }
         });
       }
-  
+
       /**
        * Returns the mustache template for generating the
        * list of events from the JSON data.
@@ -1896,43 +1900,53 @@
           return eventsTemplate[0].innerHTML;
         }
         if (isArchive) {
-            return "{{#events}}"
-                + "<div class=\"item block-summary-item match-height-item\">"
-                + "<h3 class=\"h4\">{{ title }}</h3>"
-                + "<p>{{ locationName }}</p>"
-                + "<p>{{ date }} - {{ end-date }}</p>"
-                + "<p class=\"margin-bottom-0\">"
-                + "{{#registration}}" 
-                + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
-                + "{{/registration}}"
-                + "{{#infoLink}}" 
-                + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
-                + "{{/infoLink}}" 
-                + "</p>" 
-                + "</div>" 
-                + "{{/events}}";
-        }
-        return "{{#events}}"
-            + "<div class=\"col-sm-12 col-md-6 event item match-height-item-by-row flex-column\">"
-            + "<h3 class=\"h4 flex-grow\">{{ title }}</h3>"
+          return "{{#events}}"
+            + "<div class=\"item block-summary-item match-height-item\">"
+            + "<h3 class=\"h4\">{{ title }}</h3>"
             + "<p>{{ locationName }}</p>"
-            + "<p class=\"flex-grow\">{{ date }} - {{ end-date }}</p>"
+            + "<p>{{ date }} - {{ end-date }}</p>"
             + "<p class=\"margin-bottom-0\">"
-            + "{{#infoLink}}" 
-            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
-            + "{{/infoLink}}" 
-            + "{{^infoLink}}" 
-            + "{{#registration}}" 
+            + "{{#registration}}"
             + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
             + "{{/registration}}"
-            + "{{/infoLink}}" 
-            + "</p>" 
-            + "</div>" 
+            + "{{#infoLink}}"
+            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+            + "{{/infoLink}}"
+            + "</p>"
+            + "</div>"
             + "{{/events}}";
+        }
+        return "{{#events}}"
+          + "<div class=\"col-sm-12 col-md-6 event item match-height-item-by-row flex-column\">"
+          + "<h3 class=\"h4 flex-grow\">{{ title }}</h3>"
+          + "<p>{{ locationName }}</p>"
+          + "<p class=\"flex-grow\">{{ date }} - {{ end-date }}</p>"
+          + "<p class=\"margin-bottom-0\">"
+          + "{{#infoLink}}"
+          + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+          + "{{/infoLink}}"
+          + "{{^infoLink}}"
+          + "{{#registration}}"
+          + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
+          + "{{/registration}}"
+          + "{{/infoLink}}"
+          + "</p>"
+          + "</div>"
+          + "{{/events}}";
       }
+    },
+    featuredStory: function() {
+      var $container = $($(this)[0].element);
+      updateFeaturedContent($container, "story", this.settings);
+    },
+    featuredFooter: function() {
+      var $container = $($(this)[0].element);
+      updateFeaturedContent($container, "footer", this.settings);
     }
+
+
   });
-  
+
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -1945,16 +1959,91 @@
     });
   };
 
-  var convertDataToURLParameters = function(el, name, parameterName, defaultVal) {
-	  var dataValue = el.data(name) || defaultVal;
-	  var filter = "";
-      if (Array.isArray(dataValue)) {
-        for (var dataIdx in dataValue) {
-          filter += "&parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
+  var updateFeaturedContent = function(container, type, settings) {
+    var $container = $(container);
+    var url = settings.newsroomUrl + "/featured_story";
+    // get the ID of the featured story if set
+    var id = $container.data("id");
+    if (id !== undefined) {
+      url += "/" + id;
+    }
+    // add parameter for publish target for featured content
+    url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined);
+    $.ajax(url, {
+      success: function(data) {
+        if (data["featured_story"] === undefined) {
+          console.log("Could not load featured content, bad content recieved");
         }
-      } else if(dataValue !== undefined){
-        filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
+        var json = data["featured_story"].filter(function(a) {
+          return new Date(a["end-date"]) > new Date() &&
+            (a["start-date"] === undefined || new Date(a["start-date"]) < new Date());
+        });
+        // shuffle the array so that a random available data is featured
+        if (json.length > 1) {
+          shuffleArray(json);
+        }
+        // make sure we have a promotion to display
+        if (json.length > 0) {
+          var item = json[0];
+
+          // get the content container and append the content
+          var $featuredContentContainer = $container.find(".featured-container");
+          $featuredContentContainer.addClass("featured-story-nid-" + item.id);
+          $featuredContentContainer.addClass("featured-story-" + item.layout);
+          // allow template ID to be set on a per run basis with a default.
+          var templateId = $container.data("template-id") || "template-featured-" + type;
+          var template = getMustacheTemplate(templateId,
+            "{{#content}}" +
+            "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
+            "<p>{{ body }}</p>" +
+            "<span>{{#links}}<a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a>{{/links}}</span>" +
+            "{{/content}}");
+          var rendered = Mustache.render(template, {
+            "content": item
+          });
+          // set the container HTML to the rendered HTML
+          $featuredContentContainer.html(rendered);
+        }
+      },
+      error: function() {
+        // clear the loading placeholder
+        console.log("Could not load featured content!");
       }
-      return filter;
+    });
+  }
+
+  var convertDataToURLParameters = function(el, name, parameterName, defaultVal) {
+    var dataValue = el.data(name) || defaultVal;
+    var filter = "";
+    if (Array.isArray(dataValue)) {
+      for (var dataIdx in dataValue) {
+        filter += "&parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
+      }
+    } else if (dataValue !== undefined) {
+      filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
+    }
+    return filter;
+  };
+
+  var getMustacheTemplate = function(templateId, defaultTemplate) {
+    var template = $("#" + templateId);
+    if (template !== undefined && template.length !== 0) {
+      return template[0].innerHTML;
+    }
+    return defaultTemplate;
+  }
+
+  /**
+   * Randomize array element order in-place. Using Durstenfeld shuffle algorithm.
+   * source:
+   * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   */
+  var shuffleArray = function(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
   };
 })(jQuery, window, document);
