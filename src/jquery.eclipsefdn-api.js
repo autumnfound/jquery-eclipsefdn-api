@@ -2001,8 +2001,8 @@
   var writeFeaturedContainer = function(item, $container, type) {
     // get the content container and append the content
     var $featuredContentContainer = $container.find(".featured-container");
-    $featuredContentContainer.addClass("featured-story-nid-" + item.id);
-    $featuredContentContainer.addClass("featured-story-" + item.layout);
+    $container.addClass("featured-story-nid-" + item.id);
+    $container.addClass("featured-story-" + item.layout);
     // allow template ID to be set on a per run basis with a default.
     var templateId = $container.data("template-id") || "template-featured-" + type;
     var template = getMustacheTemplate(templateId,
