@@ -95,6 +95,50 @@
         $(".featured-story").eclipseFdnApi({
           type: "featuredStory"
         });
+        // Featured Footer
+        $(".featured-footer-custom").eclipseFdnApi({
+          type: "customFeaturedContent",
+          featuredContentType: "footer",
+          featuredContent: {
+            "id": "37802",
+            "title": "The Eclipse IDE is now available! (custom content)",
+            "start-date": "2020-09-16T04:15:00Z",
+            "end-date": "2099-01-01T05:00:00Z",
+            "links": [
+              {
+                "url": "https://www.eclipse.org/eclipseide",
+                "title": "Download Now"
+              }
+            ],
+            "layout": "light",
+            "body": "",
+            "publish_to": [
+              "eclipse_org"
+            ]
+          }
+        });
+        // Featured Footer
+        $(".featured-story-custom").eclipseFdnApi({
+          type: "customFeaturedContent",
+          featuredContentType: "story",
+          featuredContent: {
+              "id": "37802",
+              "title": "The Eclipse IDE is now available! (custom content)",
+              "start-date": "2020-09-16T04:15:00Z",
+              "end-date": "2099-01-01T05:00:00Z",
+              "links": [
+                {
+                  "url": "https://www.eclipse.org/eclipseide",
+                  "title": "Download Now"
+                }
+              ],
+              "layout": "light",
+              "body": "",
+              "publish_to": [
+                "eclipse_org"
+              ]
+            }
+        });
       });
     </script>
     <script id="template-news-items" type="x-tmpl-mustache">
@@ -187,7 +231,7 @@
       <div class="row">
         <div class="col-xs-12">
           <h2>Featured Story</h2>
-          <div class="featured-story" data-url="featured.json">
+          <div class="featured-story" data-publish-target="eclipse_org">
             <div class="container">
               <div class="row">
                 <div class="col-sm-6 col-sm-offset-1 col-md-8 col-md-offset-0 featured-story-block featured-story-block-content featured-container match-height-item-by-row">
@@ -206,7 +250,33 @@
       <div class="row">
         <div class="col-xs-12">
           <h2>Featured Footer</h2>
-          <div class="featured-footer" data-url="featured.json">
+          <div class="featured-footer" data-publish-target="eclipse_org">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-12 featured-container">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Custom Featured Story</h2>
+          <div class="featured-story-custom">
+            <div class="container">
+              <div class="row">
+                <div class="col-sm-12 featured-container">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Custom Featured Footer</h2>
+          <div class="featured-footer-custom">
             <div class="container">
               <div class="row">
                 <div class="col-sm-12 featured-container">

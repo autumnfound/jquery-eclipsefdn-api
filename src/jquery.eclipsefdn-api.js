@@ -28,7 +28,9 @@
       type: "",
       itemsPerPage: 10,
       accountsUrl: "https://accounts.eclipse.org",
-      newsroomUrl: "https://newsroom.eclipse.org/api"
+      newsroomUrl: "https://newsroom.eclipse.org/api",
+      featuredContent: {},
+      featuredContentType: ""
     };
   // The actual plugin constructor
   function Plugin(element, options) {
@@ -41,7 +43,6 @@
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
-
   }
 
   // Avoid Plugin.prototype conflicts
@@ -65,7 +66,8 @@
         "newsItems",
         "filteredEvents",
         "featuredStory",
-        "featuredFooter"
+        "featuredFooter",
+        "customFeaturedContent"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1942,9 +1944,11 @@
     featuredFooter: function() {
       var $container = $($(this)[0].element);
       updateFeaturedContent($container, "footer", this.settings);
+    },
+    customFeaturedContent: function() {
+      var $container = $($(this)[0].element);
+      writeFeaturedContainer(this.settings.featuredContent, $container, this.settings.featuredContentType);
     }
-
-
   });
 
 
@@ -1968,7 +1972,7 @@
       url += "/" + id;
     }
     // add parameter for publish target for featured content
-    url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined);
+    url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined, true);
     $.ajax(url, {
       success: function(data) {
         if (data["featured_story"] === undefined) {
@@ -1984,25 +1988,7 @@
         }
         // make sure we have a promotion to display
         if (json.length > 0) {
-          var item = json[0];
-
-          // get the content container and append the content
-          var $featuredContentContainer = $container.find(".featured-container");
-          $featuredContentContainer.addClass("featured-story-nid-" + item.id);
-          $featuredContentContainer.addClass("featured-story-" + item.layout);
-          // allow template ID to be set on a per run basis with a default.
-          var templateId = $container.data("template-id") || "template-featured-" + type;
-          var template = getMustacheTemplate(templateId,
-            "{{#content}}" +
-            "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
-            "<p>{{ body }}</p>" +
-            "<span>{{#links}}<a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a>{{/links}}</span>" +
-            "{{/content}}");
-          var rendered = Mustache.render(template, {
-            "content": item
-          });
-          // set the container HTML to the rendered HTML
-          $featuredContentContainer.html(rendered);
+          writeFeaturedContainer(json[0], $container, type);
         }
       },
       error: function() {
@@ -2011,16 +1997,46 @@
       }
     });
   }
+  
+  var writeFeaturedContainer = function(item, $container, type) {
+    // get the content container and append the content
+    var $featuredContentContainer = $container.find(".featured-container");
+    $featuredContentContainer.addClass("featured-story-nid-" + item.id);
+    $featuredContentContainer.addClass("featured-story-" + item.layout);
+    // allow template ID to be set on a per run basis with a default.
+    var templateId = $container.data("template-id") || "template-featured-" + type;
+    var template = getMustacheTemplate(templateId,
+      "{{#content}}" +
+      "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
+      "<p>{{ body }}</p>" +
+      "<span>{{#links}}<a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a>{{/links}}</span>" +
+      "{{/content}}");
+    var rendered = Mustache.render(template, {
+      "content": item
+    });
+    // set the container HTML to the rendered HTML
+    $featuredContentContainer.html(rendered);
+  }
 
-  var convertDataToURLParameters = function(el, name, parameterName, defaultVal) {
+  var convertDataToURLParameters = function(el, name, parameterName, defaultVal, first) {
     var dataValue = el.data(name) || defaultVal;
     var filter = "";
     if (Array.isArray(dataValue)) {
-      for (var dataIdx in dataValue) {
-        filter += "&parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
+      for (var dataIdx = 0; dataIdx < dataValue.length; dataIdx++) {
+        if (first && dataIdx === 0) {
+          filter += "?";
+        } else {
+          filter += "&";
+        }
+        filter += "parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
       }
     } else if (dataValue !== undefined) {
-      filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
+      if (first) {
+        filter += "?";
+      } else {
+        filter += "&";
+      }
+      filter += "parameters%5B" + parameterName + "%5D=" + dataValue;
     }
     return filter;
   };
