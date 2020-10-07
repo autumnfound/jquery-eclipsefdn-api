@@ -2009,7 +2009,7 @@
       "{{#content}}" +
       "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
       "<p>{{ body }}</p>" +
-      "<span>{{#links}}<a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a>{{/links}}</span>" +
+      "<ul class=\"list-inline\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
       "{{/content}}");
     var rendered = Mustache.render(template, {
       "content": item
