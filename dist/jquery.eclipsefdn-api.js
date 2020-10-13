@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.36
+ *  jquery-eclipsefdn-api - v0.0.37
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
@@ -1991,6 +1991,8 @@
         var json = data["featured_story"].filter(function(a) {
           return new Date(a["end-date"]) > new Date() &&
             (a["start-date"] === undefined || new Date(a["start-date"]) < new Date());
+        }).filter(function(a) {
+          return a["type"] === type || a["type"] === "both";
         });
         // shuffle the array so that a random available data is featured
         if (json.length > 1) {
@@ -2019,7 +2021,7 @@
       "{{#content}}" +
       "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
       "<p>{{ body }}</p>" +
-      "<span>{{#links}}<a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a>{{/links}}</span>" +
+      "<ul class=\"list-inline\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
       "{{/content}}");
     var rendered = Mustache.render(template, {
       "content": item

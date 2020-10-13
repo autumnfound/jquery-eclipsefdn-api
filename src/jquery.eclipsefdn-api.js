@@ -1981,6 +1981,8 @@
         var json = data["featured_story"].filter(function(a) {
           return new Date(a["end-date"]) > new Date() &&
             (a["start-date"] === undefined || new Date(a["start-date"]) < new Date());
+        }).filter(function(a) {
+          return a["type"] === type || a["type"] === "both";
         });
         // shuffle the array so that a random available data is featured
         if (json.length > 1) {
