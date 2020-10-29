@@ -1703,6 +1703,7 @@
             // post process the date to update date format
             for (var i = 0; i < newsItems.length; i++) {
               newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+              newsItems[i].index = i;
             }
             // allow template ID to be set on a per run basis with a default.
             var templateId = $parent.data("template-id") || "template-news-items";
