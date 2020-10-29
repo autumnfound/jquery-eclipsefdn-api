@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.38
+ *  jquery-eclipsefdn-api - v0.0.39
  *  Fetch and display data from various Eclipse Foundation APIs.
  *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
  *
@@ -1713,6 +1713,7 @@
             // post process the date to update date format
             for (var i = 0; i < newsItems.length; i++) {
               newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+              newsItems[i].index = i;
             }
             // allow template ID to be set on a per run basis with a default.
             var templateId = $parent.data("template-id") || "template-news-items";
@@ -2001,6 +2002,21 @@
         // make sure we have a promotion to display
         if (json.length > 0) {
           writeFeaturedContainer(json[0], $container, type);
+        }
+        else {
+          var default_featured_story = {
+            id: "default-featured-story",
+            layout: "light",
+            title: "Eclipse Foundation Events",
+            body: "Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",
+            links: [
+              {
+              url: "https://events.eclipse.org",
+              title: "View Events"
+              }
+            ],
+          }
+          writeFeaturedContainer(default_featured_story, $container, "both");
         }
       },
       error: function() {
