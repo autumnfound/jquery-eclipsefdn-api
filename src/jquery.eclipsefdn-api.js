@@ -1751,7 +1751,7 @@
           return newsTemplate[0].innerHTML;
         }
         return "{{#news}}" +
-          "<div class=\"item block-summary-item match-height-item\">" +
+          "<div class=\"item block-summary-item\" data-mh=\"group-{{ index }}\">" +
           "<p>{{ date }}</p>" +
           "<h4><a href=\"{{ link }}\">{{ title }}</a></h4>" +
           "<p>{{ body }}</p>" +
