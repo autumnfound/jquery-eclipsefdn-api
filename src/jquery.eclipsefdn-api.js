@@ -67,7 +67,9 @@
         "filteredEvents",
         "featuredStory",
         "featuredFooter",
-        "customFeaturedContent"
+        "customFeaturedContent",
+        "allPromos",
+        "singlePromo"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1949,9 +1951,83 @@
     customFeaturedContent: function() {
       var $container = $($(this)[0].element);
       writeFeaturedContainer(this.settings.featuredContent, $container, this.settings.featuredContentType);
+    },
+
+    /**
+     Retrieves and inserts a list of promotions onto the page in the calling container. Will pass 
+     the publish target (if set) to target a particular sites promotions. These promotions will not
+     include or create impressions as they aren't meant to be consumed in production by the public.
+     */
+    allPromos: function() {
+      var $container = $($(this)[0].element);
+      var self = this;
+      var url = self.settings.newsroomUrl + "/ads";
+      url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined, true);
+      $.ajax(url, {
+        dataType: "json",
+        success: function(data) {
+          var json = JSON.parse(data);
+          if (json["ads"] === undefined) {
+            console.log("Could not load promotional content, bad content received");
+          }
+          for (var i = 0; i < json.ads.length; i++) {
+            json.ads[i].idx = i;
+          }
+          writePromoContent($container, json.ads, self.settings);
+        },
+        error: function() {
+          console.log("Could not load promotional content");
+          // TODO we should return some default promo object so we always have something
+        }
+      });
+    },
+
+    /**
+     Retrieves and inserts a single promotion onto the page in the calling container. Will pass 
+     the host, absolute URI path, and additional parameters for the publish target, and promo ID. 
+     With these parameters, a post request will be formed that will retrieve a promo with an impressions ID.
+     */
+    singlePromo: function() {
+      var self = this;
+      var $container = $($(self)[0].element);
+      var url = self.settings.newsroomUrl + "/ads";
+      var params = {
+        "host": window.location.host,
+        "source": window.location.pathname,
+        "publish_to": $container.data("publish-target"),
+        "ad_index": $container.data("index")
+      };
+      $.ajax(url, {
+        dataType: "json",
+        method: "POST",
+        body: params,
+        success: function(data) {
+          var json = JSON.parse(data);
+          if (json["ads"] === undefined) {
+            console.log("Could not load promotional content, bad content received");
+          }
+          writePromoContent($container, json.ads, self.settings);
+        },
+        error: function() {
+          console.log("Could not load promotional content");
+          // TODO we should return some default promo object so we always have something
+          writePromoContent($container, [{
+            "id": "37872",
+            "campaign_name": "PAID_FROGLOGIC",
+            "image": "https://newsroom.eclipse.prg/sites/default/files/ads/froglogic.gif",
+            "member_name": "FrogLogic",
+            "type": "paid",
+            "weight": "8",
+            "publish_to": [
+              "eclipse_org",
+              "openmobility",
+              "openpass"
+            ]
+          }], self.settings);
+        }
+      });
     }
   });
-
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -1963,6 +2039,41 @@
       }
     });
   };
+
+
+  var writePromoContent = function($container, promos, settings) {
+    var template = getPromoTemplate($container.data("template-id"), settings);
+    $container.html(Mustache.render(template, {
+      "content": promos
+    }));
+  }
+
+  /**
+  Centralize the fetching of promo templates to make it more transparent and easy to manage.
+  
+  @param templateId the id of the Mustache template script if it exists
+  @param settings the current plugin settings
+   */
+  var getPromoTemplate = function(templateId, settings) {
+    if (settings.type === "allPromos") {
+      return getMustacheTemplate(templateId,
+        "{{#content}}" +
+        "<p>" +
+        "<a href=\"http://www.eclipse.org/home/index.php?ad_id={{ id }}\">Ad ID: {{ id }}</a>" +
+        "<span class=\"margin-left-10\">prob: {{ weight }}%</span>" +
+        "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
+        "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+        "</div>" +
+        "</p>" +
+        "{{/content}}");
+    }
+    return getMustacheTemplate(templateId,
+      "{{#content}}" +
+      "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
+      "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+      "</div>" +
+      "{{/content}}");
+  }
 
   var updateFeaturedContent = function(container, type, settings) {
     var $container = $(container);
@@ -2001,8 +2112,8 @@
             body: "Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",
             links: [
               {
-              url: "https://events.eclipse.org",
-              title: "View Events"
+                url: "https://events.eclipse.org",
+                title: "View Events"
               }
             ],
           }
@@ -2015,7 +2126,7 @@
       }
     });
   }
-  
+
   var writeFeaturedContainer = function(item, $container, type) {
     // get the content container and append the content
     var $featuredContentContainer = $container.find(".featured-container");
