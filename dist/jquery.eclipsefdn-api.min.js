@@ -1,5 +1,5 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.40
+ *  jquery-eclipsefdn-api - v0.0.41
  *  undefined
  *  undefined
  *
