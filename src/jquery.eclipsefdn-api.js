@@ -2027,7 +2027,7 @@
       "{{#content}}" +
       "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
       "<p>{{ body }}</p>" +
-      "<ul class=\"list-inline\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
+      "<ul class=\"list-inline list-inline-xs-margin\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
       "{{/content}}");
     var rendered = Mustache.render(template, {
       "content": item
