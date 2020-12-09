@@ -1,10 +1,10 @@
 /*
- *  jquery-eclipsefdn-api - v0.0.39
- *  Fetch and display data from various Eclipse Foundation APIs.
- *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
+ *  jquery-eclipsefdn-api - v0.0.40
+ *  undefined
+ *  undefined
  *
- *  Made by Christopher Guindon
- *  Under MIT License
+ *  Made by undefined
+ *  Under undefined License
  *
  *  Thanks to https://github.com/jquery-boilerplate/jquery-boilerplate, MIT License © Zeno Rocha
  */
@@ -1761,7 +1761,7 @@
           return newsTemplate[0].innerHTML;
         }
         return "{{#news}}" +
-          "<div class=\"item block-summary-item match-height-item\">" +
+          "<div class=\"item block-summary-item\" data-mh=\"group-{{ index }}\">" +
           "<p>{{ date }}</p>" +
           "<h4><a href=\"{{ link }}\">{{ title }}</a></h4>" +
           "<p>{{ body }}</p>" +
@@ -2037,7 +2037,7 @@
       "{{#content}}" +
       "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
       "<p>{{ body }}</p>" +
-      "<ul class=\"list-inline\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
+      "<ul class=\"list-inline list-inline-xs-margin\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
       "{{/content}}");
     var rendered = Mustache.render(template, {
       "content": item
