@@ -18,6 +18,7 @@
       apiUrl: "https://api.eclipse.org",
       gerritUrl: "https://git.eclipse.org/r",
       eventUrl: "https://newsroom.eclipse.org/api/events",
+      adsUrl: "https://newsroom.eclipse.org/api/ads",
       forumsUrl: "https://www.eclipse.org/forums",
       marketplaceUrl: "https://marketplace.eclipse.org",
       username: "cguindon",
@@ -1959,27 +1960,77 @@
      include or create impressions as they aren't meant to be consumed in production by the public.
      */
     allPromos: function() {
+      // set up the callbacks + containers for promos
       var $container = $($(this)[0].element);
       var self = this;
-      var url = self.settings.newsroomUrl + "/ads";
-      url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined, true);
-      $.ajax(url, {
-        dataType: "json",
-        success: function(data) {
-          var json = JSON.parse(data);
-          if (json["ads"] === undefined) {
-            console.log("Could not load promotional content, bad content received");
+      // create container for promos, to enable pagination bar
+      var $promosContainer = $container.find("> div.promos-container");
+      if ($promosContainer.length === 0) {
+        $promosContainer = $("<div></div>");
+        $promosContainer.attr({
+          "class": "promos-container",
+          "id": "promos-container-" + getPseudoRandomNumber()
+        });
+        $container.append($promosContainer);
+      }
+      if ($container.data("pagination") === true) {
+        $promosContainer.on("fetchPageItemsAd", retrievePromos);
+      }
+      // trigger first update of promos using first page
+      retrievePromosByPage($promosContainer, 1, 10);
+
+      /**
+       * Listener callback method for fetchPageItemsAd event.
+       */
+      function retrievePromos(event, page, pageSize) {
+        retrievePromosByPage(event.target, page, pageSize);
+      }
+
+      function retrievePromosByPage(contextEl, page, pageSize) {
+        var $currentContainer = $(contextEl);
+        var $parent = $currentContainer.parent();
+        var displayCount = $parent.data("count") || pageSize || 10;
+
+        // generate the URL for retrieve promotions
+        var url = self.settings.adsUrl;
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
+        
+        console.log(url + filter);
+        // retrieve the promo data via ajax
+        $.ajax(url + filter, {
+          dataType: "json",
+          type: "GET",
+          success: function(data) {
+            if (data["ads"] === undefined) {
+              console.log("Could not load promotional content. AD-01");
+            }
+            // add the index of the ad for printing out index to all ads page
+            for (var i = 0; i < data["ads"].length; i++) {
+              data["ads"][i].idx = i;
+            }
+            // call and write the actual promo content
+            writePromoContent($currentContainer, data["ads"], self.settings);
+
+            // add the pagination bar 
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
+                $currentContainer.attr("id")));
+            }
+          },
+          error: function() {
+            console.log("Could not load promotional content. AD-02");
           }
-          for (var i = 0; i < json.ads.length; i++) {
-            json.ads[i].idx = i;
-          }
-          writePromoContent($container, json.ads, self.settings);
-        },
-        error: function() {
-          console.log("Could not load promotional content");
-          // TODO we should return some default promo object so we always have something
-        }
-      });
+        });
+      }
     },
 
     /**
@@ -1990,38 +2041,38 @@
     singlePromo: function() {
       var self = this;
       var $container = $($(self)[0].element);
-      var url = self.settings.newsroomUrl + "/ads";
+      var url = self.settings.adsUrl;
+      var newsroomurl = self.settings.newsroomUrl;
       var params = {
         "host": window.location.host,
         "source": window.location.pathname,
         "publish_to": $container.data("publish-target"),
-        "ad_index": $container.data("index")
+        "ip": $container.data("ip-address")
       };
+      //var string_params = JSON.stringify(params);
       $.ajax(url, {
         dataType: "json",
-        method: "POST",
-        body: params,
+        contentType: "application/json",
+        type: "POST",
+        data: JSON.stringify(params),
         success: function(data) {
-          var json = JSON.parse(data);
-          if (json["ads"] === undefined) {
-            console.log("Could not load promotional content, bad content received");
+          if (data === undefined) {
+            console.log("Could not load promotional content, bad content received. AD-03");
           }
-          writePromoContent($container, json.ads, self.settings);
+          writePromoContent($container, data, self.settings);
         },
         error: function() {
-          console.log("Could not load promotional content");
-          // TODO we should return some default promo object so we always have something
+          console.log("Could not load promotional content. AD-04");
+          // TODO - what should be the default promo?
           writePromoContent($container, [{
-            "id": "37872",
-            "campaign_name": "PAID_FROGLOGIC",
-            "image": "https://newsroom.eclipse.prg/sites/default/files/ads/froglogic.gif",
-            "member_name": "FrogLogic",
-            "type": "paid",
-            "weight": "8",
+            "id": "37918",
+            "campaign_name": "PROMO_IOT_DEV_SURVEY_2020",
+            "image": newsroomurl + "/sites/default/files/ads/iot_dev_survey_2020.png",
+            "member_name": "",
+            "type": "internal",
+            "weight": "6",
             "publish_to": [
-              "eclipse_org",
-              "openmobility",
-              "openpass"
+              "eclipse_org"
             ]
           }], self.settings);
         }
