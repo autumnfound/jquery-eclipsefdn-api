@@ -1996,8 +1996,7 @@
         var filter = "?page=" + page;
         filter += "&pagesize=" + displayCount;
         filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
-        
-        console.log(url + filter);
+
         // retrieve the promo data via ajax
         $.ajax(url + filter, {
           dataType: "json",
@@ -2049,7 +2048,6 @@
         "publish_to": $container.data("publish-target"),
         "ip": $container.data("ip-address")
       };
-      //var string_params = JSON.stringify(params);
       $.ajax(url, {
         dataType: "json",
         contentType: "application/json",

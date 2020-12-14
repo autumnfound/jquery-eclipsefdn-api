@@ -1,10 +1,10 @@
 /*
  *  jquery-eclipsefdn-api - v0.0.41
- *  Fetch and display data from various Eclipse Foundation APIs.
- *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
+ *  undefined
+ *  undefined
  *
- *  Made by Christopher Guindon
- *  Under MIT License
+ *  Made by undefined
+ *  Under undefined License
  *
  *  Thanks to https://github.com/jquery-boilerplate/jquery-boilerplate, MIT License © Zeno Rocha
  */
@@ -28,7 +28,6 @@
       apiUrl: "https://api.eclipse.org",
       gerritUrl: "https://git.eclipse.org/r",
       eventUrl: "https://newsroom.eclipse.org/api/events",
-      adsUrl: "https://newsroom.eclipse.org/api/ads",
       forumsUrl: "https://www.eclipse.org/forums",
       marketplaceUrl: "https://marketplace.eclipse.org",
       username: "cguindon",
@@ -78,9 +77,7 @@
         "filteredEvents",
         "featuredStory",
         "featuredFooter",
-        "customFeaturedContent",
-        "allPromos",
-        "singlePromo"
+        "customFeaturedContent"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1962,133 +1959,9 @@
     customFeaturedContent: function() {
       var $container = $($(this)[0].element);
       writeFeaturedContainer(this.settings.featuredContent, $container, this.settings.featuredContentType);
-    },
-
-    /**
-     Retrieves and inserts a list of promotions onto the page in the calling container. Will pass 
-     the publish target (if set) to target a particular sites promotions. These promotions will not
-     include or create impressions as they aren't meant to be consumed in production by the public.
-     */
-    allPromos: function() {
-      // set up the callbacks + containers for promos
-      var $container = $($(this)[0].element);
-      var self = this;
-      // create container for promos, to enable pagination bar
-      var $promosContainer = $container.find("> div.promos-container");
-      if ($promosContainer.length === 0) {
-        $promosContainer = $("<div></div>");
-        $promosContainer.attr({
-          "class": "promos-container",
-          "id": "promos-container-" + getPseudoRandomNumber()
-        });
-        $container.append($promosContainer);
-      }
-      if ($container.data("pagination") === true) {
-        $promosContainer.on("fetchPageItemsAd", retrievePromos);
-      }
-      // trigger first update of promos using first page
-      retrievePromosByPage($promosContainer, 1, 10);
-
-      /**
-       * Listener callback method for fetchPageItemsAd event.
-       */
-      function retrievePromos(event, page, pageSize) {
-        retrievePromosByPage(event.target, page, pageSize);
-      }
-
-      function retrievePromosByPage(contextEl, page, pageSize) {
-        var $currentContainer = $(contextEl);
-        var $parent = $currentContainer.parent();
-        var displayCount = $parent.data("count") || pageSize || 10;
-
-        // generate the URL for retrieve promotions
-        var url = self.settings.adsUrl;
-        var filter = "?page=" + page;
-        filter += "&pagesize=" + displayCount;
-        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
-        
-        console.log(url + filter);
-        // retrieve the promo data via ajax
-        $.ajax(url + filter, {
-          dataType: "json",
-          type: "GET",
-          success: function(data) {
-            if (data["ads"] === undefined) {
-              console.log("Could not load promotional content. AD-01");
-            }
-            // add the index of the ad for printing out index to all ads page
-            for (var i = 0; i < data["ads"].length; i++) {
-              data["ads"][i].idx = i;
-            }
-            // call and write the actual promo content
-            writePromoContent($currentContainer, data["ads"], self.settings);
-
-            // add the pagination bar 
-            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
-              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
-              var lastPage = linkHeader.getLastPageNum();
-              // check if itemsPerPage should be updated to returned value
-              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
-                self.settings.itemsPerPage = linkHeader.getPageSize();
-              }
-              // add pagination bar
-              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
-                $currentContainer.attr("id")));
-            }
-          },
-          error: function() {
-            console.log("Could not load promotional content. AD-02");
-          }
-        });
-      }
-    },
-
-    /**
-     Retrieves and inserts a single promotion onto the page in the calling container. Will pass 
-     the host, absolute URI path, and additional parameters for the publish target, and promo ID. 
-     With these parameters, a post request will be formed that will retrieve a promo with an impressions ID.
-     */
-    singlePromo: function() {
-      var self = this;
-      var $container = $($(self)[0].element);
-      var url = self.settings.adsUrl;
-      var newsroomurl = self.settings.newsroomUrl;
-      var params = {
-        "host": window.location.host,
-        "source": window.location.pathname,
-        "publish_to": $container.data("publish-target"),
-        "ip": $container.data("ip-address")
-      };
-      //var string_params = JSON.stringify(params);
-      $.ajax(url, {
-        dataType: "json",
-        contentType: "application/json",
-        type: "POST",
-        data: JSON.stringify(params),
-        success: function(data) {
-          if (data === undefined) {
-            console.log("Could not load promotional content, bad content received. AD-03");
-          }
-          writePromoContent($container, data, self.settings);
-        },
-        error: function() {
-          console.log("Could not load promotional content. AD-04");
-          // TODO - what should be the default promo?
-          writePromoContent($container, [{
-            "id": "37918",
-            "campaign_name": "PROMO_IOT_DEV_SURVEY_2020",
-            "image": newsroomurl + "/sites/default/files/ads/iot_dev_survey_2020.png",
-            "member_name": "",
-            "type": "internal",
-            "weight": "6",
-            "publish_to": [
-              "eclipse_org"
-            ]
-          }], self.settings);
-        }
-      });
     }
   });
+
 
   // A really lightweight plugin wrapper around the constructor,
   // preventing against multiple instantiations
@@ -2100,41 +1973,6 @@
       }
     });
   };
-
-
-  var writePromoContent = function($container, promos, settings) {
-    var template = getPromoTemplate($container.data("template-id"), settings);
-    $container.html(Mustache.render(template, {
-      "content": promos
-    }));
-  }
-
-  /**
-  Centralize the fetching of promo templates to make it more transparent and easy to manage.
-  
-  @param templateId the id of the Mustache template script if it exists
-  @param settings the current plugin settings
-   */
-  var getPromoTemplate = function(templateId, settings) {
-    if (settings.type === "allPromos") {
-      return getMustacheTemplate(templateId,
-        "{{#content}}" +
-        "<p>" +
-        "<a href=\"http://www.eclipse.org/home/index.php?ad_id={{ id }}\">Ad ID: {{ id }}</a>" +
-        "<span class=\"margin-left-10\">prob: {{ weight }}%</span>" +
-        "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
-        "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
-        "</div>" +
-        "</p>" +
-        "{{/content}}");
-    }
-    return getMustacheTemplate(templateId,
-      "{{#content}}" +
-      "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
-      "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
-      "</div>" +
-      "{{/content}}");
-  }
 
   var updateFeaturedContent = function(container, type, settings) {
     var $container = $(container);
@@ -2173,8 +2011,8 @@
             body: "Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",
             links: [
               {
-                url: "https://events.eclipse.org",
-                title: "View Events"
+              url: "https://events.eclipse.org",
+              title: "View Events"
               }
             ],
           }
@@ -2187,7 +2025,7 @@
       }
     });
   }
-
+  
   var writeFeaturedContainer = function(item, $container, type) {
     // get the content container and append the content
     var $featuredContentContainer = $container.find(".featured-container");
