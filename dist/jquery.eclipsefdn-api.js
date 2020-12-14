@@ -1970,18 +1970,9 @@
      include or create impressions as they aren't meant to be consumed in production by the public.
      */
     allPromos: function() {
+      // set up the callbacks + containers for promos
       var $container = $($(this)[0].element);
       var self = this;
-<<<<<<< Upstream, based on origin/master
-      var url = self.settings.newsroomUrl + "/ads";
-      url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined, true);
-      $.ajax(url, {
-        dataType: "json",
-        success: function(data) {
-          var json = JSON.parse(data);
-          if (json["ads"] === undefined) {
-            console.log("Could not load promotional content, bad content received");
-=======
       // create container for promos, to enable pagination bar
       var $promosContainer = $container.find("> div.promos-container");
       if ($promosContainer.length === 0) {
@@ -2047,18 +2038,9 @@
           },
           error: function() {
             console.log("Could not load promotional content. AD-02");
->>>>>>> b5e8a0c Fetch the Ads from newsroom
           }
-          for (var i = 0; i < json.ads.length; i++) {
-            json.ads[i].idx = i;
-          }
-          writePromoContent($container, json.ads, self.settings);
-        },
-        error: function() {
-          console.log("Could not load promotional content");
-          // TODO we should return some default promo object so we always have something
-        }
-      });
+        });
+      }
     },
 
     /**
@@ -2093,21 +2075,12 @@
           console.log("Could not load promotional content. AD-04");
           // TODO - what should be the default promo?
           writePromoContent($container, [{
-<<<<<<< Upstream, based on origin/master
-            "id": "37872",
-            "campaign_name": "PAID_FROGLOGIC",
-            "image": "https://newsroom.eclipse.prg/sites/default/files/ads/froglogic.gif",
-            "member_name": "FrogLogic",
-            "type": "paid",
-            "weight": "8",
-=======
             "id": "37918",
             "campaign_name": "PROMO_IOT_DEV_SURVEY_2020",
             "image": newsroomurl + "/sites/default/files/ads/iot_dev_survey_2020.png",
             "member_name": "",
             "type": "internal",
             "weight": "6",
->>>>>>> b5e8a0c Fetch the Ads from newsroom
             "publish_to": [
               "eclipse_org"
             ]
