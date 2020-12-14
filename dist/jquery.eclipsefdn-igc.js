@@ -1,10 +1,10 @@
 /*
  *  jquery-eclipsefdn-api - v0.0.41
- *  Fetch and display data from various Eclipse Foundation APIs.
- *  https://github.com/EclipseFdn/jquery-eclipsefdn-api
+ *  undefined
+ *  undefined
  *
- *  Made by Christopher Guindon
- *  Under MIT License
+ *  Made by undefined
+ *  Under undefined License
  *
  *  Thanks to https://github.com/jquery-boilerplate/jquery-boilerplate, MIT License © Zeno Rocha
  */
