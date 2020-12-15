@@ -2040,6 +2040,7 @@
     singlePromo: function() {
       var self = this;
       var $container = $($(self)[0].element);
+      var $parent = $container.parent();
       var url = self.settings.adsUrl;
       var newsroomurl = self.settings.newsroomUrl;
       var params = {
@@ -2058,6 +2059,7 @@
             console.log("Could not load promotional content, bad content received. AD-03");
           }
           writePromoContent($container, data, self.settings);
+          $parent.trigger("shown.ef.ads");
         },
         error: function() {
           console.log("Could not load promotional content. AD-04");
