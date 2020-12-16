@@ -2042,12 +2042,10 @@
       var $container = $($(self)[0].element);
       var $parent = $container.parent();
       var url = self.settings.adsUrl;
-      var newsroomurl = self.settings.newsroomUrl;
       var params = {
         "host": window.location.host,
         "source": window.location.pathname,
         "publish_to": $container.data("publish-target"),
-        "ip": $container.data("ip-address")
       };
       $.ajax(url, {
         dataType: "json",
@@ -2063,18 +2061,6 @@
         },
         error: function() {
           console.log("Could not load promotional content. AD-04");
-          // TODO - what should be the default promo?
-          writePromoContent($container, [{
-            "id": "37918",
-            "campaign_name": "PROMO_IOT_DEV_SURVEY_2020",
-            "image": newsroomurl + "/sites/default/files/ads/iot_dev_survey_2020.png",
-            "member_name": "",
-            "type": "internal",
-            "weight": "6",
-            "publish_to": [
-              "eclipse_org"
-            ]
-          }], self.settings);
         }
       });
     }
