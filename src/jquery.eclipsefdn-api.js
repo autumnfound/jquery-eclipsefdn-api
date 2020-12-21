@@ -2099,7 +2099,7 @@
         "<a href=\"http://www.eclipse.org/home/index.php?ad_id={{ id }}\">Ad ID: {{ id }}</a>" +
         "<span class=\"margin-left-10\">prob: {{ weight }}%</span>" +
         "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
-        "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+        "<a href=\"{{ url }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
         "</div>" +
         "</p>" +
         "{{/content}}");
@@ -2107,7 +2107,7 @@
     return getMustacheTemplate(templateId,
       "{{#content}}" +
       "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
-      "<a href=\"https://eclipse.org/go/{{ campaign_name }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+      "<a href=\"{{ url }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
       "</div>" +
       "{{/content}}");
   }
