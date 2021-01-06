@@ -1,6 +1,6 @@
 {
   "name": "jquery-eclipsefdn-api",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "Fetch and display data from various Eclipse Foundation APIs.",
   "keywords": [
     "eclipse foundation api"
