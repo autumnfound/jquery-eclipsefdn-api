@@ -42,7 +42,7 @@
     "eslint": "^6.8.0",
     "eslint-loader": "^3.0.3",
     "eslint-plugin-vue": "^6.2.2",
-    "karma": "^5.0.9",
+    "karma": "^5.2.3",
     "karma-chrome-launcher": "^3.1.0",
     "karma-qunit": "^4.0.0",
     "laravel-mix": "^6.0.6",
