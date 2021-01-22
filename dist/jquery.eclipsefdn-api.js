@@ -8,4 +8,1983 @@
  *
  *  Thanks to https://github.com/jquery-boilerplate/jquery-boilerplate, MIT License © Zeno Rocha
  */
-!function(e,t,a,n){"use strict";var s="eclipseFdnApi",r={apiUrl:"https://api.eclipse.org",gerritUrl:"https://git.eclipse.org/r",eventUrl:"https://newsroom.eclipse.org/api/events",adsUrl:"https://newsroom.eclipse.org/api/ads",forumsUrl:"https://www.eclipse.org/forums",marketplaceUrl:"https://marketplace.eclipse.org",username:"cguindon",currentUser:"",contentPlaceholder:null,errorMsg:'<i class="fa red fa-exclamation-triangle" aria-hidden="true"></i> An unexpected error has occurred.',gerritUserNotFoundMsg:'<h2 class="h3">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class="h3">Incoming Reviews</h2>There are no incoming reviews for this account.',type:"",itemsPerPage:10,accountsUrl:"https://accounts.eclipse.org",newsroomUrl:"https://newsroom.eclipse.org/api",featuredContent:{},featuredContentType:""};function i(t,a){this.element=t,this.settings=e.extend({},r,a),this._defaults=r,this._name=s,this.init()}e.extend(i.prototype,{init:function(){"string"===e.type(this.settings.type)&&-1!==e.inArray(this.settings.type,["mpFavorites","gerritReviews","recentEvents","forumsMsg","gerritReviewCount","projectsList","mailingListSubscription","newsItems","filteredEvents","featuredStory","featuredFooter","customFeaturedContent","allPromos","singlePromo"])&&this[this.settings.type]()},projectsList:function(){var t=this,a=this.settings.username,s=this.settings.apiUrl;if(!a&&!api_url)return!1;var r=s+"/account/profile/"+a+"/projects";e.ajax(r,{context:this.element,success:function(a){var s=Object.keys(a).length;if(s===n&&(s=0),e(this).children("strong").text(s+t.plurialString(" project",s)),!(t.settings.contentPlaceholder instanceof jQuery))return!1;var r=e(t.settings.contentPlaceholder),i=e("<a></a>");r.append(e("<h2></h2>").addClass("h3").text("Eclipse Projects")),r.append('<p>Projects are the organizational unit for open source development work at the Eclipse Foundation. Projects have developers (committers), source code repositories, build servers, downloads, and other resources. The Eclipse Foundation\'s open source projects are governed by the <a href="https://eclipse.org/projects/dev_process/">Eclipse Development Process</a>.</p>');var o="This user is";if(t.settings.currentUser===t.settings.username&&(o="You are"),0===s)return r.append('<div class="alert alert-warning" role="alert">'+o+" not involved in any Eclipse Projects.</div>"),!1;var l=e("<table></table>").attr({width:"100%",class:"table"}),p=e("<tr></tr>"),c=e("<th></th>"),d=e("<td></td>");p.append(c.clone().text("Project").attr("width","85%")),p.append(c.clone().text("Relation").attr({width:"15%",class:"text-center"})),l.append(p),e.each(a,(function(a,n){var s=[],r="",o="";e.each(n,(function(e,t){s.push(t.Relation.Description),r=t.ProjectName,o=t.ActiveDate,""!==t.url&&(r=i.clone().attr({href:t.url}).text(r))})),(p=e("<tr></tr>")).append(d.clone().html(r).append("<br/><small>Since: "+t.dateFormat(new Date(o))+"</small>")),p.append(d.clone().text(s.join(", ")).attr("class","text-center")),l.append(p)}));var g=e("<div></div>").attr({class:"table-responsive"});g.append(l),r.append(g)},error:function(){e(this).html(t.settings.errorMsg)}})},forumsMsg:function(){var t=this,a=this.settings.username,s=this.settings.apiUrl;if(!a&&!api_url)return!1;var r=s+"/account/profile/"+a+"/forum?page=1&pagesize="+t.settings.itemsPerPage;function i(a){var n=e("#forum-posts");e.each(a.posts,(function(s,r){var i={forum_id:r.thread_forum_id,forum_name:r.forum_name,forum_cat_id:r.forum_name,forum_cat_name:r.cat_name,root_subject:r.root_msg_subject,current_user_last_post_timestamp:r.msg_group_post_stamp,current_user_last_post_subject:r.last_user_msg_subject,thread_id:r.msg_thread_id,thread_reply_count:r.thread_replies,thread_views_count:r.thread_views,thread_last_post_date:r.thread_last_post_date,last_message_timestamp:r.last_msg_post_stamp,last_message_poster_id:r.last_msg_poster_id,last_message_poster_alias:r.last_poster_alias,last_message_last_view:r.read_last_view,current_user_id:a.id},o=e("<tr></tr>"),l=e("<td></td>"),p=e("<a></a>"),c=p.clone().attr({href:t.settings.forumsUrl+"/index.php/f/"+i.forum_id+"/"}).text(i.forum_name),d=p.clone().attr({href:t.settings.forumsUrl+"/index.php/i/"+i.forum_cat_id+"/"}).text(i.forum_cat_name),g=e("<small></small>").append("<br/>").append(d).append(" &gt; ").append(c).append(" &gt; ").append(i.root_subject).append("<br>Posted on "+t.dateFormat(new Date(parseInt(1e3*i.current_user_last_post_timestamp)))),u="fa fa-envelope-open-o";t.settings.currentUser===t.settings.username&&i.last_message_last_view<i.thread_last_post_date&&i.last_message_poster_id!==i.current_user_id&&(o.addClass("warning"),u="fa fa-envelope-o"),t.settings.currentUser===t.settings.username&&o.append(l.clone().html('<i class="'+u+'" aria-hidden="true"></i>').attr("class","text-center")),o.append(l.clone().html(p.clone().attr({href:t.settings.forumsUrl+"/index.php/t/"+i.thread_id+"/"}).text(i.current_user_last_post_subject)).append(g)),o.append(l.clone().text(i.thread_reply_count).attr("class","text-center")),o.append(l.clone().text(i.thread_views_count).attr("class","text-center"));var h=e("<small></small>").append(t.dateFormat(new Date(parseInt(1e3*i.last_message_timestamp)))).append("<br/> By: ").append(p.clone().attr({href:t.settings.forumsUrl+"/index.php/sp/"+i.last_message_poster_id+"/"}).text(i.last_message_poster_alias));o.append(l.clone().html(h).attr("class","text-center")),n.append(o)}))}function o(n,r,o){!function(n,r){void 0===n&&(n=1);void 0===r&&(r=t.settings.itemsPerPage);var o=s+"/account/profile/"+a+"/forum?page="+n+"&pagesize="+r;e.ajax(o,{context:t.element,success:function(e){i(e)},error:function(){e(this).html(t.settings.errorMsg)}})}(r,o)}e.ajax(r,{context:this.element,success:function(a,s,r){var l=0;if(a.posted_msg_count!==n&&a.id!==n&&(l=a.posted_msg_count,e(this).attr({href:t.settings.forumsUrl+"/index.php/sp/"+a.id+"/"})),e(this).children("strong").text(l+t.plurialString(" topic",l)),!(t.settings.contentPlaceholder instanceof jQuery))return!1;var p=e(t.settings.contentPlaceholder),c=e("<a></a>");p.append(e("<h2></h2>").addClass("h3").text("Eclipse Forums")),p.append(e("<p></p>").append("The Eclipse forums are your way of communicating with the community of people developing and using Eclipse-based tools hosted at Eclipse.org. Please stick to technical issues - and remember, no confidential information - these are public forums!"));var d=c.clone().attr({href:t.settings.forumsUrl,class:"btn btn-primary btn-sm",style:"display:block"}).html('<i class="fa fa-angle-double-right" aria-hidden="true"></i> More');if(0===a.posts.length)return p.append('<div class="alert alert-warning" role="alert">This user does not have any activities on Eclipse Forums.</div>'),p.append(d),!1;var g=e("<table></table>").attr({width:"100%",class:"table",id:"forum-posts"}),u=e("<tr></tr>"),h=e("<th></th>");t.settings.currentUser===t.settings.username&&u.append(h.clone().attr("width","8%")),u.append(h.clone().text("Topics").attr("width","50%")),u.append(h.clone().text("Replies").attr({width:"8%",class:"text-center"})),u.append(h.clone().text("Views").attr({width:"8%",class:"text-center"})),u.append(h.clone().text("Last message").attr({class:"text-center"})),g.append(u);var m=e("<div></div>").attr({class:"table-responsive"});m.append(g),p.append(m),i(a);var f=new t.linkHeaderParser(r.getResponseHeader("Link")),v=f.getLastPageNum();f.getPageSize()!==t.settings.itemsPerPage&&(t.settings.itemsPerPage=f.getPageSize()),g.on("fetchPageItemsEvent",o),g.data("postsPerPage",t.settings.itemsPerPage),p.append(t.getPaginationBar(v*t.settings.itemsPerPage,"forum-posts"));var _=a.id;d.attr({href:t.settings.forumsUrl+"/index.php/sp/"+_+"/"}),p.append(d)},error:function(){e(this).html(t.settings.errorMsg)}})},mpFavorites:function(){var t=this,a=this.settings.username,n=this.settings.apiUrl;if(!a&&!api_url)return!1;if(t.settings.contentPlaceholder instanceof jQuery){var s=e(t.settings.contentPlaceholder),r=e("<a></a>").attr({href:t.settings.marketplaceUrl+"/user/"+a+"/favorites",class:"btn btn-primary btn-sm",style:"display:block"}).html('<i class="fa fa-angle-double-right" aria-hidden="true"></i> More');s.append(e("<h2></h2>").addClass("h3").text("Eclipse Marketplace Favorites")),s.append(e("<p></p>").append("Eclipse Marketplace is the source for Eclipse-based solutions, products and add-on features. Thousands of developers visit Marketplace on a monthly basis to find new and innovative solutions. Solution providers are encouraged to list their products on Marketplace to gain exposure to the Eclipse developer community."))}var i=n+"/marketplace/favorites?name="+a+"&page=1&pagesize="+t.settings.itemsPerPage;function o(a){var n=t.settings.marketplaceUrl+"/node/"+a+"/api/p";e.ajax(n,{context:t.element,success:function(a){var n=e("#mpfavorites-list");e("node",a).each((function(a,s){var r=e(s),i=r.find("shortdescription").text(),o=s.getAttribute("name"),l=r.find("changed").text(),p=r.find("owner").text(),c="Last Updated on "+t.dateFormat(new Date(parseInt(1e3*l)))+" by "+p,d=s.getAttribute("id"),g=e("#mp-listing-template").clone().removeClass("hidden").removeAttr("id"),u=e("<a></a>"),h=e("category",s),m=t.settings.marketplaceUrl+"/node/"+d,f=r.find("image").text(),v=u.clone().attr({href:m});h.each((function(e,t){var a=u.clone().attr({href:t.getAttribute("url")}).text(t.getAttribute("name"));h.length!==e+1&&a.append(", "),g.find(".content-categories").append(a)})),g.find(".listing-image").attr({href:m,style:"background:url('"+f+"') no-repeat center;"}),g.find(".drag").attr({href:t.settings.marketplaceUrl+"/marketplace-client-intro?mpc_install="+d}),g.find(".listing-title").html(v.clone().text(o)),g.find(".content-teaser").html(i),g.find(".content-last-updated").html(c),n.append(g)}))},error:function(){e(this).html(t.settings.errorMsg)}})}function l(s,r,i){!function(s,r){void 0===s&&(s=1);void 0===r&&(r=t.settings.itemsPerPage);var i=n+"/marketplace/favorites?name="+a+"&page="+s+"&pagesize="+r;e.ajax(i,{context:t.element,success:function(t){var a=[];e.each(t.mpc_favorites,(function(e,t){a.push(t.content_id)})),o(a.join())},error:function(){e(this).html(t.settings.errorMsg)}})}(r,i)}e.ajax(i,{context:this.element,success:function(a,n,i){if(e(this).children("strong").text(a.result.count+t.plurialString(" favorite",a.result.count)),void 0===s)return!1;var p=[];if(e.each(a.mpc_favorites,(function(e,t){p.push(t.content_id)})),0===p.length)return s.append('<div class="alert alert-warning" role="alert">There are no marketplace favorites for this user.</div>'),s.append(r),!1;var c=new t.linkHeaderParser(i.getResponseHeader("Link")),d=c.getLastPageNum();c.getPageSize()!==t.settings.itemsPerPage&&(t.settings.itemsPerPage=c.getPageSize()),s.on("fetchPageItemsEvent",l),s.append('<h3 id="mpc_list_name">'+a.mpc_list_name+"</h3>"),s.append('<div class="row"><div class="col-md-17"><div class="form-item form-type-textfield form-disabled"><label>Favorites URL <a href="#" class="install-user-favorites" data-container="body" data-toggle="popover" data-placement="top" title="" data-original-title="How to install?"><i class="fa fa-question-circle" aria-hidden="true"></i></a> </label><input disabled="true" class="form-control form-text" type="text" value="http://marketplace.eclipse.org/user/'+t.settings.username+'/favorites" size="60" maxlength="128"></div></div><div class="col-md-7 margin-top-25 text-right"><div class="drag_installbutton drag_installbutton_v2 drag-install-favorites"><a href="http://marketplace.eclipse.org/user/'+t.settings.username+'/favorites" class="drag" title="How to install?"><span class="btn btn-default"><i class="fa fa-download orange"></i> Install Favorites</span><div class="tooltip tooltip-below-right"><h3>Drag to Install!</h3>Drag to your running Eclipse<sup>*</sup> workspace to install this favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>'),s.append('<div id="mpfavorites-list"></div>'),s.find("#mpfavorites-list").data("postsPerPage",t.settings.itemsPerPage),o(p.join()),s.append(t.getPaginationBar(d*t.settings.itemsPerPage,"mpfavorites-list")),s.append(r),e("a.install-user-favorites").on("click",(function(e){e.preventDefault()})),e("a.install-user-favorites").popover({html:!0,content:function(){return e("<ol></ol>").addClass("padding-left-20").append("<li>Copy <strong>URL</strong> from textfield.</li>").append("<li>Open Eclipse Marketplace Client (MPC).</li>").append("<li>Open <strong>Favorites</strong> tab.</li>").append("<li>Click on <strong>Import Favorites list</strong>.</li>").append("<li>Paste <strong>URL</strong> in the textfield.</li>")}})},error:function(){e(this).html(t.settings.errorMsg)}})},gerritReviewCount:function(){var t=this,a=this.settings.username,n=this.settings.apiUrl+"/account/profile/"+a+"/gerrit";e.ajax(n,{context:this.element,success:function(a){var n=a.merged_changes_count;e(this).children("strong").text(n+t.plurialString(" review",n)),n>0&&e(this).attr({href:t.settings.gerritUrl+"/#/q/owner:"+t.settings.username})},error:function(){e(this).html(t.settings.errorMsg)}})},mailingListSubscription:function(){var t=this,a=t.settings.username,n=t.settings.currentUser,s=t.settings.currentUserUid,r=t.settings.userCanEditOwnMailingList,i=this.settings.apiUrl;if(!a&&!api_url)return!1;var o=t.element,l=i+"/account/profile/"+a+"/mailing-list";e.ajax(l,{context:this.element,success:function(t){var i=t.mailing_list_subscriptions,l=e("<p></p>"),p=e("<h2></h2>"),c=e("<a></a>"),d=e("<strong></strong>"),g="This user is";n===a&&(g="You are");var u=c.clone().attr({href:"/user/"+s+"/mailing-list",class:"fa fa-pencil","aria-hidden":"true"});if(e(o).append(p.text("Eclipse Mailing Lists ").append(u)),jQuery.isEmptyObject(i))e(o).append(l.clone().text(g+" not subscribed to any Eclipse mailing list."));else{e(o).append(l.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project.")),e(o).append(l.clone().text("Below is a list of the public mailing lists that "+g.toLowerCase()+" currently  subscribed to at Eclipse.org. When posting emails to our mailing lists, please remember that these lists are public, avoid posting ").append(d.clone().text("personal")).append(" or ").append(d.clone().text("private information")).append(".")),e(o).append(l.clone().text("If you are having trouble using our mailing lists, please contact ").append(c.clone().attr("href","mailto:mailman@eclipse.org").text("mailman@eclipse.org")).append("."));var h=e("<table></table>").attr({width:"100%",class:"table",id:"aeri-reports"}),m=e("<tr></tr>"),f=e("<th></th>");m.append(f.clone().text("Mailing List").attr("width","30%")),m.append(f.clone().text("Description").attr("width","70%")),h.append(m);var v=e("<div></div>").attr({class:"table-responsive"});v.append(h),e(o).append(v),e(o).append(l),e.each(i,(function(t,a){var n=e("<tr></tr>"),s=e("<td></td>");n.append(s.clone().append(c.clone().attr("href","/mailing-list/"+a.list_name).text(a.list_name))),n.append(s.clone().append(a.list_description)),h.append(n)}))}n===a&&r&&e(o).append(l.clone().append(c.clone().attr({href:"/user/"+s+"/mailing-list",class:"btn btn-primary btn-xs"}).text("Manage your Mailing Lists")))},error:function(){e(this).html(t.settings.errorMsg)}})},gerritReviews:function(){var t,a,n=this,s=this.settings.gerritUrl+"/changes/?q=owner:"+this.settings.username+"+status:open&q=reviewer:"+this.settings.username+"+status:open+-owner:"+this.settings.username+"&pp=0";e(this.element).append(e("<h2>Eclipse Gerrit</h2>").addClass("h3")),e(this.element).append("<p>Gerrit is a web based code review system, facilitating online code reviews for projects using the Git version control system.</p>"),t=s,a=[["gerrit-outgoing",[]],["gerrit-incoming",[]]],e(n.element).on("drawTableEvent",(function(){e.each(a,(function(t,a){var s="";switch(a[0]){case"gerrit-outgoing":s="Outgoing Reviews";break;case"gerrit-incoming":s="Incoming Reviews"}var r=e("<h4></h4>").addClass("h4").text(s);e(n.element).append(r),0!==a[1].length?(e(n.element).append(function(t,a){var s=e("<table></table>").attr({width:"100%",class:"table",id:t}),r=e("<tr></tr>"),i=e("<th></th>"),o=e("<td></td>");r.append(i.clone().text("Subject").attr("width","70%")),r.append(i.clone().text("Status").attr({width:"18%",class:"text-center"})),r.append(i.clone().text("Updated").attr({width:"12%",class:"text-center"})),s.append(r);var l=e("<a></a>");e.each(a,(function(t,a){r=e("<tr></tr>");var i="";!1===a.mergeable&&(i="Merge Conflict",r.addClass("warning"));var p=a.updated.substring(0,a.updated.indexOf(" "));r.append(o.clone().html(l.clone().attr({href:n.settings.gerritUrl+"/"+a._number}).text(a.subject)).append("<br/>"+a.project)),r.append(o.clone().text(i).attr("class","text-center")),r.append(o.clone().text(p).attr("class","text-center")),s.append(r)}));var p=e("<div></div>").attr({class:"table-responsive"});return p.append(s),p}(a[0],a[1])),e(n.element).append(n.getPaginationBar(a[1].length,a[0]))):e(n.element).append('<div class="alert alert-warning" role="alert">There are no '+s.toLowerCase()+" for this user.</div>")}));var t=e("<a></a>").attr({href:n.settings.gerritUrl+"/#/q/owner:"+n.settings.username,class:"btn btn-primary btn-sm",style:"display:block"}).html('<i class="fa fa-angle-double-right" aria-hidden="true"></i> More');e(n.element).append(t)})),function t(s,r,i){return s+="&start="+(i=void 0!==i?i:0)+"&n="+(r=void 0!==r?r:100),e.ajax(s,{dataType:"gerrit_XSSI",context:n.element,converters:{"text gerrit_XSSI":function(e){var t=e.substring(e.indexOf("\n")+1);return jQuery.parseJSON(t)}},success:function(o){var l=Object,p=Object;0!==o[0].length&&(e.merge(a[0][1],o[0]),l=o[0][o[0].length-1]),0!==o[1].length&&(e.merge(a[1][1],o[1]),p=o[1][o[1].length-1]),"_more_changes"in l&&!0===l._more_changes||"_more_changes"in p&&!0===p._more_changes?t(s,r,i+r):e(n.element).trigger("drawTableEvent")},error:function(t){400===t.status?e(this).html(n.settings.gerritUserNotFoundMsg):e(this).html(n.settings.errorMsg)}})}(t,100,0)},recentEvents:function(){var t=this;function a(e,t){return e.dateTime-t.dateTime}e.ajax(this.settings.eventUrl,{context:this.element,success:function(n){var s=new Date,r=[];for(var i in n.events)n.events[i].dateTime=new Date(n.events[i].date),n.events[i].dateTime>=s&&r.push(n.events[i]);r.sort(a);var o=e("<ul></ul>").attr({class:"nav",style:"margin:0"});for(var l in r.slice(0,5)){var p=r[l].dateTime,c=t.dateFormat(p),d=e("<a>").attr({href:r[l].infoLink}).html(r[l].title+"<br/><small>"+c+"</small>"),g=e("<li></li>").append(d);o.append(g)}e(this).children(".loading").remove(),e(this).append(o);var u=e("<a>").attr({href:"http://events.eclipse.org",class:"btn btn-simple btn-sm"}).text("more");e(this).append(u)},error:function(){e(this).html(t.settings.errorMsg)}})},plurialString:function(e,t){return t>1&&(e+="s"),e},dateFormat:function(e){var t=e.getFullYear(),a=["January","February","March","April","May","June","July","August","September","October","November","December"][e.getMonth()];return["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][e.getDay()]+", "+a+" "+e.getDate()+", "+t+" - "+("0"+e.getHours()).slice(-2)+":"+("0"+e.getMinutes()).slice(-2)},linkHeaderParser:function(e){var t=this;if(this.links=0,this.getLastPageNum=function(){return void 0===t.links.last?0:o(t.links.last,"page")},this.getPageSize=function(){if(void 0===t.links.first)return 0;var e=o(t.links.first,"pagesize");return 0===e?o(t.links.first,"size"):e},null!=e){for(var a=e.split(","),n={},s=0;s<a.length;s++){a[s]=a[s].replace("&amp;","&");var r=a[s].split(";");if(!(r.length<2)){var i=r[0].replace(/<(.*)>/,"$1").trim();n[r[1].replace(/rel="(.*)"/,"$1").trim()]=i}}this.links=n}function o(e,t){if(void 0===t||void 0===e)return 0;for(var a=e.substr(e.lastIndexOf("?")+1).split("&"),n=0;n<a.length;n++){var s=a[n].split("=");if(decodeURIComponent(s[0])===t)return decodeURIComponent(s[1])}return 0}},getPaginationBar:function(t,a){var n=this;if(void 0===t&&(t=1),!(t<=0||t<=n.settings.itemsPerPage)){var s=e("<nav></nav>").attr({"arial-label":"Page navigation",id:a+"-pager"}).addClass("text-center"),r=Math.ceil(t/n.settings.itemsPerPage),i=o(r,1,a);return s.append(i),void 0===e("#"+a).data("pageCache")&&function(){var t,s=e("#"+a),i=[];switch(a){case"gerrit-incoming":case"gerrit-outgoing":t="gerrit",i=o(s.find("tr"));break;case"mpfavorites-list":t="mpfav";break;case"forum-posts":case"aeri-reports":t="table",i=o(s.find("tr"));break;case"news-container":t="news";break;case"events-container":t="events";break;default:t="generic"}switch(s.data("pageCache",i),s.data("pageCacheType",t),s.data("pageCacheTotalPages",r),s.on("changePageEvent",p),t){case"gerrit":s.trigger("changePageEvent",[1])}function o(a){var s=0,r=0,i=[],o=[];switch(t){case"gerrit":case"table":o[0]=a[0]}return e.each(a,(function(t,a){if(e(a).children().first().is("th"))return!0;s===n.settings.itemsPerPage&&(s=0,o[++r]=i,i=[]),i[s++]=a})),i.length>0&&(o[++r]=i),o}}(),s}function o(t,a,n){var s=e("<li></li>"),r=e("<ul></ul>").addClass("pagination");void 0!==n&&r.attr({"data-eclipseFdnApi-elementID":n});var i,o=!1,p="",c=1,d=t,g=function(){var t=e(this),a=t.attr("data-goto-page"),n=t.parents(".pagination").eq(0).data("eclipsefdnapiElementid");e("#"+n).trigger("changePageEvent",[a])};if(t>9){c=t-8,a<=5?(d=9,c=1):a<=t-4&&(c=a-4,d=a+4),o=!0;var u=e("<span></span>");p=s.clone().append(u.clone().html("...").attr({"aria-hidden":"true"})).addClass("pager-ellipses disabled")}for(1!==a&&(r.append(s.clone().addClass("pager-first").html(l("First","first page",1,"<< first").on("click",g))),r.append(s.clone().html(l("Previous","previous page",a-1,"< previous").on("click",g))),!0===o&&c>1&&r.append(p.clone())),i=c;i<=d;i++){var h=s.clone(),m=l("Page "+parseInt(i),"page "+parseInt(i),i).on("click",g);a===i&&h.addClass("active"),h.html(m),r.append(h)}return a<t&&(!0===o&&d<t&&r.append(p.clone()),r.append(s.clone().html(l("Next","next page",a+1,"next >").on("click",g))),r.append(s.clone().addClass("pager-last").html(l("Last","last page",t,"last >>").on("click",g)))),r}function l(t,a,n,s){return void 0===s&&(s=parseInt(n)),e("<a></a>").attr({"aria-label":t,href:"#",onclick:"return false;",title:"Go to "+a,"data-goto-page":parseInt(n)}).text(s)}function p(t,a){var n=e(t.currentTarget),s=n.data("pageCacheType"),r=n.data("pageCache"),i=n.attr("id"),l=e("#"+i+"-pager"),p=l.data("currentPage");switch(null==p&&(p=1),void 0===a&&(a=1),a=parseInt(a),s){case"gerrit":d();break;default:!function(){if(void 0===r[p]){var t=[];r[p]=[],n.is("table")?t=n.find("tr"):n.is("div")&&(t=n.find(".node,.item")),e.each(t,(function(t,a){if(e(a).children().first().is("th"))return!0;r[p].push(a)})),n.data("pageCache",r)}}(),d()}if(p!==a){var c=o(n.data("pageCacheTotalPages"),a,i);l.find("ul").replaceWith(c),l.data("currentPage",a)}function d(){if(n.empty(),void 0===r[a]){var t=[];switch(s){case"mpfav":case"table":case"news":case"events":t.push(a),t.push(n.data("postsPerPage"))}return n.is("table")&&n.append(r[0]),void n.trigger("fetchPageItemsEvent",t)}n.is("table")&&n.append(r[0]),e.each(r[a],(function(e,t){n.append(t)}))}}},newsItems:function(){var t=this,a=e(e(this)[0].element),s=a.find("> div.news-container");function r(s,r,i){var o=e(s),l=o.parent(),p=l.data("news-count")||i||5,c="?page="+r;c+="&pagesize="+p,c+=d(l,"publish-target","publish_to","eclipse_org"),c+=d(l,"news-type","news_type","");var g=t.settings.newsroomUrl+"/news"+c;e.ajax(g,{success:function(a,s,r){var i=a.news;i.length>p&&(i=i.slice(0,p));for(var c=0;c<i.length;c++)i[c].date=t.dateFormat(new Date(i[c].date)),i[c].index=c;var d=function(t){var a=e("#"+t);if(a!==n&&0!==a.length)return a[0].innerHTML;return'{{#news}}<div class="item block-summary-item" data-mh="group-{{ index }}"><p>{{ date }}</p><h4><a href="{{ link }}">{{ title }}</a></h4><p>{{ body }}</p></div>{{/news}}'}(l.data("template-id")||"template-news-items"),g=Mustache.render(d,{news:i});if(o.html(g),!0===l.data("pagination")&&0===l.find("nav").length){var u=new t.linkHeaderParser(r.getResponseHeader("Link")),h=u.getLastPageNum();u.getPageSize()!==t.settings.itemsPerPage&&(t.settings.itemsPerPage=u.getPageSize()),l.append(t.getPaginationBar(h*t.settings.itemsPerPage,o.attr("id")))}l.trigger("shown.ef.news")},error:function(){a.empty();var t=e("<div></div>");t.attr("class","alert alert-warning"),t.text("Unable to load news content currently."),a.append(t)}})}0===s.length&&((s=e("<div></div>")).attr({class:"news-container",id:"news-container"}),a.append(s)),!0===a.data("pagination")&&s.on("fetchPageItemsEvent",(function(e,t,a){r(e.target,t,a)})),r(s,1,5)},filteredEvents:function(){var t=this,a=e(e(this)[0].element),s=a.find("> div.events-container");function r(s,r,i){var o=e(s),l=o.parent(),p=l.data("count")||i||5,c="?page="+r;c+="&pagesize="+p,c+=d(l,"publish-target","publish_to",n),c+=d(l,"type","type",n),c+=d(l,"upcoming","upcoming_only",n);var g=1===l.data("upcoming"),u=l.data("sort-order")||(g?"ASC":n),h=l.data("sort-field")||(g?"field_event_date":n);u&&h&&(c+="&options%5Borderby%5D%5B"+h+"%5D="+u);var m=t.settings.newsroomUrl+"/events"+c;e.ajax(m,{success:function(a,s,r){var i=a.events;i.length>p&&(i=i.slice(0,p));for(var c=0;c<i.length;c++)(Date.now()>new Date(i[c]["end-date"])||!i[c].registration)&&delete i[c].registration,i[c].infoLink||delete i[c].infoLink,i[c].date=t.dateFormat(new Date(i[c].date)),i[c]["end-date"]=t.dateFormat(new Date(i[c]["end-date"]));var d=function(t,a){var s=e("#"+t);if(s!==n&&0!==s.length)return s[0].innerHTML;if(a)return'{{#events}}<div class="item block-summary-item match-height-item"><h3 class="h4">{{ title }}</h3><p>{{ locationName }}</p><p>{{ date }} - {{ end-date }}</p><p class="margin-bottom-0">{{#registration}}<a class="btn btn-secondary" href="{{ registration }}">Register Now</a>{{/registration}}{{#infoLink}}<a class="btn btn-secondary" href="{{ infoLink }}">More information</a>{{/infoLink}}</p></div>{{/events}}';return'{{#events}}<div class="col-sm-12 col-md-6 event item match-height-item-by-row flex-column"><h3 class="h4 flex-grow">{{ title }}</h3><p>{{ locationName }}</p><p class="flex-grow">{{ date }} - {{ end-date }}</p><p class="margin-bottom-0">{{#infoLink}}<a class="btn btn-secondary" href="{{ infoLink }}">More information</a>{{/infoLink}}{{^infoLink}}{{#registration}}<a class="btn btn-secondary" href="{{ registration }}">Register Now</a>{{/registration}}{{/infoLink}}</p></div>{{/events}}'}(l.data("template-id")||"template-event-items",l.data("archive")||!1),g=Mustache.render(d,{events:i});if(o.html(g),!0===l.data("pagination")&&0===l.find("nav").length){var u=new t.linkHeaderParser(r.getResponseHeader("Link")),h=u.getLastPageNum();u.getPageSize()!==t.settings.itemsPerPage&&(t.settings.itemsPerPage=u.getPageSize()),l.append(t.getPaginationBar(h*t.settings.itemsPerPage,o.attr("id")))}l.trigger("shown.ef.events")},error:function(){a.empty();var t=e("<div></div>");t.attr("class","alert alert-warning"),t.text("Unable to load events content currently."),a.append(t)}})}0===s.length&&((s=e("<div></div>")).attr({class:"events-container",id:"events-container"}),a.append(s)),!0===a.data("pagination")&&s.on("fetchPageItemsEvent",(function(e,t,a){r(e.target,t,a)})),r(s,1,5)},featuredStory:function(){var t=e(e(this)[0].element);p(t,"story",this.settings)},featuredFooter:function(){var t=e(e(this)[0].element);p(t,"footer",this.settings)},customFeaturedContent:function(){var t=e(e(this)[0].element);c(this.settings.featuredContent,t,this.settings.featuredContentType)},allPromos:function(){var t=e(e(this)[0].element),a=this,s=t.find("> div.promos-container");function r(t,s,r){var i=e(t),l=i.parent(),p=l.data("count")||r||10,c=a.settings.adsUrl,g="?page="+s;g+="&pagesize="+p,g+=d(l,"publish-target","publish_to",n),e.ajax(c+g,{dataType:"json",type:"GET",success:function(e){e.ads===n&&console.log("Could not load promotional content. AD-01");for(var t=0;t<e.ads.length;t++)e.ads[t].idx=t;if(o(i,e.ads,a.settings),!0===l.data("pagination")&&0===l.find("nav").length){var s=new a.linkHeaderParser(jqXHR.getResponseHeader("Link")),r=s.getLastPageNum();s.getPageSize()!==a.settings.itemsPerPage&&(a.settings.itemsPerPage=s.getPageSize()),l.append(a.getPaginationBar(r*a.settings.itemsPerPage,i.attr("id")))}},error:function(){console.log("Could not load promotional content. AD-02")}})}0===s.length&&((s=e("<div></div>")).attr({class:"promos-container",id:"promos-container-"+getPseudoRandomNumber()}),t.append(s)),!0===t.data("pagination")&&s.on("fetchPageItemsAd",(function(e,t,a){r(e.target,t,a)})),r(s,1,10)},singlePromo:function(){var a=this,s=e(e(a)[0].element),r=s.parent(),i=a.settings.adsUrl,l={host:t.location.host,source:t.location.pathname,publish_to:s.data("publish-target")};e.ajax(i,{dataType:"json",contentType:"application/json",type:"POST",data:JSON.stringify(l),success:function(e){e===n&&console.log("Could not load promotional content, bad content received. AD-03"),o(s,e,a.settings),r.trigger("shown.ef.ads")},error:function(){console.log("Could not load promotional content. AD-04")}})}}),e.fn[s]=function(t){return this.each((function(){e.data(this,"plugin_"+s)||e.data(this,"plugin_"+s,new i(this,t))}))};var o=function(e,t,a){var n=l(e.data("template-id"),a);e.html(Mustache.render(n,{content:t}))},l=function(e,t){return"allPromos"===t.type?g(e,'{{#content}}<p><a href="http://www.eclipse.org/home/index.php?ad_id={{ id }}">Ad ID: {{ id }}</a><span class="margin-left-10">prob: {{ weight }}%</span><div class="eclipsefnd-ad ad-strategic ad-strategic-default"><a href="{{ url }}" rel="nofollow" style="background-image: url(\'{{ image }}\')">{{ member_name }}</a></div></p>{{/content}}'):g(e,'{{#content}}<div class="eclipsefnd-ad ad-strategic ad-strategic-default"><a href="{{ url }}" rel="nofollow" style="background-image: url(\'{{ image }}\')">{{ member_name }}</a></div>{{/content}}')},p=function(t,a,s){var r=e(t),i=s.newsroomUrl+"/featured_story",o=r.data("id");o!==n&&(i+="/"+o),i+=d(r,"publish-target","publish_to",n,!0),e.ajax(i,{success:function(e){e.featured_story===n&&console.log("Could not load featured content, bad content recieved");var t=e.featured_story.filter((function(e){return new Date(e["end-date"])>new Date&&(e["start-date"]===n||new Date(e["start-date"])<new Date)})).filter((function(e){return e.type===a||"both"===e.type}));if(t.length>1&&u(t),t.length>0)c(t[0],r,a);else{c({id:"default-featured-story",layout:"light",title:"Eclipse Foundation Events",body:"Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",links:[{url:"https://events.eclipse.org",title:"View Events"}]},r,"both")}},error:function(){console.log("Could not load featured content!")}})},c=function(e,t,a){var n=t.find(".featured-container");t.addClass("featured-story-nid-"+e.id),t.addClass("featured-story-"+e.layout);var s=t.data("template-id")||"template-featured-"+a,r=g(s,'{{#content}}<h2 class="margin-top-30">{{ title }}</h2><p>{{ body }}</p><ul class="list-inline list-inline-xs-margin">{{#links}}<li><a class="btn btn-primary" href="{{ url }}">{{ title }}</a></li>{{/links}}</ul>{{/content}}'),i=Mustache.render(r,{content:e});n.html(i)},d=function(e,t,a,s,r){var i=e.data(t)||s,o="";if(Array.isArray(i))for(var l=0;l<i.length;l++)o+=r&&0===l?"?":"&",o+="parameters%5B"+a+"%5D%5B%5D="+i[l];else i!==n&&(o+=r?"?":"&",o+="parameters%5B"+a+"%5D="+i);return o},g=function(t,a){var s=e("#"+t);return s!==n&&0!==s.length?s[0].innerHTML:a},u=function(e){for(var t=e.length-1;t>0;t--){var a=Math.floor(Math.random()*(t+1)),n=e[t];e[t]=e[a],e[a]=n}}}(jQuery,window,document);
+// the semi-colon before function invocation is a safety net against concatenated
+// scripts and/or other plugins which may not be closed properly.
+(function($, window, document, undefined) {
+  "use strict";
+
+  // undefined is used here as the undefined global variable in ECMAScript 3 is
+  // mutable (ie. it can be changed by someone else). undefined isn"t really being
+  // passed in so we can ensure the value of it is truly undefined. In ES5, undefined
+  // can no longer be modified.
+
+  // window and document are passed through as local variables rather than global
+  // as this (slightly) quickens the resolution process and can be more efficiently
+  // minified (especially when both are regularly referenced in your plugin).
+
+  // Create the defaults once
+  var pluginName = "eclipseFdnApi",
+    defaults = {
+      apiUrl: "https://api.eclipse.org",
+      gerritUrl: "https://git.eclipse.org/r",
+      eventUrl: "https://newsroom.eclipse.org/api/events",
+      adsUrl: "https://newsroom.eclipse.org/api/ads",
+      forumsUrl: "https://www.eclipse.org/forums",
+      marketplaceUrl: "https://marketplace.eclipse.org",
+      username: "cguindon",
+      currentUser: "",
+      contentPlaceholder: null,
+      errorMsg: "<i class=\"fa red fa-exclamation-triangle\" aria-hidden=\"true\"></i> An unexpected error has occurred.",
+      gerritUserNotFoundMsg: "<h2 class=\"h3\">Outgoing Reviews</h2>There are no outgoing reviews for this user.<h2 class=\"h3\">Incoming Reviews</h2>There are no incoming reviews for this account.",
+      type: "",
+      itemsPerPage: 10,
+      accountsUrl: "https://accounts.eclipse.org",
+      newsroomUrl: "https://newsroom.eclipse.org/api",
+      featuredContent: {},
+      featuredContentType: ""
+    };
+  // The actual plugin constructor
+  function Plugin(element, options) {
+    this.element = element;
+    // jQuery has an extend method which merges the contents of two or
+    // more objects, storing the result in the first object. The first object
+    // is generally empty as we don"t want to alter the default options for
+    // future instances of the plugin
+    this.settings = $.extend({}, defaults, options);
+    this._defaults = defaults;
+    this._name = pluginName;
+    this.init();
+  }
+
+  // Avoid Plugin.prototype conflicts
+  $.extend(Plugin.prototype, {
+    init: function() {
+      // Place initialization logic here
+      // You already have access to the DOM element and
+      // the options via the instance, e.g. this.element
+      // and this.settings
+      // you can add more functions like the one below and
+      // call them like the example below
+      var validTypes = [
+        "mpFavorites",
+        "gerritReviews",
+        "recentEvents",
+        "forumsMsg",
+        "gerritReviewCount",
+        "projectsList",
+        "mailingListSubscription",
+        "newsItems",
+        "filteredEvents",
+        "featuredStory",
+        "featuredFooter",
+        "customFeaturedContent",
+        "allPromos",
+        "singlePromo"
+      ];
+      if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
+        this[this.settings.type]();
+      }
+    },
+    projectsList: function() {
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      // Build api URI.
+      var url = apiUrl + "/account/profile/" + username + "/projects";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+
+          var project_count = Object.keys(data).length;
+          if (project_count === undefined) {
+            project_count = 0;
+          }
+
+          $(this).children("strong").text(project_count + self.plurialString(" project", project_count));
+
+          // Exit now if contentPlaceholder is not defined
+          if (!(self.settings.contentPlaceholder instanceof jQuery)) {
+            return false;
+          }
+
+          var container = $(self.settings.contentPlaceholder);
+          var a = $("<a></a>");
+
+          container.append($("<h2></h2>").addClass("h3").text("Eclipse Projects"));
+          container.append("<p>Projects are the organizational unit for open source " +
+            "development work at the Eclipse Foundation. Projects have developers " +
+            "(committers), source code repositories, build servers, downloads, " +
+            "and other resources. The Eclipse Foundation's open source projects " +
+            "are governed by the <a href=\"https://eclipse.org/projects/dev_process/\">Eclipse Development Process</a>.</p>");
+
+          var warning_prefix = "This user is";
+          if (self.settings.currentUser === self.settings.username) {
+            warning_prefix = "You are";
+          }
+
+          if (project_count === 0) {
+            container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
+              warning_prefix + " not involved in any Eclipse Projects." +
+              "</div>");
+            return false;
+          }
+
+          // Create table
+          var table = $("<table></table>").attr({
+            "width": "100%",
+            "class": "table"
+          });
+
+          var tr = $("<tr></tr>");
+          var th = $("<th></th>");
+          var td = $("<td></td>");
+
+          tr.append(th.clone().text("Project").attr("width", "85%"));
+
+          tr.append(th.clone().text("Relation").attr({
+            "width": "15%",
+            "class": "text-center"
+          }));
+
+          table.append(tr);
+          // Insert rows in table
+          $.each(data, function(index, value) {
+            var roles = [];
+            var projectName = "";
+            var activeDate = "";
+            $.each(value, function(i, v) {
+              roles.push(v.Relation.Description);
+              projectName = v.ProjectName;
+              activeDate = v.ActiveDate;
+              if (v.url !== "") {
+                projectName = a.clone().attr({
+                  "href": v.url
+                }).text(projectName);
+              }
+            });
+            tr = $("<tr></tr>");
+            // Replies column
+            tr.append(td.clone().html(projectName).append("<br/><small>Since: " + self.dateFormat(new Date(activeDate)) + "</small>"));
+            tr.append(td.clone().text(roles.join(", ")).attr("class", "text-center"));
+            table.append(tr);
+          });
+
+          // append table to container
+          var responsive_wrapper = $("<div></div>").attr({
+            "class": "table-responsive"
+          });
+          responsive_wrapper.append(table);
+          container.append(responsive_wrapper);
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+    },
+    forumsMsg: function() {
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      // Build api URI.
+      var url = apiUrl + "/account/profile/" + username + "/forum?page=1&pagesize=" + self.settings.itemsPerPage;
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data, textStatus, jqXHR) {
+          var user_msg_count = 0;
+          if (data.posted_msg_count !== undefined && data.id !== undefined) {
+            user_msg_count = data.posted_msg_count;
+            $(this).attr({
+              "href": self.settings.forumsUrl + "/index.php/sp/" + data.id + "/",
+            });
+          }
+
+          $(this).children("strong").text(user_msg_count + self.plurialString(" topic", user_msg_count));
+
+          // Exit now if contentPlaceholder is not defined
+          if (!(self.settings.contentPlaceholder instanceof jQuery)) {
+            return false;
+          }
+
+          var container = $(self.settings.contentPlaceholder);
+          var a = $("<a></a>");
+
+          container.append($("<h2></h2>").addClass("h3").text("Eclipse Forums"));
+          container.append($("<p></p>").append("The Eclipse forums are your way of communicating with the community " +
+            "of people developing and using Eclipse-based tools hosted at Eclipse.org. " +
+            "Please stick to technical issues - and remember, no confidential information - " +
+            "these are public forums!"));
+
+          var more_forums_link = a.clone().attr({
+            "href": self.settings.forumsUrl,
+            "class": "btn btn-primary btn-sm",
+            "style": "display:block"
+          }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+
+          if (data.posts.length === 0) {
+            container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
+              "This user does not have any activities on Eclipse Forums." +
+              "</div>");
+            container.append(more_forums_link);
+            return false;
+          }
+
+          // Create table
+          var table = $("<table></table>").attr({
+            "width": "100%",
+            "class": "table",
+            "id": "forum-posts"
+          });
+
+          var tr = $("<tr></tr>");
+          var th = $("<th></th>");
+
+          if (self.settings.currentUser === self.settings.username) {
+            tr.append(th.clone().attr("width", "8%"));
+          }
+
+          tr.append(th.clone().text("Topics").attr("width", "50%"));
+          tr.append(th.clone().text("Replies").attr({
+            "width": "8%",
+            "class": "text-center"
+          }));
+
+          tr.append(th.clone().text("Views").attr({
+            "width": "8%",
+            "class": "text-center"
+          }));
+
+          tr.append(th.clone().text("Last message").attr({
+            "class": "text-center"
+          }));
+          // Insert heading row in table
+          table.append(tr);
+
+          // append table to container
+          var responsive_wrapper = $("<div></div>").attr({
+            "class": "table-responsive"
+          });
+          responsive_wrapper.append(table);
+          container.append(responsive_wrapper);
+
+          // draw the inital row data
+          drawForumRows(data);
+          // check the link header for total pages
+          var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+          var lastPage = linkHeader.getLastPageNum();
+          // check if itemsPerPage should be updated to returned value
+          if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+            self.settings.itemsPerPage = linkHeader.getPageSize();
+          }
+          // set fetch posts event
+          table.on("fetchPageItemsEvent", fetchForumPosts);
+          // store items per page so we know how many to fetch per page
+          table.data("postsPerPage", self.settings.itemsPerPage);
+          // add pagination bar
+          container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "forum-posts"));
+          // get the user id
+          var current_user_id = data.id;
+          // update more forums link
+          more_forums_link.attr({
+            "href": self.settings.forumsUrl + "/index.php/sp/" + current_user_id + "/",
+          });
+          // append read more link
+          container.append(more_forums_link);
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+
+      function drawForumRows(data) {
+        var forumTable = $("#forum-posts");
+        $.each(data.posts, function(index, value) {
+          var request_data = {
+            forum_id: value.thread_forum_id,
+            forum_name: value.forum_name,
+            forum_cat_id: value.forum_name,
+            forum_cat_name: value.cat_name,
+            root_subject: value.root_msg_subject,
+            current_user_last_post_timestamp: value.msg_group_post_stamp,
+            current_user_last_post_subject: value.last_user_msg_subject,
+            thread_id: value.msg_thread_id,
+            thread_reply_count: value.thread_replies,
+            thread_views_count: value.thread_views,
+            thread_last_post_date: value.thread_last_post_date,
+            last_message_timestamp: value.last_msg_post_stamp,
+            last_message_poster_id: value.last_msg_poster_id,
+            last_message_poster_alias: value.last_poster_alias,
+            last_message_last_view: value.read_last_view,
+            current_user_id: data.id
+          };
+
+          var tr = $("<tr></tr>");
+          var td = $("<td></td>");
+          var a = $("<a></a>");
+          // Link to forum
+          var forumLink = a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/f/" + request_data.forum_id + "/"
+          }).text(request_data.forum_name);
+
+          // Link to category
+          var catLink = a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/i/" + request_data.forum_cat_id + "/"
+          }).text(request_data.forum_cat_name);
+
+          // Concatenate  category and form link
+          var forum_cat_link = $("<small></small>").append("<br/>")
+            .append(catLink)
+            .append(" &gt; ")
+            .append(forumLink)
+            .append(" &gt; ")
+            .append(request_data.root_subject)
+            .append("<br>Posted on " + self.dateFormat(new Date(parseInt(request_data.current_user_last_post_timestamp * 1000))));
+          var read_icon = "fa fa-envelope-open-o";
+          // Add warning class to row if the user did not see the message
+          if (self.settings.currentUser === self.settings.username &&
+            request_data.last_message_last_view < request_data.thread_last_post_date &&
+            request_data.last_message_poster_id !== request_data.current_user_id) {
+            tr.addClass("warning");
+            read_icon = "fa fa-envelope-o";
+          }
+
+          if (self.settings.currentUser === self.settings.username) {
+            tr.append(td.clone().html("<i class=\"" + read_icon + "\" aria-hidden=\"true\"></i>").attr("class", "text-center"));
+          }
+
+          // Topic column
+          tr.append(td.clone().html(a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/t/" + request_data.thread_id + "/"
+          })
+            .text(request_data.current_user_last_post_subject))
+            .append(forum_cat_link)
+          );
+          // Replies column
+          tr.append(td.clone().text(request_data.thread_reply_count).attr("class", "text-center"));
+
+          // Views column
+          tr.append(td.clone().text(request_data.thread_views_count).attr("class", "text-center"));
+
+          // Last message column
+          var last_message = $("<small></small>").append(self.dateFormat(new Date(parseInt(request_data.last_message_timestamp * 1000)))).append("<br/> By: ").append(a.clone().attr({
+            "href": self.settings.forumsUrl + "/index.php/sp/" + request_data.last_message_poster_id + "/"
+          }).text(request_data.last_message_poster_alias));
+          tr.append(td.clone().html(last_message).attr("class", "text-center"));
+
+          forumTable.append(tr);
+        });
+      }
+
+      function fetchForumPosts(event, page, numPosts) {
+        getForumPostsByPage(page, numPosts);
+      }
+
+      function getForumPostsByPage(pageNum, pageSize) {
+        if (typeof (pageNum) === "undefined") {
+          // default to page 1
+          pageNum = 1;
+        }
+        if (typeof (pageSize) === "undefined") {
+          // default to settings
+          pageSize = self.settings.itemsPerPage;
+        }
+
+        // Build api URI.
+        var url = apiUrl + "/account/profile/" + username + "/forum?page=" + pageNum + "&pagesize=" + pageSize;
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            drawForumRows(data);
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
+      }
+    },
+    mpFavorites: function() {
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      // Add content if contentPlaceholder is defined
+      if (self.settings.contentPlaceholder instanceof jQuery) {
+        var container = $(self.settings.contentPlaceholder);
+        var more_marketplace_link = $("<a></a>").attr({
+          "href": self.settings.marketplaceUrl + "/user/" + username + "/favorites",
+          "class": "btn btn-primary btn-sm",
+          "style": "display:block"
+        }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+        container.append($("<h2></h2>").addClass("h3").text("Eclipse Marketplace Favorites"));
+        container.append($("<p></p>").append("Eclipse Marketplace is the source for " +
+          "Eclipse-based solutions, products and add-on features. " +
+          "Thousands of developers visit Marketplace on a monthly " +
+          "basis to find new and innovative solutions. Solution providers " +
+          "are encouraged to list their products on Marketplace to " +
+          "gain exposure to the Eclipse developer community."));
+      }
+      // Build api URI.
+      var url = apiUrl + "/marketplace/favorites?name=" + username + "&page=1&pagesize=" + self.settings.itemsPerPage;
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data, textStatus, jqXHR) {
+          $(this).children("strong").text(data.result.count + self.plurialString(" favorite", data.result.count));
+          // Exit now if container is not defined
+          if (typeof container === "undefined") {
+            return false;
+          }
+          // break down the nodestr by itemsPerPage
+          var nodes = [];
+          $.each(data.mpc_favorites, function(k, v) {
+            nodes.push(v.content_id);
+          });
+
+          if (nodes.length === 0) {
+            container.append("<div class=\"alert alert-warning\" role=\"alert\">" +
+              "There are no marketplace favorites for this user." +
+              "</div>");
+            container.append(more_marketplace_link);
+            return false;
+          }
+          // check the link header for total pages
+          var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+          var lastPage = linkHeader.getLastPageNum();
+          // check if itemsPerPage should be updated to returned value
+          if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+            self.settings.itemsPerPage = linkHeader.getPageSize();
+          }
+
+          // set the fetch favorites as custom event
+          container.on("fetchPageItemsEvent", fetchFavorites);
+          container.append("<h3 id=\"mpc_list_name\">" + data.mpc_list_name + "</h3>");
+          container.append("<div class=\"row\"><div class=\"col-md-17\"><div class=\"form-item form-type-textfield form-disabled\">" +
+            "<label>Favorites URL <a href=\"#\" class=\"install-user-favorites\" data-container=\"body\" data-toggle=\"popover\" data-placement=\"top\" title=\"\" data-original-title=\"How to install?\">" +
+            "<i class=\"fa fa-question-circle\" aria-hidden=\"true\"></i></a> </label>" +
+            "<input disabled=\"true\" class=\"form-control form-text\" type=\"text\" value=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" size=\"60\" maxlength=\"128\">" +
+            "</div></div><div class=\"col-md-7 margin-top-25 text-right\"><div class=\"drag_installbutton drag_installbutton_v2 drag-install-favorites\">" +
+            "<a href=\"http://marketplace.eclipse.org/user/" + self.settings.username + "/favorites\" class=\"drag\" title=\"How to install?\">" +
+            "<span class=\"btn btn-default\"><i class=\"fa fa-download orange\"></i> Install Favorites</span>" +
+            "<div class=\"tooltip tooltip-below-right\"><h3>Drag to Install!</h3>" +
+            "Drag to your running Eclipse<sup>*</sup> workspace to install this " +
+            "favorite list. <br><sup>*</sup>Requires Eclipse Marketplace Client.</div></a></div></div></div>");
+          container.append("<div id=\"mpfavorites-list\"></div>");
+          container.find("#mpfavorites-list").data("postsPerPage", self.settings.itemsPerPage);
+          getFavoritesByNodes(nodes.join());
+          container.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, "mpfavorites-list"));
+          container.append(more_marketplace_link);
+          // Add instructions to popover
+          $("a.install-user-favorites").on("click", function(e) {
+            e.preventDefault();
+          });
+          $("a.install-user-favorites").popover({
+            html: true, content: function() {
+              return $("<ol></ol>")
+                .addClass("padding-left-20")
+                .append("<li>Copy <strong>URL</strong> from textfield.</li>")
+                .append("<li>Open Eclipse Marketplace Client (MPC).</li>")
+                .append("<li>Open <strong>Favorites</strong> tab.</li>")
+                .append("<li>Click on <strong>Import Favorites list</strong>.</li>")
+                .append("<li>Paste <strong>URL</strong> in the textfield.</li>");
+            }
+          });
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+
+      function getFavoritesByNodes(nodestr) {
+        var url = self.settings.marketplaceUrl + "/node/" + nodestr + "/api/p";
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            var listingContainer = $("#mpfavorites-list");
+            var nodes = $("node", data);
+            nodes.each(function(index, value) {
+              // Extract relevant data from XML
+              var node = $(value);
+              var shortdescription = node.find("shortdescription").text();
+              var title = value.getAttribute("name");
+              var timestamp_lastupdated = node.find("changed").text();
+              var owner = node.find("owner").text();
+              var lastupdated = "Last Updated on " + self.dateFormat(new Date(parseInt(timestamp_lastupdated * 1000))) + " by " + owner;
+              var nid = value.getAttribute("id");
+              var listing = $("#mp-listing-template").clone().removeClass("hidden").removeAttr("id");
+              var link = $("<a></a>");
+              var category = $("category", value);
+              var url_listing = self.settings.marketplaceUrl + "/node/" + nid;
+              var image = node.find("image").text();
+              var link_listing = link.clone().attr({
+                "href": url_listing
+              });
+
+              category.each(function(i, v) {
+                var catlink = link.clone().attr({
+                  "href": v.getAttribute("url")
+                }).text(v.getAttribute("name"));
+                if (category.length !== (i + 1)) {
+                  catlink.append(", ");
+                }
+                listing.find(".content-categories").append(catlink);
+              });
+
+              listing.find(".listing-image").attr({
+                "href": url_listing,
+                "style": "background:url('" + image + "') no-repeat center;"
+              });
+
+              listing.find(".drag").attr({
+                "href": self.settings.marketplaceUrl + "/marketplace-client-intro?mpc_install=" + nid,
+              });
+
+              listing.find(".listing-title").html(link_listing.clone().text(title));
+              listing.find(".content-teaser").html(shortdescription);
+              listing.find(".content-last-updated").html(lastupdated);
+              listingContainer.append(listing);
+            });
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
+      }
+
+      function fetchFavorites(event, page, numPosts) {
+        getFavoritesListByPage(page, numPosts);
+      }
+
+      function getFavoritesListByPage(pageNum, totalItems) {
+        if (typeof (pageNum) === "undefined") {
+          // default to page 1
+          pageNum = 1;
+        }
+        if (typeof (totalItems) === "undefined") {
+          // default to settings
+          totalItems = self.settings.itemsPerPage;
+        }
+        var url = apiUrl + "/marketplace/favorites?name=" + username + "&page=" + pageNum + "&pagesize=" + totalItems;
+        $.ajax(url, {
+          context: self.element,
+          success: function(data) {
+            var nodes = [];
+            $.each(data.mpc_favorites, function(k, v) {
+              nodes.push(v.content_id);
+            });
+            getFavoritesByNodes(nodes.join());
+          },
+          error: function() {
+            $(this).html(self.settings.errorMsg);
+          }
+        });
+      }
+    },
+    gerritReviewCount: function() {
+      var self = this;
+      var username = this.settings.username;
+      var apiUrl = this.settings.apiUrl;
+      var url = apiUrl + "/account/profile/" + username + "/gerrit";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+          var count = data.merged_changes_count;
+          $(this).children("strong").text(count + self.plurialString(" review", count));
+          if (count > 0) {
+            $(this).attr({
+              "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username
+            });
+          }
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+    },
+    mailingListSubscription: function() {
+      var self = this;
+      var username = self.settings.username;
+      var currentUser = self.settings.currentUser;
+      var currentUserUid = self.settings.currentUserUid;
+      var userCanEditOwnMailingList = self.settings.userCanEditOwnMailingList;
+      var apiUrl = this.settings.apiUrl;
+      // Exit if variables are not set.
+      if (!username && !api_url) {
+        return false;
+      }
+
+      var container = self.element;
+      var url = apiUrl + "/account/profile/" + username + "/mailing-list";
+      // Execute ajax request
+      $.ajax(url, {
+        context: this.element,
+        success: function(data) {
+          var subsriptions = data.mailing_list_subscriptions;
+          var p = $("<p></p>");
+          var h2 = $("<h2></h2>");
+          var a = $("<a></a>");
+          var strong = $("<strong></strong>");
+
+          var message_user = "This user is";
+          if (currentUser === username) {
+            message_user = "You are";
+          }
+
+          var link = a.clone().attr({
+            "href": "/user/" + currentUserUid + "/mailing-list",
+            "class": "fa fa-pencil",
+            "aria-hidden": "true"
+          });
+          $(container).append(h2.text("Eclipse Mailing Lists ").append(link));
+
+          if (!jQuery.isEmptyObject(subsriptions)) {
+            $(container).append(p.clone().text("The Eclipse Mailing lists are another way for you to interact with your favorite Eclipse project."));
+            $(container).append(p.clone().text("Below is a list of the public mailing lists that " +
+              message_user.toLowerCase() + " currently  subscribed to at Eclipse.org. When posting emails " +
+              "to our mailing lists, please remember that these lists are public, avoid posting ")
+              .append(strong.clone().text("personal")).append(" or ").append(strong.clone().text("private information")).append("."));
+            $(container).append(p.clone().text("If you are having trouble using our mailing lists, please contact ")
+              .append(a.clone().attr("href", "mailto:mailman@eclipse.org").text("mailman@eclipse.org")).append("."));
+
+            // Create table
+            var table = $("<table></table>").attr({
+              "width": "100%",
+              "class": "table",
+              "id": "aeri-reports"
+            });
+
+            var tr = $("<tr></tr>");
+            var th = $("<th></th>");
+
+            // Title Header
+            tr.append(th.clone().text("Mailing List").attr("width", "30%"));
+            tr.append(th.clone().text("Description").attr("width", "70%"));
+
+            // Insert heading row in table
+            table.append(tr);
+
+            // Responsive container to wrap the table
+            var responsive_wrapper = $("<div></div>").attr({
+              "class": "table-responsive"
+            });
+
+            // append table to container
+            responsive_wrapper.append(table);
+            $(container).append(responsive_wrapper);
+            $(container).append(p);
+            // Add a row in the table for each Error Reports
+            $.each(subsriptions, function(index, value) {
+              var tr = $("<tr></tr>");
+              var td = $("<td></td>");
+
+              // Title column
+              tr.append(td.clone().append(a.clone().attr("href", "/mailing-list/" + value.list_name).text(value.list_name)));
+
+              // Description column
+              tr.append(td.clone().append(value.list_description));
+
+              table.append(tr);
+            });
+          }
+          else {
+            $(container).append(p.clone().text(message_user + " not subscribed to any Eclipse mailing list."));
+          }
+
+          if (currentUser === username && userCanEditOwnMailingList) {
+            $(container).append(p.clone().append(a.clone().attr({
+              "href": "/user/" + currentUserUid + "/mailing-list",
+              "class": "btn btn-primary btn-xs"
+            }).text("Manage your Mailing Lists")));
+          }
+
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+
+    },
+    gerritReviews: function() {
+      var self = this;
+      // Build gerrit url
+      var gerrit_url = this.settings.gerritUrl + "/changes/?q=owner:" + this.settings.username +
+        "+status:open&q=reviewer:" + this.settings.username + "+status:open+-owner:" + this.settings.username + "&pp=0";
+
+      $(this.element).append($("<h2>Eclipse Gerrit</h2>").addClass("h3"));
+      $(this.element).append("<p>Gerrit is a web based code review system, facilitating " +
+        "online code reviews for projects using the Git version control system.</p>");
+      // Fetch data
+      gerritRequest(gerrit_url);
+      function gerritRequest(url) {
+        var pagesize = 100;
+        var skip = 0;
+        var errorCondition = false;
+        var labels = [
+          ["gerrit-outgoing", []],
+          ["gerrit-incoming", []]
+        ];
+
+        $(self.element).on("drawTableEvent", drawOutput);
+        // get all pages of data
+        getAllPages(url, pagesize, skip);
+
+        function drawOutput() {
+          // table id's and to determine section title
+          $.each(labels, function(index, value) {
+            var title = "";
+            switch (value[0]) {
+              case "gerrit-outgoing":
+                title = "Outgoing Reviews";
+                break;
+              case "gerrit-incoming":
+                title = "Incoming Reviews";
+                break;
+            }
+            var h2 = $("<h4></h4>").addClass("h4").text(title);
+            $(self.element).append(h2);
+            if (value[1].length === 0) {
+              // this result array is empty
+              $(self.element).append("<div class=\"alert alert-warning\" role=\"alert\">" +
+                "There are no " + title.toLowerCase() + " for this user." +
+                "</div>");
+              return;
+            }
+            $(self.element).append(buildGerritTable(value[0], value[1]));
+            $(self.element).append(self.getPaginationBar(value[1].length, value[0]));
+          });
+
+          var more_gerritlink = $("<a></a>").attr({
+            "href": self.settings.gerritUrl + "/#/q/owner:" + self.settings.username,
+            "class": "btn btn-primary btn-sm",
+            "style": "display:block"
+          }).html("<i class=\"fa fa-angle-double-right\" aria-hidden=\"true\"></i> More");
+          $(self.element).append(more_gerritlink);
+
+          function buildGerritTable(id, data) {
+            // Create table
+            var table = $("<table></table>").attr({
+              "width": "100%",
+              "class": "table",
+              "id": id
+            });
+            var tr = $("<tr></tr>");
+            var th = $("<th></th>");
+            var td = $("<td></td>");
+            tr.append(th.clone().text("Subject").attr("width", "70%"));
+            tr.append(th.clone().text("Status").attr({
+              "width": "18%",
+              "class": "text-center"
+            }));
+            tr.append(th.clone().text("Updated").attr({
+              "width": "12%",
+              "class": "text-center"
+            }));
+            table.append(tr);
+            // Insert rows in table
+            var a = $("<a></a>");
+            $.each(data, function(index, value) {
+              tr = $("<tr></tr>");
+              var merge_conflict = "";
+              if (value.mergeable === false) {
+                merge_conflict = "Merge Conflict";
+                tr.addClass("warning");
+              }
+              var date = value.updated.substring(0, value.updated.indexOf(" "));
+              tr.append(td.clone().html(a.clone().attr({
+                "href": self.settings.gerritUrl + "/" + value._number
+              }).text(value.subject)).append("<br/>" + value.project));
+              tr.append(td.clone().text(merge_conflict).attr("class", "text-center"));
+              tr.append(td.clone().text(date).attr("class", "text-center"));
+              table.append(tr);
+            });
+
+            // append table to container
+            var responsive_wrapper = $("<div></div>").attr({
+              "class": "table-responsive"
+            });
+            responsive_wrapper.append(table);
+            return responsive_wrapper;
+          }
+        }
+
+        function getAllPages(url, pagesize, skip) {
+          pagesize = (typeof (pagesize) !== "undefined") ? pagesize : 100;
+          skip = (typeof (skip) !== "undefined") ? skip : 0;
+          url += "&start=" + skip + "&n=" + pagesize;
+
+          return $.ajax(url, {
+            dataType: "gerrit_XSSI",
+            context: self.element,
+            converters: {
+              "text gerrit_XSSI": function(result) {
+                var lines = result.substring(result.indexOf("\n") + 1);
+                return jQuery.parseJSON(lines);
+              }
+            },
+            success: function(data) {
+              var lastElement1 = Object;
+              var lastElement2 = Object;
+
+              if (data[0].length !== 0) {
+                $.merge(labels[0][1], data[0]);
+                lastElement1 = data[0][data[0].length - 1];
+              }
+              if (data[1].length !== 0) {
+                $.merge(labels[1][1], data[1]);
+                lastElement2 = data[1][data[1].length - 1];
+              }
+              if (("_more_changes" in lastElement1 && lastElement1._more_changes === true) ||
+                ("_more_changes" in lastElement2 && lastElement2._more_changes === true)) {
+                getAllPages(url, pagesize, skip + pagesize);
+              } else {
+                $(self.element).trigger("drawTableEvent");
+              }
+            },
+            error: function(data) {
+              if (data.status === 400) {
+                $(this).html(self.settings.gerritUserNotFoundMsg);
+              } else {
+                $(this).html(self.settings.errorMsg);
+              }
+              errorCondition = true;
+            }
+          });
+        }
+      }
+    },
+    recentEvents: function() {
+      var self = this;
+      // compare two dates
+      function compareDates(d1, d2) {
+        return (d1.dateTime - d2.dateTime);
+      }
+
+      // Execute ajax request
+      $.ajax(this.settings.eventUrl, {
+        context: this.element,
+        success: function(data) {
+          var today = new Date();
+          var upcomingEvents = [];
+
+          // Fetch only upcoming events.
+          for (var i in data.events) {
+            data.events[i].dateTime = new Date(data.events[i].date);
+            if (data.events[i].dateTime >= today) {
+              upcomingEvents.push(data.events[i]);
+            }
+          }
+
+          // Sort upcoming events.
+          upcomingEvents.sort(compareDates);
+
+          // Build output
+          var list = $("<ul></ul>").attr({
+            "class": "nav",
+            "style": "margin:0"
+          });
+          for (var x in upcomingEvents.slice(0, 5)) {
+            var ed = upcomingEvents[x].dateTime;
+
+            var formatedDate = self.dateFormat(ed);
+
+            var link = $("<a>").attr({
+              "href": upcomingEvents[x].infoLink
+            })
+              .html(upcomingEvents[x].title + "<br/><small>" + formatedDate + "</small>");
+            var item = $("<li></li>").append(link);
+            list.append(item);
+          }
+
+          // Remove loading
+          $(this).children(".loading").remove();
+
+          // Display events
+          $(this).append(list);
+          var more_link = $("<a>").attr({
+            "href": "http://events.eclipse.org",
+            "class": "btn btn-simple btn-sm"
+          }).text("more");
+          $(this).append(more_link);
+        },
+        error: function() {
+          $(this).html(self.settings.errorMsg);
+        }
+      });
+    },
+    plurialString: function(string, count) {
+      if (count > 1) {
+        string += "s";
+      }
+      return string;
+    },
+    dateFormat: function(date) {
+      var monthList = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ];
+
+      var dayList = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+
+      var fullYear = date.getFullYear();
+      var fullMonth = monthList[date.getMonth()];
+      var fullDay = dayList[date.getDay()];
+      var day = date.getDate();
+      var hour = ("0" + (date.getHours())).slice(-2);
+      var min = ("0" + (date.getMinutes())).slice(-2);
+      var time = fullDay + ", " + fullMonth + " " + day + ", " + fullYear + " - " + hour + ":" + min;
+      return time;
+    },
+    // Class to parse and fetch values from the link header pagination
+    linkHeaderParser: function(header) {
+      var self = this;
+      this.links = 0;
+      this.getLastPageNum = function() {
+        if (typeof (self.links.last) === "undefined") {
+          return 0;
+        }
+        return getParamValue(self.links.last, "page");
+      };
+
+      this.getPageSize = function() {
+        // grab pagesize from the first item
+        if (typeof (self.links.first) === "undefined") {
+          return 0;
+        }
+        // check first for pagesize, which we use
+        var size = getParamValue(self.links.first, "pagesize");
+        if (size === 0) {
+          // it's not there, try size (used by aeri)
+          return getParamValue(self.links.first, "size");
+        }
+        return size;
+      };
+
+      if (typeof (header) === "undefined" || header === null) {
+        // nothing to do
+        return;
+      }
+
+      // Split the links by comma
+      var linkItem = header.split(",");
+      var links = {};
+
+      // Parse each link item
+      for (var i = 0; i < linkItem.length; i++) {
+        // convert any &amp; back to &
+        linkItem[i] = linkItem[i].replace("&amp;", "&");
+        var section = linkItem[i].split(";");
+        if (section.length < 2) {
+          // Missing sections from link header, skip to next item
+          continue;
+        }
+        // store the url and query params
+        var url = section[0].replace(/<(.*)>/, "$1").trim();
+        // use name as index (next, prev, first, last)
+        var name = section[1].replace(/rel="(.*)"/, "$1").trim();
+        links[name] = url;
+      }
+
+      this.links = links;
+
+      function getParamValue(link, param) {
+
+        if (typeof (param) === "undefined" || typeof (link) === "undefined") {
+          return 0;
+        }
+        var query = link.substr(link.lastIndexOf("?") + 1);
+        var params = query.split("&");
+        for (var i = 0; i < params.length; i++) {
+          var queryItem = params[i].split("=");
+          if (decodeURIComponent(queryItem[0]) === param) {
+            // return query param value
+            return decodeURIComponent(queryItem[1]);
+          }
+        }
+        // no matching query param found
+        return 0;
+      }
+    },
+    /**
+	 * Create and instantiate the pagination bar for content. In order to make use of this 
+	 * pagination bar, the given content type must have a listener for the event 'fetchPageItemsEvent'. 
+	 * 
+	 * The implementation for the fetchPageItemsEvent listener should have the parameters 
+	 * (pageNumber, itemsPerPage) to fetch the paged items, and inject them into the 
+	 * current container context. This will be called when pagination links on the bar are 
+	 * clicked.
+	 * 
+	 * @param totalItems -
+	 *            number of items that will be paginated over.
+	 * @param elementID -
+	 *            string constant representing different types of operations
+	 *            that can be performed. This value should match the ID of 
+	 *            a container that can be acted upon within the application.
+	 * @returns a jQuery element containing a navigation bar
+	 */
+    getPaginationBar: function(totalItems, elementID) {
+      var self = this;
+      if (typeof (totalItems) === "undefined") {
+        totalItems = 1;
+      }
+      if (totalItems <= 0 || totalItems <= self.settings.itemsPerPage) {
+        // nothing to do or everything fits on single page
+        return;
+      }
+      //initialize to first page
+      var activePageNum = 1;
+      var pageNav = $("<nav></nav>").attr({
+        "arial-label": "Page navigation",
+        "id": elementID + "-pager"
+      }).addClass("text-center");
+      var totalPages = Math.ceil(totalItems / self.settings.itemsPerPage);
+      var ul = drawPageNums(totalPages, activePageNum, elementID);
+      pageNav.append(ul);
+      // create cache
+      if (typeof ($("#" + elementID).data("pageCache")) === "undefined") {
+        cachePages();
+      }
+      // return the pagination bar
+      return pageNav;
+
+      /**
+       * Writes each of the numbered pagination links for the pagination bar.
+       * Each of the links will trigger an event to reload the section it is
+       * acting on rather than reload the entire page.
+       * 
+       * @param numPages -
+       *            maximum number of pages
+       * @param currentPageNum -
+       *            the current page number
+       * @param elementID -
+       *            the ID of the element calling for an update. This is used
+       *            for content matching + event triggers
+       */
+      function drawPageNums(numPages, currentPageNum, elementID) {
+        var li = $("<li></li>");
+        var ul = $("<ul></ul>").addClass("pagination");
+        if (typeof (elementID) !== "undefined") {
+          ul.attr({
+            "data-eclipseFdnApi-elementID": elementID
+          });
+        }
+        var showEllipses = false;
+        var ellipses = "";
+        var minRange = 1;
+        var maxRange = numPages;
+        var clickEvent = function() {
+          var $this = $(this);
+          var toPageNum = $this.attr("data-goto-page");
+          var parentUL = $this.parents(".pagination").eq(0);
+          var elementID = parentUL.data("eclipsefdnapiElementid");
+          $("#" + elementID).trigger("changePageEvent", [toPageNum]);
+        };
+
+        // if num pages > 9 then set the page range
+        if (numPages > 9) {
+          // default to first of last 9 pages
+          minRange = numPages - 8;
+          if (currentPageNum <= 5) {
+            maxRange = 9;
+            minRange = 1;
+          } else if (currentPageNum <= numPages - 4) {
+            // center the page range relative to current page
+            minRange = currentPageNum - 4;
+            maxRange = currentPageNum + 4;
+          }
+          showEllipses = true;
+          var span = $("<span></span>");
+          ellipses = li.clone().append(
+            span.clone().html("...").attr({
+              "aria-hidden": "true"
+            })
+          ).addClass("pager-ellipses disabled");
+        }
+
+        if (currentPageNum !== 1) {
+          ul.append(li.clone().addClass("pager-first").html(
+            getPagerLink("First", "first page", 1, "<< first").on("click", clickEvent)
+          ));
+          ul.append(li.clone().html(
+            getPagerLink("Previous", "previous page", currentPageNum - 1, "< previous").on("click", clickEvent)
+          ));
+          if (showEllipses === true && minRange > 1) {
+            ul.append(ellipses.clone());
+          }
+        }
+        // write out page #'s
+        var i;
+        for (i = minRange; i <= maxRange; i++) {
+          var pager = li.clone();
+          var pagerLink = getPagerLink("Page " + parseInt(i), "page " + parseInt(i), i).on("click", clickEvent);
+          if (currentPageNum === i) {
+            pager.addClass("active");
+          }
+          pager.html(pagerLink);
+          ul.append(pager);
+        }
+        // close the pager if not at end of index
+        if (currentPageNum < numPages) {
+          if (showEllipses === true && maxRange < numPages) {
+            ul.append(ellipses.clone());
+          }
+          ul.append(li.clone().html(
+            getPagerLink("Next", "next page", currentPageNum + 1, "next >").on("click", clickEvent)
+          ));
+          ul.append(li.clone().addClass("pager-last").html(
+            getPagerLink("Last", "last page", numPages, "last >>").on("click", clickEvent)
+          ));
+        }
+        return ul;
+      }
+
+      /**
+       * Creates the pagination link given the following attributes.
+       */
+      function getPagerLink(label, titlePiece, gotoPage, text) {
+        if (typeof (text) === "undefined") {
+          // use the page num
+          text = parseInt(gotoPage);
+        }
+        var a = $("<a></a>");
+        return a.attr({
+          "aria-label": label,
+          "href": "#",
+          "onclick": "return false;",
+          "title": "Go to " + titlePiece,
+          "data-goto-page": parseInt(gotoPage)
+        }).text(text);
+      }
+
+      /**
+     * Builds the page cache for the current container. This will only live
+     * for the current page, and will disappear when the page is left as
+     * this cache lives on request rather than in-browser or elsewhere.
+     */
+      function cachePages() {
+        var theElement = $("#" + elementID);
+        var pageCache = [];
+        var pageCacheType;
+        // set the cache type and perform any special handling if needed
+        switch (elementID) {
+          case "gerrit-incoming":
+          case "gerrit-outgoing":
+            pageCacheType = "gerrit";
+            // build out entire page cache based on existing element data
+            pageCache = buildPageCache(theElement.find("tr"));
+            break;
+          case "mpfavorites-list":
+            pageCacheType = "mpfav";
+            break;
+          case "forum-posts":
+          case "aeri-reports":
+            pageCacheType = "table";
+            pageCache = buildPageCache(theElement.find("tr"));
+            break;
+          case "news-container":
+            pageCacheType = "news";
+            break;
+          case "events-container":
+            pageCacheType = "events";
+            break;
+          default:
+            pageCacheType = "generic";
+        }
+        // setup the element data and event for changing pages
+        theElement.data("pageCache", pageCache);
+        theElement.data("pageCacheType", pageCacheType);
+        theElement.data("pageCacheTotalPages", totalPages);
+        theElement.on("changePageEvent", changePage);
+
+        switch (pageCacheType) {
+          case "gerrit":
+            // trigger redraw of first page
+            theElement.trigger("changePageEvent", [1]);
+            break;
+        }
+
+        function buildPageCache(data) {
+          var counter = 0;
+          var pageNum = 0;
+          var page = [];
+          var theCache = [];
+          // grab the heading row if this is gerrit or forum table
+          switch (pageCacheType) {
+            case "gerrit":
+            case "table":
+              // set heading row in cache
+              theCache[0] = data[0];
+              break;
+          }
+          $.each(data, function(index, value) {
+            if ($(value).children().first().is("th")) {
+              // don't cache table headings
+              return true;
+            }
+            if (counter === self.settings.itemsPerPage) {
+              counter = 0;
+              theCache[++pageNum] = page;
+              page = [];
+            }
+            page[counter++] = value;
+          });
+          // check if any remainder items in page
+          if (page.length > 0) {
+            // add page to the cache
+            theCache[++pageNum] = page;
+          }
+          return theCache;
+        }
+      }
+
+      /**
+     * Callback for page changes events triggered by pagination links. This
+     * will trigger a call to update the containers content with the next
+     * pages content, as well as update the pagination bar with the new page
+     * set as current. Numbers are shifted if necessary to properly display
+     * the current and following pages.
+     * 
+     * This method is internal and requires a listener function be
+     * registered for the 'fetchPageItemsEvent' event. Without the listener
+     * registered, this function will not be able to update content based on
+     * pagination requests.
+     * 
+     * @param event -
+     *            the triggering pagination update request.
+     * @param goToPageNum -
+     *            the requested page number
+     */
+      function changePage(event, gotoPageNum) {
+        var element = $(event.currentTarget);
+        var pageType = element.data("pageCacheType");
+        var pageCache = element.data("pageCache");
+        // get the pager
+        var elementID = element.attr("id");
+        var nav = $("#" + elementID + "-pager");
+        // get pager's current page
+        var currentPage = nav.data("currentPage");
+        if (typeof (currentPage) === "undefined" || currentPage === null) {
+          // if it's not set, assume it's 1st page
+          currentPage = 1;
+        }
+        if (typeof (gotoPageNum) === "undefined") {
+          // something is wrong. go back to 1st page
+          gotoPageNum = 1;
+        }
+        // comes in as string
+        gotoPageNum = parseInt(gotoPageNum);
+        switch (pageType) {
+          case "gerrit":
+            fillElementWithPage();
+            break;
+          default:
+            addCurrentPageToCache();
+            fillElementWithPage();
+            break;
+        }
+        //Replace the pager bar with updated layout
+        if (currentPage !== gotoPageNum) {
+          var totalPages = element.data("pageCacheTotalPages");
+          var newUL = drawPageNums(totalPages, gotoPageNum, elementID);
+          nav.find("ul").replaceWith(newUL);
+          nav.data("currentPage", gotoPageNum);
+        }
+
+        function fillElementWithPage() {
+          // empty element first
+          element.empty();
+          //if not in cache
+          if (typeof (pageCache[gotoPageNum]) === "undefined") {
+            var params = [];
+            // different params for mpc or forum / AERI
+            switch (pageType) {
+              case "mpfav":
+              case "table":
+              case "news":
+              case "events":
+                params.push(gotoPageNum);
+                params.push(element.data("postsPerPage"));
+                break;
+            }
+            // if table, put the heading back before triggering fetch and returning
+            if (element.is("table")) {
+              // this should be just the heading
+              element.append(pageCache[0]);
+            }
+            element.trigger("fetchPageItemsEvent", params);
+            return;
+          }
+          // fill in items from cache
+          if (element.is("table")) {
+            element.append(pageCache[0]);
+          }
+          $.each(pageCache[gotoPageNum], function(index, value) {
+            element.append(value);
+          });
+        }
+
+        /**
+         * Creates an entry in the page cache for the current container with the 
+         * current page of data. This reduces outward calls while browsing between pages
+         */
+        function addCurrentPageToCache() {
+          // only store it if current page is not currently cached
+          if (typeof (pageCache[currentPage]) === "undefined") {
+            var items = [];
+            pageCache[currentPage] = [];
+            if (element.is("table")) {
+              // pull out the table rows
+              items = element.find("tr");
+            } else if (element.is("div")) {
+              // assume mpc nodes or items
+              items = element.find(".node,.item");
+            }
+            $.each(items, function(index, value) {
+              if ($(value).children().first().is("th")) {
+                // heading is already cached - skip to next
+                return true;
+              }
+              pageCache[currentPage].push(value);
+            });
+            // update stored cache
+            element.data("pageCache", pageCache);
+          }
+        }
+      }
+    },
+
+    /**
+	 * Injects news items into the page from the Eclipse newsroom, given a few
+	 * HTML data attributes on the element this is called on. The data
+	 * attributes that can be used will filter the results that are displayed on
+	 * page.
+     */
+    newsItems: function() {
+      // set up initial state and call data
+      var self = this;
+      var $container = $($(this)[0].element);
+      // get the news item container
+      var $newsContainer = $container.find("> div.news-container");
+      if ($newsContainer.length === 0) {
+        $newsContainer = $("<div></div>");
+        $newsContainer.attr({
+          "class": "news-container",
+          "id": "news-container"
+        });
+        $container.append($newsContainer);
+      }
+      if ($container.data("pagination") === true) {
+        $newsContainer.on("fetchPageItemsEvent", retrieveNewsItems);
+      }
+      retrieveNewsItemsByPage($newsContainer, 1, 5);
+
+      /**
+       * Listener callback method for fetchPageItemsEvent event.
+       */
+      function retrieveNewsItems(event, page, pageSize) {
+        retrieveNewsItemsByPage(event.target, page, pageSize);
+      }
+
+
+      /**
+     * Retrieves news items for the given page, injected into the element that is passed
+     * as the context element. This method uses the following data attributes to filter 
+     * the data, allowing the use of strings or array values:
+     * 
+     *  - data-publish-target
+     *  - data-news-count
+     *  - data-news-type
+     *  
+     * The data attribute 'data-template-id' can be used to defined a new mustache script 
+     * template ID. This script would need to be present on the page and would be used in 
+     * place of the default template to generate news items. 
+     * 
+     * @param contextEl -
+     *            the element that called for the news items injection
+     * @param page -
+     *            page of news items to retrieve
+     * @param pageSize -
+     *            the number of items to retrieve. This is overridden by whatever is 
+     *            explicitly defined in the data-news-count attribute on the parent container.
+     */
+      function retrieveNewsItemsByPage(contextEl, page, pageSize) {
+        // get the container element for the current call
+        var $newsContainer = $(contextEl);
+        var $parent = $newsContainer.parent();
+
+        // check how many to display with a default of 5
+        var displayCount = $parent.data("news-count") || pageSize || 5;
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+
+        // generate filters based on publish and type targets
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", "eclipse_org");
+        filter += convertDataToURLParameters($parent, "news-type", "news_type", "");
+        filter += convertDataToURLParameters($parent, "press-release", "is_press_release", "");
+
+        // create the GET URL for news items
+        var url = self.settings.newsroomUrl + "/news" + filter;
+        $.ajax(url, {
+          success: function(data, textStatus, jqXHR) {
+            var newsItems = data["news"];
+            if (newsItems.length > displayCount) {
+              newsItems = newsItems.slice(0, displayCount);
+            }
+            // post process the date to update date format
+            for (var i = 0; i < newsItems.length; i++) {
+              newsItems[i].date = self.dateFormat(new Date(newsItems[i].date));
+              newsItems[i].index = i;
+            }
+            // allow template ID to be set on a per run basis with a default.
+            var templateId = $parent.data("template-id") || "template-news-items";
+            var template = getTemplate(templateId);
+            var rendered = Mustache.render(template, { news: newsItems });
+            // clear the container before creating elements
+            $newsContainer.html(rendered);
+
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage, $newsContainer.attr("id")));
+            }
+            $parent.trigger("shown.ef.news");
+          },
+          error: function() {
+            // clear the loading placeholder
+            $container.empty();
+            // display an error message
+            var $errorEl = $("<div></div>");
+            $errorEl.attr("class", "alert alert-warning");
+            $errorEl.text("Unable to load news content currently.");
+            $container.append($errorEl);
+          }
+        });
+      }
+
+
+      /**
+     * Returns the mustache template for generating the list of news items from
+     * the JSON data.
+     * 
+     * @param templateId -
+     *            the ID of the script template to use when generating the news items
+     * @returns the mustache template for generating the news list HTML
+     */
+      function getTemplate(templateId) {
+        var newsTemplate = $("#" + templateId);
+        if (newsTemplate !== undefined && newsTemplate.length !== 0) {
+          return newsTemplate[0].innerHTML;
+        }
+        return "{{#news}}" +
+          "<div class=\"item block-summary-item\" data-mh=\"group-{{ index }}\">" +
+          "<p>{{ date }}</p>" +
+          "<h4><a href=\"{{ link }}\">{{ title }}</a></h4>" +
+          "<p>{{ body }}</p>" +
+          "</div>" +
+          "{{/news}}";
+      }
+    },
+
+    filteredEvents: function() {
+      // set up initial state and call data
+      var self = this;
+      var $container = $($(this)[0].element);
+      // get the news item container
+      var $eventsContainer = $container.find("> div.events-container");
+      if ($eventsContainer.length === 0) {
+        $eventsContainer = $("<div></div>");
+        $eventsContainer.attr({
+          "class": "events-container",
+          "id": "events-container"
+        });
+        $container.append($eventsContainer);
+      }
+      if ($container.data("pagination") === true) {
+        $eventsContainer.on("fetchPageItemsEvent", retrieveFilteredEvents);
+      }
+      retrieveFilteredEventsByPage($eventsContainer, 1, 5);
+
+      /**
+       * Listener callback method for fetchPageItemsEvent event.
+       */
+      function retrieveFilteredEvents(event, page, pageSize) {
+        retrieveFilteredEventsByPage(event.target, page, pageSize);
+      }
+
+      /**
+       * Retrieves event items for the given page, injected into the element that is passed
+       * as the context element. This method uses the following data attributes to filter 
+       * the data, allowing the use of strings or array values:
+       * 
+       *  - data-publish-target
+       *  - data-count
+       *  - data-type
+       *  - data-upcoming
+       *  - data-sort-order
+       *  - data-sort-field
+       *  
+       * The data attribute 'data-template-id' can be used to defined a new mustache script 
+       * template ID. This script would need to be present on the page and would be used in 
+       * place of the default template to generate event items. 
+       * 
+       * @param contextEl -
+       *            the element that called for the news items injection
+       * @param page -
+       *            page of news items to retrieve
+       * @param pageSize -
+       *            the number of items to retrieve. This is overridden by whatever is 
+       *            explicitly defined in the data-count attribute on the parent container.
+       */
+      function retrieveFilteredEventsByPage(contextEl, page, pageSize) {
+        // get the container element for the currentcall
+        var $eventsContainer = $(contextEl);
+        var $parent = $eventsContainer.parent();
+        var displayCount = $parent.data("count") || pageSize || 5;
+
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
+        filter += convertDataToURLParameters($parent, "type", "type", undefined);
+        filter += convertDataToURLParameters($parent, "upcoming", "upcoming_only", undefined);
+
+        // if upcoming is set to 1 (PHP true) then set default sorting
+        var upcoming = $parent.data("upcoming") === 1 ? true : false;
+        var sortOrder = $parent.data("sort-order") || (upcoming ? "ASC" : undefined);
+        var sortField = $parent.data("sort-field") || (upcoming ? "field_event_date" : undefined);
+        // special treatment for sort option
+        if (sortOrder && sortField) {
+          filter += "&options%5Borderby%5D%5B" + sortField + "%5D=" + sortOrder;
+        }
+
+        // create the GET URL for news items
+        var url = self.settings.newsroomUrl + "/events" + filter;
+        $.ajax(url, {
+          success: function(data, textStatus, jqXHR) {
+            var events = data["events"];
+            if (events.length > displayCount) {
+              events = events.slice(0, displayCount);
+            }
+            // post process the date to update date format
+            for (var i = 0; i < events.length; i++) {
+              // remove registration completely if event is in the past or link is missing
+              if (Date.now() > new Date(events[i]["end-date"]) || !events[i]["registration"]) {
+                delete events[i]["registration"];
+              }
+              if (!events[i]["infoLink"]) {
+                delete events[i]["infoLink"];
+              }
+
+              events[i].date = self.dateFormat(new Date(events[i].date));
+              events[i]["end-date"] = self.dateFormat(new Date(events[i]["end-date"]));
+            }
+            // allow template ID to be set on a per run basis with a default.
+            var templateId = $parent.data("template-id") || "template-event-items";
+            var isArchive = $parent.data("archive") || false;
+            var template = getTemplate(templateId, isArchive);
+            var rendered = Mustache.render(template, {
+              "events": events
+            });
+            // set the container HTML to the rendered HTML
+            $eventsContainer.html(rendered);
+
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
+                $eventsContainer.attr("id")));
+            }
+            $parent.trigger("shown.ef.events");
+          },
+          error: function() {
+            // clear the loading placeholder
+            $container.empty();
+            // display an error message
+            var $errorEl = $("<div></div>");
+            $errorEl.attr("class", "alert alert-warning");
+            $errorEl.text("Unable to load events content currently.");
+            $container.append($errorEl);
+          }
+        });
+      }
+
+      /**
+       * Returns the mustache template for generating the
+       * list of events from the JSON data.
+       * 
+       * @param templateId -
+       *            the ID of the script template to use
+       *            when generating the events
+       * @returns the mustache template for generating the
+       *          events list HTML
+       */
+      function getTemplate(templateId, isArchive) {
+        var eventsTemplate = $("#" + templateId);
+        if (eventsTemplate !== undefined && eventsTemplate.length !== 0) {
+          return eventsTemplate[0].innerHTML;
+        }
+        if (isArchive) {
+          return "{{#events}}"
+            + "<div class=\"item block-summary-item match-height-item\">"
+            + "<h3 class=\"h4\">{{ title }}</h3>"
+            + "<p>{{ locationName }}</p>"
+            + "<p>{{ date }} - {{ end-date }}</p>"
+            + "<p class=\"margin-bottom-0\">"
+            + "{{#registration}}"
+            + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
+            + "{{/registration}}"
+            + "{{#infoLink}}"
+            + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+            + "{{/infoLink}}"
+            + "</p>"
+            + "</div>"
+            + "{{/events}}";
+        }
+        return "{{#events}}"
+          + "<div class=\"col-sm-12 col-md-6 event item match-height-item-by-row flex-column\">"
+          + "<h3 class=\"h4 flex-grow\">{{ title }}</h3>"
+          + "<p>{{ locationName }}</p>"
+          + "<p class=\"flex-grow\">{{ date }} - {{ end-date }}</p>"
+          + "<p class=\"margin-bottom-0\">"
+          + "{{#infoLink}}"
+          + "<a class=\"btn btn-secondary\" href=\"{{ infoLink }}\">More information</a>"
+          + "{{/infoLink}}"
+          + "{{^infoLink}}"
+          + "{{#registration}}"
+          + "<a class=\"btn btn-secondary\" href=\"{{ registration }}\">Register Now</a>"
+          + "{{/registration}}"
+          + "{{/infoLink}}"
+          + "</p>"
+          + "</div>"
+          + "{{/events}}";
+      }
+    },
+    featuredStory: function() {
+      var $container = $($(this)[0].element);
+      updateFeaturedContent($container, "story", this.settings);
+    },
+    featuredFooter: function() {
+      var $container = $($(this)[0].element);
+      updateFeaturedContent($container, "footer", this.settings);
+    },
+    customFeaturedContent: function() {
+      var $container = $($(this)[0].element);
+      writeFeaturedContainer(this.settings.featuredContent, $container, this.settings.featuredContentType);
+    },
+
+    /**
+     Retrieves and inserts a list of promotions onto the page in the calling container. Will pass 
+     the publish target (if set) to target a particular sites promotions. These promotions will not
+     include or create impressions as they aren't meant to be consumed in production by the public.
+     */
+    allPromos: function() {
+      // set up the callbacks + containers for promos
+      var $container = $($(this)[0].element);
+      var self = this;
+      // create container for promos, to enable pagination bar
+      var $promosContainer = $container.find("> div.promos-container");
+      if ($promosContainer.length === 0) {
+        $promosContainer = $("<div></div>");
+        $promosContainer.attr({
+          "class": "promos-container",
+          "id": "promos-container-" + getPseudoRandomNumber()
+        });
+        $container.append($promosContainer);
+      }
+      if ($container.data("pagination") === true) {
+        $promosContainer.on("fetchPageItemsAd", retrievePromos);
+      }
+      // trigger first update of promos using first page
+      retrievePromosByPage($promosContainer, 1, 10);
+
+      /**
+       * Listener callback method for fetchPageItemsAd event.
+       */
+      function retrievePromos(event, page, pageSize) {
+        retrievePromosByPage(event.target, page, pageSize);
+      }
+
+      function retrievePromosByPage(contextEl, page, pageSize) {
+        var $currentContainer = $(contextEl);
+        var $parent = $currentContainer.parent();
+        var displayCount = $parent.data("count") || pageSize || 10;
+
+        // generate the URL for retrieve promotions
+        var url = self.settings.adsUrl;
+        var filter = "?page=" + page;
+        filter += "&pagesize=" + displayCount;
+        filter += convertDataToURLParameters($parent, "publish-target", "publish_to", undefined);
+
+        // retrieve the promo data via ajax
+        $.ajax(url + filter, {
+          dataType: "json",
+          type: "GET",
+          success: function(data) {
+            if (data["ads"] === undefined) {
+              console.log("Could not load promotional content. AD-01");
+            }
+            // add the index of the ad for printing out index to all ads page
+            for (var i = 0; i < data["ads"].length; i++) {
+              data["ads"][i].idx = i;
+            }
+            // call and write the actual promo content
+            writePromoContent($currentContainer, data["ads"], self.settings);
+
+            // add the pagination bar 
+            if ($parent.data("pagination") === true && $parent.find("nav").length === 0) {
+              var linkHeader = new self.linkHeaderParser(jqXHR.getResponseHeader("Link"));
+              var lastPage = linkHeader.getLastPageNum();
+              // check if itemsPerPage should be updated to returned value
+              if (linkHeader.getPageSize() !== self.settings.itemsPerPage) {
+                self.settings.itemsPerPage = linkHeader.getPageSize();
+              }
+              // add pagination bar
+              $parent.append(self.getPaginationBar(lastPage * self.settings.itemsPerPage,
+                $currentContainer.attr("id")));
+            }
+          },
+          error: function() {
+            console.log("Could not load promotional content. AD-02");
+          }
+        });
+      }
+    },
+
+    /**
+     Retrieves and inserts a single promotion onto the page in the calling container. Will pass 
+     the host, absolute URI path, and additional parameters for the publish target, and promo ID. 
+     With these parameters, a post request will be formed that will retrieve a promo with an impressions ID.
+     */
+    singlePromo: function() {
+      var self = this;
+      var $container = $($(self)[0].element);
+      var $parent = $container.parent();
+      var url = self.settings.adsUrl;
+      var params = {
+        "host": window.location.host,
+        "source": window.location.pathname,
+        "publish_to": $container.data("publish-target"),
+      };
+      $.ajax(url, {
+        dataType: "json",
+        contentType: "application/json",
+        type: "POST",
+        data: JSON.stringify(params),
+        success: function(data) {
+          if (data === undefined) {
+            console.log("Could not load promotional content, bad content received. AD-03");
+          }
+          writePromoContent($container, data, self.settings);
+          $parent.trigger("shown.ef.ads");
+        },
+        error: function() {
+          console.log("Could not load promotional content. AD-04");
+        }
+      });
+    }
+  });
+
+  // A really lightweight plugin wrapper around the constructor,
+  // preventing against multiple instantiations
+  $.fn[pluginName] = function(options) {
+    return this.each(function() {
+      if (!$.data(this, "plugin_" + pluginName)) {
+        $.data(this, "plugin_" +
+          pluginName, new Plugin(this, options));
+      }
+    });
+  };
+
+
+  var writePromoContent = function($container, promos, settings) {
+    var template = getPromoTemplate($container.data("template-id"), settings);
+    $container.html(Mustache.render(template, {
+      "content": promos
+    }));
+  }
+
+  /**
+  Centralize the fetching of promo templates to make it more transparent and easy to manage.
+  
+  @param templateId the id of the Mustache template script if it exists
+  @param settings the current plugin settings
+   */
+  var getPromoTemplate = function(templateId, settings) {
+    if (settings.type === "allPromos") {
+      return getMustacheTemplate(templateId,
+        "{{#content}}" +
+        "<p>" +
+        "<a href=\"http://www.eclipse.org/home/index.php?ad_id={{ id }}\">Ad ID: {{ id }}</a>" +
+        "<span class=\"margin-left-10\">prob: {{ weight }}%</span>" +
+        "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
+        "<a href=\"{{ url }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+        "</div>" +
+        "</p>" +
+        "{{/content}}");
+    }
+    return getMustacheTemplate(templateId,
+      "{{#content}}" +
+      "<div class=\"eclipsefnd-ad ad-strategic ad-strategic-default\">" +
+      "<a href=\"{{ url }}\" rel=\"nofollow\" style=\"background-image: url('{{ image }}')\">{{ member_name }}</a>" +
+      "</div>" +
+      "{{/content}}");
+  }
+
+  var updateFeaturedContent = function(container, type, settings) {
+    var $container = $(container);
+    var url = settings.newsroomUrl + "/featured_story";
+    // get the ID of the featured story if set
+    var id = $container.data("id");
+    if (id !== undefined) {
+      url += "/" + id;
+    }
+    // add parameter for publish target for featured content
+    url += convertDataToURLParameters($container, "publish-target", "publish_to", undefined, true);
+    $.ajax(url, {
+      success: function(data) {
+        if (data["featured_story"] === undefined) {
+          console.log("Could not load featured content, bad content recieved");
+        }
+        var json = data["featured_story"].filter(function(a) {
+          return new Date(a["end-date"]) > new Date() &&
+            (a["start-date"] === undefined || new Date(a["start-date"]) < new Date());
+        }).filter(function(a) {
+          return a["type"] === type || a["type"] === "both";
+        });
+        // shuffle the array so that a random available data is featured
+        if (json.length > 1) {
+          shuffleArray(json);
+        }
+        // make sure we have a promotion to display
+        if (json.length > 0) {
+          writeFeaturedContainer(json[0], $container, type);
+        }
+        else {
+          var default_featured_story = {
+            id: "default-featured-story",
+            layout: "light",
+            title: "Eclipse Foundation Events",
+            body: "Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",
+            links: [
+              {
+                url: "https://events.eclipse.org",
+                title: "View Events"
+              }
+            ],
+          }
+          writeFeaturedContainer(default_featured_story, $container, "both");
+        }
+      },
+      error: function() {
+        // clear the loading placeholder
+        console.log("Could not load featured content!");
+      }
+    });
+  }
+
+  var writeFeaturedContainer = function(item, $container, type) {
+    // get the content container and append the content
+    var $featuredContentContainer = $container.find(".featured-container");
+    $container.addClass("featured-story-nid-" + item.id);
+    $container.addClass("featured-story-" + item.layout);
+    // allow template ID to be set on a per run basis with a default.
+    var templateId = $container.data("template-id") || "template-featured-" + type;
+    var template = getMustacheTemplate(templateId,
+      "{{#content}}" +
+      "<h2 class=\"margin-top-30\">{{ title }}</h2>" +
+      "<p>{{ body }}</p>" +
+      "<ul class=\"list-inline list-inline-xs-margin\">{{#links}}<li><a class=\"btn btn-primary\" href=\"{{ url }}\">{{ title }}</a></li>{{/links}}</ul>" +
+      "{{/content}}");
+    var rendered = Mustache.render(template, {
+      "content": item
+    });
+    // set the container HTML to the rendered HTML
+    $featuredContentContainer.html(rendered);
+  }
+
+  var convertDataToURLParameters = function(el, name, parameterName, defaultVal, first) {
+    var dataValue = el.data(name) || defaultVal;
+    var filter = "";
+    if (Array.isArray(dataValue)) {
+      for (var dataIdx = 0; dataIdx < dataValue.length; dataIdx++) {
+        if (first && dataIdx === 0) {
+          filter += "?";
+        } else {
+          filter += "&";
+        }
+        filter += "parameters%5B" + parameterName + "%5D%5B%5D=" + dataValue[dataIdx];
+      }
+    } else if (dataValue !== undefined) {
+      if (first) {
+        filter += "?";
+      } else {
+        filter += "&";
+      }
+      filter += "parameters%5B" + parameterName + "%5D=" + dataValue;
+    }
+    return filter;
+  };
+
+  var getMustacheTemplate = function(templateId, defaultTemplate) {
+    var template = $("#" + templateId);
+    if (template !== undefined && template.length !== 0) {
+      return template[0].innerHTML;
+    }
+    return defaultTemplate;
+  }
+
+  /**
+   * Randomize array element order in-place. Using Durstenfeld shuffle algorithm.
+   * source:
+   * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   */
+  var shuffleArray = function(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  };
+})(jQuery, window, document);
